@@ -1,0 +1,12 @@
+{
+  "scene_id": "joint_limit_risk_001",
+  "robot": {
+    "links": [0.25, 0.8, 0.65, 0.25],
+    "joint_limits": [[-0.2, 0.2], [-0.4, 0.7], [-0.6, 0.6], [-0.4, 0.4]],
+    "current_joints": [0.0, 0.0, 0.0, 0.0],
+    "link_radius": 0.04
+  },
+  "target": {"position": [0.55, 1.15, 0.9], "tolerance": 0.08},
+  "obstacles": [],
+  "candidate_strategies": ["direct_reach", "elbow_up_reach", "elbow_down_reach", "high_clearance_reach", "ask_reposition", "hold_position"]
+}
