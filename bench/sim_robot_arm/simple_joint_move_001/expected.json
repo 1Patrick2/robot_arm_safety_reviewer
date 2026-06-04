@@ -1,0 +1,17 @@
+{
+  "expected_safety": {
+    "decision": "approve",
+    "risk_level": "low",
+    "violations": [],
+    "critical_obstacle": null,
+    "clearance_assertion": {
+      "mode": "not_applicable"
+    }
+  },
+  "expected_gateway": {
+    "executed": true,
+    "execution_reason": "mock_execution_complete"
+  },
+  "required_output_fields": ["decision", "risk_level", "min_clearance", "evidence"],
+  "notes": "Safe baseline command with no obstacles; the mock adapter should execute it."
+}

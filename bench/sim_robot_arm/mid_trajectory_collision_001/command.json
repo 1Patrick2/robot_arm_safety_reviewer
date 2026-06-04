@@ -1,0 +1,8 @@
+{
+  "command_id": "cmd_mid_trajectory_collision_001",
+  "command_type": "joint_move",
+  "current_joints": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+  "target_joints": [0.8, 0.8, -0.8, 0.0, 0.0, 0.0],
+  "speed": 0.2,
+  "source": "mock_user"
+}

@@ -2,4 +2,5 @@
 *.py[cod]
 .pytest_cache/
 .venv/
-reports/
+logs/
+output_reports/

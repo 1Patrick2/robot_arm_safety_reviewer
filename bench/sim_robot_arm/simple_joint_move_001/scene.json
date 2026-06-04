@@ -1,0 +1,21 @@
+{
+  "scene_id": "simple_joint_move_001",
+  "robot": {
+    "robot_id": "mock_realman_6dof",
+    "model_type": "mock_6dof",
+    "model_version": "mock_realman_6dof_stage1_v1",
+    "base_position": [0.0, 0.0, 0.0],
+    "base_orientation": [0.0, 0.0, 0.0, 1.0],
+    "joint_names": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"],
+    "link_lengths": [0.18, 0.32, 0.28, 0.2, 0.14, 0.1],
+    "link_radius": 0.025
+  },
+  "obstacles": [],
+  "safety_config": {
+    "min_clearance": 0.05,
+    "manual_review_clearance": 0.10,
+    "max_joint_delta": 1.2,
+    "num_interpolation_steps": 40,
+    "check_self_collision": false
+  }
+}

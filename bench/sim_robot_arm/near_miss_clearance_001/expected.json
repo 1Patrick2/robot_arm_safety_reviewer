@@ -1,0 +1,19 @@
+{
+  "expected_safety": {
+    "decision": "manual_review",
+    "risk_level": "medium",
+    "violations": ["low_clearance"],
+    "critical_obstacle": "sphere_01",
+    "clearance_assertion": {
+      "mode": "range",
+      "lower": 0.03,
+      "upper": 0.10
+    }
+  },
+  "expected_gateway": {
+    "executed": false,
+    "execution_reason": "manual_review_required"
+  },
+  "required_output_fields": ["decision", "risk_level", "min_clearance", "closest_obstacle", "evidence"],
+  "notes": "The trajectory avoids collision but clearance falls below the manual-review threshold."
+}

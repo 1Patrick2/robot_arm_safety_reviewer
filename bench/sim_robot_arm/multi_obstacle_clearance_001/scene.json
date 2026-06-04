@@ -1,0 +1,34 @@
+{
+  "scene_id": "multi_obstacle_clearance_001",
+  "robot": {
+    "robot_id": "mock_realman_6dof",
+    "model_type": "mock_6dof",
+    "model_version": "mock_realman_6dof_stage1_v1",
+    "base_position": [0.0, 0.0, 0.0],
+    "base_orientation": [0.0, 0.0, 0.0, 1.0],
+    "joint_names": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"],
+    "link_lengths": [0.18, 0.32, 0.28, 0.2, 0.14, 0.1],
+    "link_radius": 0.025
+  },
+  "obstacles": [
+    {
+      "type": "sphere",
+      "obstacle_id": "sphere_far",
+      "position": [0.25, -0.45, 0.40],
+      "radius": 0.04
+    },
+    {
+      "type": "sphere",
+      "obstacle_id": "sphere_near",
+      "position": [0.50, 0.14, 0.18],
+      "radius": 0.02
+    }
+  ],
+  "safety_config": {
+    "min_clearance": 0.05,
+    "manual_review_clearance": 0.09,
+    "max_joint_delta": 1.2,
+    "num_interpolation_steps": 40,
+    "check_self_collision": false
+  }
+}

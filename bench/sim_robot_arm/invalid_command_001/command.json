@@ -1,0 +1,8 @@
+{
+  "command_id": "cmd_invalid_dimension_001",
+  "command_type": "joint_move",
+  "current_joints": [0.0, 0.0],
+  "target_joints": [0.2, 0.1],
+  "speed": 0.2,
+  "source": "mock_user"
+}
