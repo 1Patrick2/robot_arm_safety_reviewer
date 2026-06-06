@@ -1,0 +1,18 @@
+{
+  "expected_safety": {
+    "decision": "reject",
+    "risk_level": "high",
+    "violations": ["environment_collision"],
+    "critical_obstacle": "sphere_mid",
+    "clearance_assertion": {
+      "mode": "less_than",
+      "value": 0.0
+    }
+  },
+  "expected_gateway": {
+    "executed": false,
+    "execution_reason": "rejected_by_safety_gate"
+  },
+  "required_output_fields": ["decision", "risk_level", "min_clearance", "closest_obstacle", "closest_robot_link", "worst_step", "evidence"],
+  "notes": "The start and target commands are not intended as the collision proof; this task validates that an interpolated mid-trajectory posture can be rejected when it collides with sphere_mid."
+}

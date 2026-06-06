@@ -1,0 +1,18 @@
+{
+  "expected_safety": {
+    "decision": "approve",
+    "risk_level": "low",
+    "violations": [],
+    "critical_obstacle": "sphere_near",
+    "clearance_assertion": {
+      "mode": "greater_than",
+      "value": 0.09
+    }
+  },
+  "expected_gateway": {
+    "executed": true,
+    "execution_reason": "mock_execution_complete"
+  },
+  "required_output_fields": ["decision", "risk_level", "min_clearance", "closest_obstacle", "closest_robot_link", "evidence"],
+  "notes": "Multiple obstacles are present; the closest risk source should be sphere_near while remaining safe."
+}

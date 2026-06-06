@@ -1,43 +1,265 @@
-﻿# RobotArmSafetyReviewer
+﻿
+# RobotArmSafetyReviewer
 
-EN: Stage A implements a simplified 3D deterministic robot-arm safety kernel.
+Simulation-first safety middleware for 6-DOF robot arm joint-space commands.
 
-中文：Stage A 先实现一个简化 3D 机械臂确定性安全审查内核。
+RobotArmSafetyReviewer reviews candidate robot arm commands before execution by checking joint limits, interpolated trajectory collision, minimum clearance, and large joint-motion risk. It outputs `approve`, `manual_review`, or `reject`, then writes replayable logs and human-readable safety reports.
 
-## Scope / 当前边界
+## What It Does
 
-Included / 当前包含：
+- Reviews `current_joints -> target_joints` joint-space commands.
+- Interpolates deterministic 6-DOF joint trajectories.
+- Runs a simplified mock 6-DOF forward-kinematics chain.
+- Checks joint limits, link-sphere collision, clearance, and joint delta.
+- Produces structured `SafetyResult` JSON.
+- Writes replayable execution logs.
+- Scores benchmark tasks against structured expected contracts.
+- Replays logs to verify deterministic safety-review consistency.
+- Generates Markdown safety reports.
+- Simulates execution through `MockRealMan6DoFAdapter` only when approved.
 
-- 4-DOF simplified 3D arm: base yaw, shoulder pitch, elbow pitch, wrist pitch
-- deterministic forward kinematics
-- deterministic sampling-based IK
-- joint-limit checks
-- segment-sphere collision checks
-- strategy evaluation and ranking
-- six example scenes
-- pytest coverage
+## Current Stage
 
-Not included / 当前不包含：
+Stage 1 MVP is focused on a deterministic safety gate. Stage 1.5 adds a small benchmark/scorer/replay loop around that gate.
 
-- LLM / AgentRuntime
-- OpenAI / DeepSeek
-- ROS2 / MoveIt
-- hardware control
-- full 6-DOF pose IK
-- mesh collision
+Stage 1.5 status:
 
-## Run / 运行
-
-From `robot_arm_safety_reviewer/`:
-
-```powershell
-python -m pytest tests -v
-python -m robot_arm.evaluator bench\robot_arm\reach_over_obstacle_001\scene.json
+```text
+Benchmark: 8 / 8 passed
+Decision accuracy: 100%
+Risk accuracy: 100%
+Violation match: 100%
+Gateway execution match: 100%
+Replay consistency: passed
 ```
 
-## Stage A Goal / Stage A 目标
+Included:
 
-EN: Prove that the deterministic robot-arm safety review kernel works before
-adding any agent or model layer.
+- mock 6-DOF robot model
+- joint-space command review
+- sphere obstacle collision
+- `approve / manual_review / reject` decision
+- execution log
+- benchmark runner and scorer
+- log replay consistency check
+- Markdown report
+- optional matplotlib 3D plot
+- mock RealMan-compatible adapter
 
-中文：先证明机械臂安全审查的确定性内核成立，再考虑 Agent 或模型接入。
+Not included in Stage 1:
+
+- LLM / AgentRuntime
+- OpenAI, DeepSeek, or online APIs
+- real robot hardware control
+- ROS2 or MoveIt integration
+- calibrated RealMan kinematics
+- full Cartesian IK or grasp planning
+- learned control policy or VLA reproduction
+
+## Important Modeling Boundary
+
+The current forward kinematics is **not** a calibrated RealMan kinematic model. It is a deterministic mock 6-DOF serial chain used to validate the safety review pipeline. Future versions can replace this layer with a PyBullet URDF backend, RealMan SDK state snapshots, or ROS2 / MoveIt-style planning scenes while keeping the safety-result schema, logs, reports, and gateway structure.
+
+Stage 1 uses linear joint-space interpolation, not time-parameterized trajectory planning. Command `speed` is recorded in logs and reports, but dynamic velocity/acceleration safety is future work.
+
+Self-collision is not implemented in Stage 1. The result explicitly reports whether self-collision was checked.
+
+`MockRealMan6DoFAdapter` is not a physics simulator or a RealMan digital twin. It is an in-memory `RobotAdapter` implementation used to validate the safety-gate workflow, execution boundary, adapter result logging, and CLI behavior.
+
+RobotArmSafetyReviewer never executes commands that are rejected or require manual review. Only commands with an `approve` decision can reach the RobotAdapter execution layer.
+
+## Environment Setup
+
+On Windows, the recommended project environment is `micromamba` with Python 3.10 and `pybullet` from `conda-forge`. Avoid installing PyBullet into a global Windows Python 3.12 environment with `pip`, because it may fall back to a source build and require Microsoft C++ Build Tools.
+
+Detailed Windows setup and troubleshooting notes are in [`docs/windows_pybullet_setup.md`](docs/windows_pybullet_setup.md).
+
+Create the environment:
+
+```powershell
+$env:MAMBA_ROOT_PREFIX="D:\YJSXueXi\Software\micromamba_root"
+D:\YJSXueXi\Software\micromamba\micromamba.exe create -n robotarm-pybullet -c conda-forge python=3.10 pybullet pytest matplotlib-base -y
+```
+
+If NumPy or Matplotlib crashes with the default native math stack, switch the environment to OpenBLAS:
+
+```powershell
+D:\YJSXueXi\Software\micromamba\micromamba.exe install -n robotarm-pybullet -c conda-forge "libblas=*=*openblas" -y
+```
+
+Run commands inside the environment without activating it:
+
+```powershell
+$env:MAMBA_ROOT_PREFIX="D:\YJSXueXi\Software\micromamba_root"
+D:\YJSXueXi\Software\micromamba\micromamba.exe run -n robotarm-pybullet python --version
+D:\YJSXueXi\Software\micromamba\micromamba.exe run -n robotarm-pybullet python -c "import pybullet as p; print('pybullet ok')"
+```
+
+If pytest cannot access the default Windows temp directory, use a project-local temp directory:
+
+```powershell
+New-Item -ItemType Directory -Force .pytest_tmp | Out-Null
+$env:TEMP="$PWD\.pytest_tmp"
+$env:TMP="$PWD\.pytest_tmp"
+```
+
+Then run tests:
+
+```powershell
+D:\YJSXueXi\Software\micromamba_root\envs\robotarm-pybullet\python.exe -m pytest -q --basetemp .pytest_tmp/current
+```
+
+`requirements-sim.txt` lists the simulation-only dependency for pip-based Linux or WSL environments. On Windows, prefer `conda-forge` for `pybullet`.
+
+## Quick Start
+
+Use a Python environment with `pytest`. `matplotlib-base` is optional and only needed for PNG visualization.
+
+Run tests:
+
+```bash
+python -m pytest -v
+```
+
+Review a command without simulated execution:
+
+```bash
+python -m cli.review_command ^
+  --scene bench\sim_robot_arm\obstacle_collision_001\scene.json ^
+  --command bench\sim_robot_arm\obstacle_collision_001\command.json ^
+  --log-dir logs
+```
+
+Example output:
+
+```text
+Decision: reject
+Risk Level: high
+Min Clearance: -0.105
+Closest Link: link_3
+Closest Obstacle: sphere_01
+Worst Step: 0
+Log Path: logs\exec_YYYYMMDD_HHMMSS_xxxxxxxx.json
+```
+
+This example is an initial-state collision case: the command is rejected because `link_3` overlaps `sphere_01` at `worst_step = 0`, with `min_clearance = -0.105 m`. It validates environment-collision detection and fail-safe rejection, not mid-trajectory collision semantics.
+
+Review and simulate execution only if approved:
+
+```bash
+python -m cli.execute_if_safe ^
+  --scene bench\sim_robot_arm\simple_joint_move_001\scene.json ^
+  --command bench\sim_robot_arm\simple_joint_move_001\command.json ^
+  --log-dir logs
+```
+
+Generate a Markdown report from a log:
+
+```bash
+python -m cli.generate_report ^
+  --log logs\exec_YYYYMMDD_HHMMSS_xxxxxxxx.json ^
+  --output-dir output_reports ^
+  --skip-plot
+```
+
+Omit `--skip-plot` to generate a PNG visualization when `matplotlib` is installed.
+
+Run the full Stage 1 benchmark:
+
+```bash
+python -m cli.run_benchmark ^
+  --bench bench\sim_robot_arm ^
+  --log-dir logs\benchmark ^
+  --output-json output_reports\stage1_benchmark_summary.json ^
+  --output-md output_reports\stage1_benchmark_summary.md
+```
+
+Replay one execution log and compare the recomputed safety result:
+
+```bash
+python -m cli.replay_log ^
+  --log logs\exec_YYYYMMDD_HHMMSS_xxxxxxxx.json
+```
+
+## Architecture
+
+```text
+scene.json + command.json
+  -> robot_safety.evaluate_joint_command
+  -> SafetyResult
+  -> gateway safety log
+  -> Markdown report / optional 3D plot
+  -> MockRealManAdapter simulated execution when approved
+```
+
+Execution logs include a schema version, input paths, review summary, trajectory summary, environment metadata, full scene/command payloads, safety result, and execution/adapter result.
+
+Main modules:
+
+```text
+robot_safety/models.py        structured scene, command, and result models
+robot_safety/trajectory.py    joint-space interpolation and delta metrics
+robot_safety/kinematics.py    simplified deterministic 6-DOF FK
+robot_safety/collision.py     link-sphere clearance and collision checks
+robot_safety/safety_rules.py  rule-based decision logic
+robot_safety/evaluator.py     safety gate orchestration
+robot_safety/scorer.py        expected-contract scoring
+robot_safety/benchmark.py     benchmark discovery, execution, and summaries
+gateway/                      review and replayable execution logs
+reports/                      Markdown and optional 3D visualization
+robots/                       RobotAdapter and MockRealMan6DoFAdapter
+cli/                          runnable command-line entry points
+```
+
+## Benchmarks
+
+Stage 1 includes eight simulation tasks:
+
+```text
+simple_joint_move_001          approve
+joint_limit_violation_001      reject
+obstacle_collision_001         reject
+mid_trajectory_collision_001   reject, with nonzero worst-step collision
+near_miss_clearance_001        manual_review
+long_motion_delta_risk_001     manual_review
+multi_obstacle_clearance_001   approve, with closest object/link reporting
+invalid_command_001            reject, with structured invalid-command log
+```
+
+Each task contains:
+
+```text
+scene.json
+command.json
+expected.json
+```
+
+`expected.json` uses a structured contract with `expected_safety`, `expected_gateway`, `required_output_fields`, and a `clearance_assertion` mode. This keeps the benchmark tolerant of tiny FK numeric drift while still checking decision, risk, violations, critical obstacle attribution, and gateway execution behavior.
+
+`obstacle_collision_001` validates fail-safe rejection when the initial posture is already in collision. `mid_trajectory_collision_001` validates the separate case where the interpolated trajectory hits an obstacle at a nonzero step.
+
+## Roadmap
+
+Near-term:
+
+- richer trajectory collision summary
+- optional expected JSON schema file
+- project-local benchmark diagnostics
+
+Later:
+
+- PyBullet URDF backend
+- box/table obstacle support
+- workspace and speed safety rules
+- GUI replay / screenshot
+- RealMan SDK adapter skeleton
+- Agent-ready tools for reviewing candidate commands
+- learning-based risk triage as advisory only, never as final safety authority
+
+## Detailed Plan
+
+The full Stage 1 planning document is kept in:
+
+```text
+docs/stage1_plan.md
+```

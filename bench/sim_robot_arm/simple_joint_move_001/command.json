@@ -1,0 +1,8 @@
+{
+  "command_id": "cmd_simple_safe_001",
+  "command_type": "joint_move",
+  "current_joints": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+  "target_joints": [0.2, -0.2, 0.3, 0.0, 0.1, 0.0],
+  "speed": 0.2,
+  "source": "mock_user"
+}

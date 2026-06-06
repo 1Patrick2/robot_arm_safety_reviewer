@@ -1,0 +1,8 @@
+{
+  "command_id": "cmd_joint_limit_violation_001",
+  "command_type": "joint_move",
+  "current_joints": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+  "target_joints": [0.0, 1.9, 0.0, 0.0, 0.0, 0.0],
+  "speed": 0.2,
+  "source": "mock_user"
+}

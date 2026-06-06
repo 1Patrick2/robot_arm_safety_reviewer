@@ -1,0 +1,17 @@
+{
+  "expected_safety": {
+    "decision": "manual_review",
+    "risk_level": "medium",
+    "violations": ["large_joint_delta"],
+    "critical_obstacle": null,
+    "clearance_assertion": {
+      "mode": "not_applicable"
+    }
+  },
+  "expected_gateway": {
+    "executed": false,
+    "execution_reason": "manual_review_required"
+  },
+  "required_output_fields": ["decision", "risk_level", "min_clearance", "evidence"],
+  "notes": "Large joint-space motion is collision-free but requires human review."
+}

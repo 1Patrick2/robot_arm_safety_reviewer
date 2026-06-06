@@ -1,0 +1,17 @@
+{
+  "expected_safety": {
+    "decision": "reject",
+    "risk_level": "high",
+    "violations": ["joint_limit"],
+    "critical_obstacle": null,
+    "clearance_assertion": {
+      "mode": "not_applicable"
+    }
+  },
+  "expected_gateway": {
+    "executed": false,
+    "execution_reason": "rejected_by_safety_gate"
+  },
+  "required_output_fields": ["decision", "risk_level", "min_clearance", "evidence"],
+  "notes": "Target joint 2 exceeds the configured joint limit and must be blocked."
+}
