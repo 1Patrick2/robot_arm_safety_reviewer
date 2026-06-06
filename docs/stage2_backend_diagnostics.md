@@ -26,13 +26,16 @@ This document records backend comparison diagnostics between the deterministic m
 
 ## Before Stage 2.5A
 
-The Stage 2.4 PyBullet backend used `link_position_sphere_clearance`.
+The Stage 2.4 PyBullet backend used `link_position_sphere_clearance`. Earlier notes reported `Decision matches: 6/8`, but that value used the old strict-style match definition. Reinterpreted with the current metric names:
 
 | Metric | Value |
 |---|---:|
 | Tasks | 8 |
-| Decision matches | 6 |
+| Decision matches | 7 |
 | Risk matches | 7 |
+| Clearance band matches | 6 |
+| Attribution matches | 8 |
+| Strict matches | 6 |
 | Backend errors | 0 |
 
 Main disagreement:
@@ -58,8 +61,11 @@ python -m cli.compare_backends `
 | Metric | Value |
 |---|---:|
 | Tasks | 8 |
-| Decision matches | 6 |
+| Decision matches | 8 |
 | Risk matches | 8 |
+| Clearance band matches | 6 |
+| Attribution matches | 7 |
+| Strict matches | 6 |
 | Backend errors | 0 |
 
 The PyBullet backend now reports:
@@ -122,9 +128,10 @@ Stage 2.5A completed the intended backend fidelity upgrade:
 - PyBullet smoke benchmark completes all 8 tasks;
 - mock benchmark still passes all 8 tasks;
 - backend comparison has 0 backend errors;
+- final decision matches improved from 7/8 to 8/8;
 - risk matches improved from 7/8 to 8/8.
 
-Decision matches remain 6/8 because the comparison logic treats clearance-band and attribution differences as non-matches even when the final decision agrees.
+Strict matches remain 6/8 because clearance-band and attribution differences remain on `mid_trajectory_collision_001` and `multi_obstacle_clearance_001`.
 
 ## Stage 2.5B Geometry Diagnostics
 

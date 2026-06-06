@@ -31,6 +31,9 @@ def main() -> None:
     print(f"Tasks: {summary['total']}")
     print(f"Decision Matches: {summary['decision_matches']}")
     print(f"Risk Matches: {summary['risk_matches']}")
+    print(f"Clearance Band Matches: {summary['clearance_band_matches']}")
+    print(f"Attribution Matches: {summary['attribution_matches']}")
+    print(f"Strict Matches: {summary['strict_matches']}")
     print(f"Backend Errors: {summary['backend_errors']}")
 
 

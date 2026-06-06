@@ -24,14 +24,17 @@ def test_compare_backends_runs_mock_and_pybullet_with_diagnostics(tmp_path):
     assert summary["backends"] == ["mock", "pybullet"]
     assert summary["total"] == 8
     assert summary["backend_errors"] == 0
-    assert "decision_matches" in summary
-    assert "risk_matches" in summary
+    assert summary["decision_matches"] == 8
+    assert summary["risk_matches"] == 8
+    assert summary["clearance_band_matches"] == 6
+    assert summary["attribution_matches"] == 7
+    assert summary["strict_matches"] == 6
     assert len(summary["tasks"]) == 8
 
     first = summary["tasks"][0]
     assert set(first["results"]) == {"mock", "pybullet"}
     assert first["match_status"] in {
-        "decision_match",
+        "strict_match",
         "decision_mismatch",
         "risk_mismatch",
         "clearance_band_mismatch",
@@ -78,5 +81,9 @@ def test_compare_backends_cli_writes_json_and_markdown(tmp_path):
     payload = json.loads(output_json.read_text(encoding="utf-8"))
     markdown = output_md.read_text(encoding="utf-8")
     assert payload["total"] == 8
+    assert payload["decision_matches"] == 8
+    assert payload["strict_matches"] == 6
     assert "# Backend Comparison Report" in markdown
+    assert "| Decision matches | `8` |" in markdown
+    assert "| Strict matches | `6` |" in markdown
     assert "simple_joint_move_001" in markdown

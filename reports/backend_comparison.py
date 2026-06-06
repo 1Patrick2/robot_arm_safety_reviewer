@@ -29,7 +29,7 @@ def compare_backends(
             {
                 "task_id": task_dir.name,
                 "results": results,
-                "match": match_status == "decision_match",
+                "match": match_status == "strict_match",
                 "match_status": match_status,
                 "diagnosis": _diagnosis(results, backend_names, match_status),
             }
@@ -38,8 +38,11 @@ def compare_backends(
     return {
         "backends": backend_names,
         "total": len(tasks),
-        "decision_matches": sum(1 for task in tasks if task["match_status"] == "decision_match"),
+        "decision_matches": sum(1 for task in tasks if _all_same(task["results"], backend_names, "decision")),
         "risk_matches": sum(1 for task in tasks if _all_same(task["results"], backend_names, "risk_level")),
+        "clearance_band_matches": sum(1 for task in tasks if _same_clearance_band(task["results"], backend_names)),
+        "attribution_matches": sum(1 for task in tasks if _same_attribution(task["results"], backend_names)),
+        "strict_matches": sum(1 for task in tasks if task["match_status"] == "strict_match"),
         "backend_errors": sum(1 for task in tasks for result in task["results"].values() if result.get("error")),
         "tasks": tasks,
     }
@@ -66,6 +69,9 @@ def write_backend_comparison_markdown(summary: dict[str, Any], path: str | Path)
         f"| Tasks | `{summary['total']}` |",
         f"| Decision matches | `{summary['decision_matches']}` |",
         f"| Risk matches | `{summary['risk_matches']}` |",
+        f"| Clearance band matches | `{summary['clearance_band_matches']}` |",
+        f"| Attribution matches | `{summary['attribution_matches']}` |",
+        f"| Strict matches | `{summary['strict_matches']}` |",
         f"| Backend errors | `{summary['backend_errors']}` |",
         "",
         "## Task-Level Comparison",
@@ -150,7 +156,7 @@ def _match_status(results: dict[str, Any], backend_names: list[str]) -> str:
         return "clearance_band_mismatch"
     if not _same_attribution(results, backend_names):
         return "attribution_mismatch"
-    return "decision_match"
+    return "strict_match"
 
 
 def _diagnosis(results: dict[str, Any], backend_names: list[str], match_status: str) -> str:

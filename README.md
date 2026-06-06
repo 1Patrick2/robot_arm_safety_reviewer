@@ -22,6 +22,18 @@ RobotArmSafetyReviewer reviews candidate robot arm commands before execution by 
 
 Stage 1 MVP is focused on a deterministic safety gate. Stage 1.5 adds a small benchmark/scorer/replay loop around that gate.
 
+Stage 2 adds backend-agnostic safety review and PyBullet diagnostics:
+
+- `SimulationBackend` abstraction
+- `MockGeometryBackend` deterministic baseline
+- `PyBulletBackend` with URDF kinematic replay
+- PyBullet closest-point collision geometry over URDF collision bodies
+- backend metadata in logs and reports
+- backend smoke benchmark
+- mock-vs-PyBullet comparison
+- PyBullet geometry diagnostics
+- URDF-vs-mock calibration reporting
+
 Stage 1.5 status:
 
 ```text
@@ -36,6 +48,8 @@ Replay consistency: passed
 Included:
 
 - mock 6-DOF robot model
+- backend-agnostic simulation review interface
+- optional PyBullet URDF backend
 - joint-space command review
 - sphere obstacle collision
 - `approve / manual_review / reject` decision
@@ -45,6 +59,7 @@ Included:
 - Markdown report
 - optional matplotlib 3D plot
 - mock RealMan-compatible adapter
+- backend comparison and calibration diagnostics
 
 Not included in Stage 1:
 
@@ -59,6 +74,8 @@ Not included in Stage 1:
 ## Important Modeling Boundary
 
 The current forward kinematics is **not** a calibrated RealMan kinematic model. It is a deterministic mock 6-DOF serial chain used to validate the safety review pipeline. Future versions can replace this layer with a PyBullet URDF backend, RealMan SDK state snapshots, or ROS2 / MoveIt-style planning scenes while keeping the safety-result schema, logs, reports, and gateway structure.
+
+Stage 2 includes a PyBullet URDF backend, but it is still a simulation diagnostic backend rather than a certified real-robot model. PyBullet uses URDF collision geometry and closest-point queries; the mock backend uses simplified FK segments. Differences between the two are expected and documented in `docs/stage2_backend_diagnostics.md`.
 
 Stage 1 uses linear joint-space interpolation, not time-parameterized trajectory planning. Command `speed` is recorded in logs and reports, but dynamic velocity/acceleration safety is future work.
 
@@ -181,6 +198,41 @@ python -m cli.replay_log ^
   --log logs\exec_YYYYMMDD_HHMMSS_xxxxxxxx.json
 ```
 
+Run PyBullet backend smoke benchmark:
+
+```bash
+python -m cli.run_benchmark ^
+  --backend pybullet ^
+  --mode smoke ^
+  --bench bench\sim_robot_arm
+```
+
+Compare mock and PyBullet backends:
+
+```bash
+python -m cli.compare_backends ^
+  --bench bench\sim_robot_arm ^
+  --backends mock pybullet ^
+  --output-json output_reports\backend_comparison.json ^
+  --output-md output_reports\backend_comparison.md
+```
+
+Generate PyBullet geometry diagnostics:
+
+```bash
+python -m cli.diagnose_backend_geometry ^
+  --task bench\sim_robot_arm\mid_trajectory_collision_001 ^
+  --output-json output_reports\mid_trajectory_geometry_diagnostics.json
+```
+
+Generate URDF-vs-mock calibration diagnostics:
+
+```bash
+python -m cli.calibrate_urdf_geometry ^
+  --task bench\sim_robot_arm\mid_trajectory_collision_001 ^
+  --output-json output_reports\mid_trajectory_urdf_calibration.json
+```
+
 ## Architecture
 
 ```text
@@ -208,6 +260,7 @@ robot_safety/benchmark.py     benchmark discovery, execution, and summaries
 gateway/                      review and replayable execution logs
 reports/                      Markdown and optional 3D visualization
 robots/                       RobotAdapter and MockRealMan6DoFAdapter
+sim/                          backend abstraction, mock backend, PyBullet backend, diagnostics
 cli/                          runnable command-line entry points
 ```
 
@@ -242,13 +295,12 @@ expected.json
 
 Near-term:
 
-- richer trajectory collision summary
+- backend-specific benchmark expectations
+- visual replay for PyBullet diagnostics
 - optional expected JSON schema file
-- project-local benchmark diagnostics
 
 Later:
 
-- PyBullet URDF backend
 - box/table obstacle support
 - workspace and speed safety rules
 - GUI replay / screenshot
