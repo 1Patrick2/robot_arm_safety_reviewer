@@ -53,7 +53,7 @@ def evaluate_joint_command_with_metadata(scene: Scene, command: JointCommand, ba
     review_backend = backend or MockGeometryBackend()
     # 不关系具体后端怎么计算碰撞，但返回统一的结果格式，包括是否碰撞、最小 clearance、最近的 link 和 obstacle、最严重的 step 等信息
     collision_result = review_backend.replay_joint_trajectory(scene=scene, trajectory=trajectory)
-    # 保存碰撞检查的元数据到 review_backend 对象中
+    # collision_result contains backend-specific review facts; expose them through EvaluationOutcome.
     backend_metadata = _build_backend_metadata(collision_result)
 
     # 汇总违规信息列表

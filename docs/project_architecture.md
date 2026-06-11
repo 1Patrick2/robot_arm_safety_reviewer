@@ -27,6 +27,7 @@ Operational outputs:
 - backend comparison report;
 - PyBullet geometry diagnostics;
 - URDF-vs-mock calibration report.
+- Stage 3 runtime episode metadata and step JSONL.
 
 ## 3. Core Call Chain
 
@@ -91,6 +92,23 @@ cli.calibrate_urdf_geometry
   -> compare PyBullet URDF geometry with mock kinematic segments
 ```
 
+Runtime action flow:
+
+```text
+RobotObservation + RobotAction
+  -> robot_runtime.safety_runtime.SafetyRuntime.step
+    -> SceneProvider.get_scene
+    -> action_to_joint_command
+    -> robot_safety.evaluator.evaluate_joint_command_with_metadata
+      -> SafetyResult + backend metadata
+    -> if decision == approve:
+         RobotDeviceAdapter.send_action
+         RuntimeExecutionResult
+       else:
+         blocked_reason
+    -> EpisodeRecorder.record_step
+```
+
 ## 4. Layer Responsibilities
 
 Data model layer:
@@ -127,6 +145,13 @@ Diagnostics layer:
 
 - Explains backend disagreement.
 - Provides PyBullet closest-point observations and URDF-vs-mock calibration evidence.
+
+Runtime layer:
+
+- Adapts robot observations and proposed actions into the existing safety-review contract.
+- Sends actions to a robot device only after an `approve` decision.
+- Preserves runtime execution results, blocked reasons, backend metadata, and episode traceability.
+- Keeps Stage 3 scoped as a safety interposer rather than a LeRobot clone or planner.
 
 ## 5. Mock Backend Vs PyBullet Backend
 
@@ -203,6 +228,10 @@ Implemented:
 - backend comparison;
 - geometry diagnostics;
 - URDF-vs-mock calibration.
+- Stage 3 runtime action loop;
+- runtime execution-result propagation;
+- runtime episode metadata and step JSONL logs;
+- runtime demo CLI.
 
 Not implemented:
 
@@ -215,4 +244,4 @@ Not implemented:
 - ROS2 / MoveIt integration;
 - LLM safety decision making.
 
-The current Stage 2.6 cleanup scope is project consolidation: clearer architecture docs, a function map, interview notes, README cleanup, and small technical debt cleanup before larger Stage 3 features. Stage 2.6 also introduces `evaluate_joint_command_with_metadata` so backend metadata is returned explicitly instead of being attached to backend objects as temporary state.
+The current Stage 3.0 cleanup scope is runtime stabilization: keeping documentation aligned with the code, making gateway/evaluator/runtime boundaries explicit, preserving execution results, hardening episode logs, and avoiding premature Agent or hardware integration.

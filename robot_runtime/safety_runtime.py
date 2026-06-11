@@ -48,11 +48,13 @@ class SafetyRuntime:
         outcome = evaluate_joint_command_with_metadata(scene, command, backend=self.backend)
 
         sent_action = None
+        execution_result = None
         executed = False
         blocked_reason = _blocked_reason(outcome.safety_result.decision)
         if outcome.safety_result.decision == "approve":
-            sent_action = self.robot.send_action(action)
-            executed = True
+            execution_result = self.robot.send_action(action)
+            sent_action = action
+            executed = execution_result.success
             blocked_reason = None
 
         result = RuntimeStepResult(
@@ -63,9 +65,23 @@ class SafetyRuntime:
             backend_metadata=outcome.backend_metadata,
             executed=executed,
             sent_action=sent_action,
+            execution_result=execution_result,
             blocked_reason=blocked_reason,
         )
         if self.recorder is not None:
+            result = RuntimeStepResult(
+                step_id=result.step_id,
+                observation=result.observation,
+                proposed_action=result.proposed_action,
+                safety_result=result.safety_result,
+                backend_metadata=result.backend_metadata,
+                executed=result.executed,
+                sent_action=result.sent_action,
+                execution_result=result.execution_result,
+                blocked_reason=result.blocked_reason,
+                episode_id=self.recorder.episode_id,
+                step_index=self._step_index,
+            )
             path = self.recorder.record_step(result)
             result = RuntimeStepResult(
                 step_id=result.step_id,
@@ -75,7 +91,10 @@ class SafetyRuntime:
                 backend_metadata=result.backend_metadata,
                 executed=result.executed,
                 sent_action=result.sent_action,
+                execution_result=result.execution_result,
                 blocked_reason=result.blocked_reason,
+                episode_id=result.episode_id,
+                step_index=result.step_index,
                 episode_step_path=path,
             )
         return result

@@ -1,7 +1,7 @@
 import json
 
 from robot_runtime.episode_recorder import EpisodeRecorder
-from robot_runtime.types import RobotAction, RobotObservation, RuntimeStepResult
+from robot_runtime.types import RobotAction, RobotObservation, RuntimeExecutionResult, RuntimeStepResult
 from robot_safety.models import SafetyResult
 
 
@@ -41,6 +41,13 @@ def test_episode_recorder_writes_metadata_and_steps_jsonl(tmp_path):
         backend_metadata={"name": "mock"},
         executed=True,
         sent_action=RobotAction("joint_move", (0.1,) * 6),
+        execution_result=RuntimeExecutionResult(
+            attempted=True,
+            success=True,
+            reason="executed",
+            simulated=True,
+            metadata={"execution_count": 1},
+        ),
         blocked_reason=None,
     )
 
@@ -52,7 +59,13 @@ def test_episode_recorder_writes_metadata_and_steps_jsonl(tmp_path):
 
     assert metadata["schema_version"] == "stage3.runtime_episode.v1"
     assert metadata["robot"] == "mock_realman_device"
+    assert metadata["project_stage"] == "stage3_runtime_mvp"
+    assert metadata["notes"] is None
     assert step_path == recorder.episode_dir / "steps.jsonl"
+    assert step["episode_id"] == recorder.episode_id
+    assert step["step_index"] == 1
     assert step["step_id"] == "step_000001"
     assert step["executed"] is True
+    assert step["execution_result"]["success"] is True
+    assert step["execution_result"]["metadata"]["execution_count"] == 1
     assert step["safety_result"]["decision"] == "approve"

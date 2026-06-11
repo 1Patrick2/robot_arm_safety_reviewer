@@ -23,11 +23,15 @@ def main() -> None:
     task_dir = Path(args.task)
     scene_path = task_dir / "scene.json"
     command_path = task_dir / "command.json"
+    if not scene_path.exists():
+        parser.error(f"scene.json not found: {scene_path}")
+    if not command_path.exists():
+        parser.error(f"command.json not found: {command_path}")
+
     action_source = ReplayActionSource(command_path)
     scene_provider = StaticSceneProvider(scene_path)
     initial_joints = action_source.command.current_joints
     robot = MockRealManDevice(initial_joints=initial_joints)
-    robot.connect()
     backend = create_backend(args.backend)
     recorder = EpisodeRecorder(
         root_dir=args.episode_dir,
@@ -43,8 +47,18 @@ def main() -> None:
         backend=backend,
         recorder=recorder,
     )
-    result = runtime.step()
-    payload = result.to_dict()
+    try:
+        robot.connect()
+        result = runtime.step()
+    finally:
+        robot.disconnect()
+
+    payload = {
+        "task": str(task_dir),
+        "backend": args.backend,
+        "episode_dir": str(recorder.episode_dir),
+        "result": result.to_dict(),
+    }
     if args.json:
         print(json.dumps(payload, indent=2))
         return
@@ -52,6 +66,7 @@ def main() -> None:
     print(f"Risk Level: {result.safety_result.risk_level}")
     print(f"Executed: {result.executed}")
     print(f"Blocked Reason: {result.blocked_reason}")
+    print(f"Episode Dir: {recorder.episode_dir}")
     print(f"Episode Step Path: {result.episode_step_path}")
 
 

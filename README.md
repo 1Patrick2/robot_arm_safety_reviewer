@@ -46,6 +46,16 @@ Stage 2 adds backend-agnostic safety review and PyBullet diagnostics:
 - PyBullet geometry diagnostics
 - URDF-vs-mock calibration reporting
 
+Stage 3 adds a minimal runtime safety interposer:
+
+- `RobotObservation` / `RobotAction` runtime contracts
+- `RobotDeviceAdapter` boundary and `MockRealManDevice`
+- replay action source and static scene provider
+- `SafetyRuntime.step()` approve/manual_review/reject loop
+- runtime execution-result propagation
+- episode metadata and step JSONL recorder
+- one-step runtime demo CLI
+
 Stage 1.5 status:
 
 ```text
@@ -264,6 +274,13 @@ scene.json + command.json
   -> gateway safety log
   -> Markdown report / optional 3D plot
   -> MockRealManAdapter simulated execution when approved
+
+RobotObservation + RobotAction
+  -> SafetyRuntime.step
+  -> robot_safety.evaluate_joint_command_with_metadata
+  -> conditional RobotDeviceAdapter.send_action
+  -> RuntimeExecutionResult / blocked_reason
+  -> EpisodeRecorder metadata + steps.jsonl
 ```
 
 Execution logs include a schema version, input paths, review summary, trajectory summary, environment metadata, full scene/command payloads, safety result, and execution/adapter result.
@@ -283,6 +300,7 @@ gateway/                      review and replayable execution logs
 reports/                      Markdown and optional 3D visualization
 robots/                       RobotAdapter and MockRealMan6DoFAdapter
 sim/                          backend abstraction, mock backend, PyBullet backend, diagnostics
+robot_runtime/                Stage 3 observation/action runtime and episode recorder
 cli/                          runnable command-line entry points
 ```
 

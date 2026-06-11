@@ -1,22 +1,24 @@
 # Project Current Status
 
-RobotArmSafetyReviewer is currently in **Stage 3 MVP runtime validation**.
+RobotArmSafetyReviewer is currently in **Stage 3.0 Cleanup**.
 
-The project has already completed the Stage 1/1.5 deterministic safety-gate loop, the Stage 2 PyBullet diagnostics loop, and a minimal Stage 3 LeRobot-style safety runtime. The current focus is to keep the runtime small, measurable, and audit-friendly before adding larger agent or hardware integrations.
+This stage stabilizes the Stage 3 runtime MVP and closes historical documentation and technical-debt gaps before adding agent tools, PyBullet robot-device execution, or hardware-facing adapters.
 
 ## Completed Scope
 
-- Stage 1: deterministic robot-arm safety gate.
-- Stage 1.5: benchmark, scorer, replay, and report loop.
-- Stage 2.1: simulation backend abstraction.
-- Stage 2.2: mock RealMan-style URDF asset.
-- Stage 2.3: minimal PyBullet backend.
-- Stage 2.4: mock-vs-PyBullet backend comparison.
-- Stage 2.5A: PyBullet closest-point collision geometry.
-- Stage 2.5B: PyBullet geometry diagnostics.
-- Stage 2.5C: URDF-vs-mock calibration reporting.
-- Stage 2.6: project architecture docs, core function map, interview notes, and explicit evaluator backend metadata outcome.
-- Stage 3 MVP: robot device adapter, mock RealMan device, replay action source, static scene provider, safety runtime step loop, episode recorder, and runtime demo CLI.
+- Stage 1 deterministic safety gate.
+- Stage 1.5 benchmark, scorer, replay, and report loop.
+- Stage 2 PyBullet backend diagnostics.
+- Stage 2.6 documentation and explicit evaluator metadata cleanup.
+- Stage 3 MVP runtime action loop.
+
+## Current Focus
+
+- Runtime stabilization.
+- Legacy docs cleanup.
+- Execution result propagation.
+- Episode schema hardening.
+- CLI and test cleanup.
 
 ## Current Verification Snapshot
 
@@ -24,7 +26,7 @@ Recent known-good verification on the local `robotarm-pybullet` conda environmen
 
 ```text
 pytest -q
-106 passed
+108 passed
 
 python -m cli.run_benchmark --backend pybullet --mode smoke --bench bench/sim_robot_arm
 8 completed, 0 runtime errors
@@ -33,13 +35,13 @@ python -m cli.compare_backends --bench bench/sim_robot_arm --backends mock pybul
 decision_matches=8, risk_matches=8, strict_matches=6, backend_errors=0
 
 python -m cli.run_runtime_demo --task bench/sim_robot_arm/simple_joint_move_001 --backend mock --json
-decision=approve, executed=true
+decision=approve, executed=true, execution_result.success=true
 
 python -m cli.run_runtime_demo --task bench/sim_robot_arm/near_miss_clearance_001 --backend mock --json
-decision=manual_review, executed=false
+decision=manual_review, executed=false, blocked_reason=manual_review_required
 
 python -m cli.run_runtime_demo --task bench/sim_robot_arm/obstacle_collision_001 --backend mock --json
-decision=reject, executed=false
+decision=reject, executed=false, blocked_reason=rejected_by_safety_gate
 ```
 
 Run the current verification with:
@@ -77,7 +79,7 @@ Do not jump directly into a large Agent or RealMan SDK integration.
 
 Recommended order:
 
-1. Keep Stage 3 scoped as a safety interposer, not a LeRobot clone.
+1. Finish Stage 3.0 cleanup with stable tests and docs.
 2. Add an agent-ready diagnostic tool layer only after the runtime loop stays measurable.
 3. Extend the runtime from one-step replay to small episode batches with stable metrics.
 4. Defer RealMan SDK, ROS2, MoveIt, VLA, and LLM agent control until the runtime metrics and failure traces are stable.

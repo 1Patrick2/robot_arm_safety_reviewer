@@ -63,6 +63,24 @@ class RobotAction:
 
 
 @dataclass(frozen=True)
+class RuntimeExecutionResult:
+    attempted: bool
+    success: bool
+    reason: str
+    simulated: bool = True
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "attempted": self.attempted,
+            "success": self.success,
+            "reason": self.reason,
+            "simulated": self.simulated,
+            "metadata": dict(self.metadata),
+        }
+
+
+@dataclass(frozen=True)
 class RuntimeStepResult:
     step_id: str
     observation: RobotObservation
@@ -71,11 +89,16 @@ class RuntimeStepResult:
     backend_metadata: dict[str, Any]
     executed: bool
     sent_action: RobotAction | None
+    execution_result: RuntimeExecutionResult | None
     blocked_reason: str | None
+    episode_id: str | None = None
+    step_index: int | None = None
     episode_step_path: Path | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
+            "episode_id": self.episode_id,
+            "step_index": self.step_index,
             "step_id": self.step_id,
             "observation": self.observation.to_dict(),
             "proposed_action": self.proposed_action.to_dict(),
@@ -83,6 +106,7 @@ class RuntimeStepResult:
             "backend_metadata": dict(self.backend_metadata),
             "executed": self.executed,
             "sent_action": self.sent_action.to_dict() if self.sent_action else None,
+            "execution_result": self.execution_result.to_dict() if self.execution_result else None,
             "blocked_reason": self.blocked_reason,
             "episode_step_path": str(self.episode_step_path) if self.episode_step_path else None,
         }

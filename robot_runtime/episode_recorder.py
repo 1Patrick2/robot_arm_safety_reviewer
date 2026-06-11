@@ -27,6 +27,7 @@ class EpisodeRecorder:
         self.episode_dir.mkdir(parents=True, exist_ok=True)
         self.steps_path = self.episode_dir / "steps.jsonl"
         self.metadata_path = self.episode_dir / "metadata.json"
+        self._step_count = 0
         self._write_metadata(
             robot_name=robot_name,
             action_source_name=action_source_name,
@@ -35,8 +36,14 @@ class EpisodeRecorder:
         )
 
     def record_step(self, result: RuntimeStepResult) -> Path:
+        self._step_count += 1
+        payload = result.to_dict()
+        if payload["episode_id"] is None:
+            payload["episode_id"] = self.episode_id
+        if payload["step_index"] is None:
+            payload["step_index"] = self._step_count
         with self.steps_path.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(result.to_dict(), indent=None) + "\n")
+            handle.write(json.dumps(payload, indent=None) + "\n")
         return self.steps_path
 
     def _write_metadata(
@@ -55,6 +62,8 @@ class EpisodeRecorder:
             "action_source": action_source_name,
             "scene_provider": scene_provider_name,
             "backend": backend_name,
+            "project_stage": "stage3_runtime_mvp",
+            "notes": None,
         }
         self.metadata_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 

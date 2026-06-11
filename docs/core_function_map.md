@@ -23,6 +23,13 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Replay | `gateway/replay.py` | `replay_log` | Recomputes safety review from a log to check deterministic consistency. |
 | Robot adapter | `robots/base.py` | `RobotAdapter`, `RobotExecutionResult` | Defines the execution adapter boundary. |
 | Mock robot adapter | `robots/mock_realman_6dof.py` | `MockRealMan6DoFAdapter.execute_joint_move` | Simulates approved command execution in memory. |
+| Runtime model | `robot_runtime/types.py` | `RobotObservation`, `RobotAction`, `RuntimeExecutionResult`, `RuntimeStepResult` | Defines the Stage 3 runtime observation, action, execution, and step-result contracts. |
+| Runtime device | `robot_runtime/device.py` | `RobotDeviceAdapter` | Defines the runtime-facing robot device protocol. |
+| Runtime action source | `robot_runtime/action_source.py` | `ReplayActionSource` | Converts benchmark command JSON into replayable runtime actions. |
+| Runtime scene provider | `robot_runtime/scene_provider.py` | `StaticSceneProvider` | Supplies static benchmark scenes to the runtime loop. |
+| Runtime loop | `robot_runtime/safety_runtime.py` | `SafetyRuntime.step` | Reviews a proposed runtime action and sends it to the robot only after an `approve` decision. |
+| Runtime recorder | `robot_runtime/episode_recorder.py` | `EpisodeRecorder` | Writes Stage 3 runtime metadata and step JSONL logs. |
+| Runtime adapter | `robot_runtime/adapters/mock_realman_device.py` | `MockRealManDevice` | Wraps the Stage 1 mock robot adapter behind the Stage 3 runtime device protocol. |
 | Benchmark | `robot_safety/benchmark.py` | `run_benchmark` | Discovers benchmark tasks, runs reviews, writes logs, and builds summaries. |
 | Scorer | `robot_safety/scorer.py` | `score_execution_log` | Compares actual logs with expected task contracts. |
 | Report | `reports/report_writer.py` | `build_markdown_report` | Converts one execution log into a human-readable Markdown safety report. |
@@ -35,6 +42,7 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | CLI | `cli/compare_backends.py` | `main` | CLI entry point for backend comparison. |
 | CLI | `cli/diagnose_backend_geometry.py` | `main` | CLI entry point for PyBullet geometry diagnostics. |
 | CLI | `cli/calibrate_urdf_geometry.py` | `main` | CLI entry point for URDF-vs-mock calibration. |
+| CLI | `cli/run_runtime_demo.py` | `main` | CLI entry point for one-step Stage 3 runtime demos. |
 
 Suggested reading order:
 
@@ -45,3 +53,4 @@ Suggested reading order:
 5. `robot_safety/benchmark.py`, `robot_safety/scorer.py`
 6. `reports/backend_comparison.py`
 7. `sim/pybullet_diagnostics.py`, `sim/urdf_calibration.py`
+8. `robot_runtime/types.py`, `robot_runtime/safety_runtime.py`, `robot_runtime/episode_recorder.py`

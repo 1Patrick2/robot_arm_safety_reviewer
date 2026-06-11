@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 from robots.mock_realman_6dof import MockRealMan6DoFAdapter
 
-from ..types import RobotAction, RobotObservation
+from ..types import RobotAction, RobotObservation, RuntimeExecutionResult
 
 
 class MockRealManDevice:
@@ -51,10 +51,16 @@ class MockRealManDevice:
             metadata={"device": self.name},
         )
 
-    def send_action(self, action: RobotAction) -> RobotAction:
+    def send_action(self, action: RobotAction) -> RuntimeExecutionResult:
         self._require_connected()
-        self._adapter.execute_joint_move(action.target_joints, action.speed)
-        return action
+        result = self._adapter.execute_joint_move(action.target_joints, action.speed)
+        return RuntimeExecutionResult(
+            attempted=result.executed,
+            success=result.success,
+            reason="executed" if result.success else result.reason,
+            simulated=result.simulated,
+            metadata=result.to_dict(),
+        )
 
     def disconnect(self) -> None:
         self._connected = False

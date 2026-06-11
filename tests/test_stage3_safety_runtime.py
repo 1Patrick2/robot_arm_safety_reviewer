@@ -56,6 +56,11 @@ def test_safety_runtime_executes_approved_action(tmp_path):
     assert result.safety_result.decision == "approve"
     assert result.executed is True
     assert result.sent_action is not None
+    assert result.execution_result is not None
+    assert result.execution_result.attempted is True
+    assert result.execution_result.success is True
+    assert result.execution_result.reason == "executed"
+    assert result.execution_result.metadata["execution_count"] == 1
     assert robot.execution_count == 1
 
 
@@ -67,6 +72,7 @@ def test_safety_runtime_blocks_rejected_action(tmp_path):
     assert result.safety_result.decision == "reject"
     assert result.executed is False
     assert result.sent_action is None
+    assert result.execution_result is None
     assert result.blocked_reason == "rejected_by_safety_gate"
     assert robot.execution_count == 0
 
@@ -79,5 +85,6 @@ def test_safety_runtime_blocks_manual_review_action(tmp_path):
     assert result.safety_result.decision == "manual_review"
     assert result.executed is False
     assert result.sent_action is None
+    assert result.execution_result is None
     assert result.blocked_reason == "manual_review_required"
     assert robot.execution_count == 0
