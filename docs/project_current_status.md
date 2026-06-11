@@ -1,8 +1,8 @@
 # Project Current Status
 
-RobotArmSafetyReviewer is currently in **Stage 3.0 Cleanup**.
+RobotArmSafetyReviewer is currently in **Stage 3.1 Runtime Application Layer + Unified CLI**.
 
-This stage stabilizes the Stage 3 runtime MVP and closes historical documentation and technical-debt gaps before adding agent tools, PyBullet robot-device execution, or hardware-facing adapters.
+This stage extracts reusable application services from one-off CLI orchestration and adds a unified CLI entry point before adding batch jobs, agent tools, PyBullet robot-device execution, or hardware-facing adapters.
 
 ## Completed Scope
 
@@ -11,14 +11,15 @@ This stage stabilizes the Stage 3 runtime MVP and closes historical documentatio
 - Stage 2 PyBullet backend diagnostics.
 - Stage 2.6 documentation and explicit evaluator metadata cleanup.
 - Stage 3 MVP runtime action loop.
+- Stage 3.0 runtime cleanup: execution-result propagation, episode schema hardening, and CLI safety checks.
 
 ## Current Focus
 
-- Runtime stabilization.
-- Legacy docs cleanup.
-- Execution result propagation.
-- Episode schema hardening.
-- CLI and test cleanup.
+- Application service layer.
+- Unified CLI entry point.
+- Legacy CLI compatibility wrappers.
+- Service-level tests that do not rely on CLI as the only entry point.
+- Keeping future batch and agent tools from duplicating runtime assembly logic.
 
 ## Current Verification Snapshot
 
@@ -26,7 +27,7 @@ Recent known-good verification on the local `robotarm-pybullet` conda environmen
 
 ```text
 pytest -q
-108 passed
+113 passed
 
 python -m cli.run_benchmark --backend pybullet --mode smoke --bench bench/sim_robot_arm
 8 completed, 0 runtime errors
@@ -42,6 +43,12 @@ decision=manual_review, executed=false, blocked_reason=manual_review_required
 
 python -m cli.run_runtime_demo --task bench/sim_robot_arm/obstacle_collision_001 --backend mock --json
 decision=reject, executed=false, blocked_reason=rejected_by_safety_gate
+
+python -m cli.main runtime run --task bench/sim_robot_arm/simple_joint_move_001 --backend mock --json
+decision=approve, executed=true
+
+python -m cli.main review --scene bench/sim_robot_arm/obstacle_collision_001/scene.json --command bench/sim_robot_arm/obstacle_collision_001/command.json --backend mock --json
+decision=reject
 ```
 
 Run the current verification with:
@@ -79,7 +86,7 @@ Do not jump directly into a large Agent or RealMan SDK integration.
 
 Recommended order:
 
-1. Finish Stage 3.0 cleanup with stable tests and docs.
-2. Add an agent-ready diagnostic tool layer only after the runtime loop stays measurable.
-3. Extend the runtime from one-step replay to small episode batches with stable metrics.
+1. Keep new CLI, batch, and agent entry points behind application services.
+2. Add runtime episode batch and summary after the Stage 3.1 service layer is stable.
+3. Add an agent-ready diagnostic tool layer only after batch summaries are measurable.
 4. Defer RealMan SDK, ROS2, MoveIt, VLA, and LLM agent control until the runtime metrics and failure traces are stable.

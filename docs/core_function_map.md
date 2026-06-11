@@ -30,6 +30,8 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Runtime loop | `robot_runtime/safety_runtime.py` | `SafetyRuntime.step` | Reviews a proposed runtime action and sends it to the robot only after an `approve` decision. |
 | Runtime recorder | `robot_runtime/episode_recorder.py` | `EpisodeRecorder` | Writes Stage 3 runtime metadata and step JSONL logs. |
 | Runtime adapter | `robot_runtime/adapters/mock_realman_device.py` | `MockRealManDevice` | Wraps the Stage 1 mock robot adapter behind the Stage 3 runtime device protocol. |
+| Application runtime | `application/runtime_service.py` | `RuntimeTaskRequest`, `run_runtime_task` | Reusable service for assembling action source, scene provider, backend, robot device, recorder, and runtime step execution. |
+| Application review | `application/review_service.py` | `ReviewCommandRequest`, `review_command` | Reusable service wrapper around review-only safety-gate execution. |
 | Benchmark | `robot_safety/benchmark.py` | `run_benchmark` | Discovers benchmark tasks, runs reviews, writes logs, and builds summaries. |
 | Scorer | `robot_safety/scorer.py` | `score_execution_log` | Compares actual logs with expected task contracts. |
 | Report | `reports/report_writer.py` | `build_markdown_report` | Converts one execution log into a human-readable Markdown safety report. |
@@ -43,6 +45,9 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | CLI | `cli/diagnose_backend_geometry.py` | `main` | CLI entry point for PyBullet geometry diagnostics. |
 | CLI | `cli/calibrate_urdf_geometry.py` | `main` | CLI entry point for URDF-vs-mock calibration. |
 | CLI | `cli/run_runtime_demo.py` | `main` | CLI entry point for one-step Stage 3 runtime demos. |
+| Unified CLI | `cli/main.py` | `main` | Stage 3.1 unified entry point backed by application services. |
+| Unified CLI command | `cli/commands/runtime.py` | `register_runtime_commands` | Registers `python -m cli.main runtime run`. |
+| Unified CLI command | `cli/commands/review.py` | `register_review_commands` | Registers `python -m cli.main review`. |
 
 Suggested reading order:
 
@@ -54,3 +59,4 @@ Suggested reading order:
 6. `reports/backend_comparison.py`
 7. `sim/pybullet_diagnostics.py`, `sim/urdf_calibration.py`
 8. `robot_runtime/types.py`, `robot_runtime/safety_runtime.py`, `robot_runtime/episode_recorder.py`
+9. `application/runtime_service.py`, `application/review_service.py`, `cli/main.py`

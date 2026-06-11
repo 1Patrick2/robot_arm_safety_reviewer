@@ -109,6 +109,16 @@ RobotObservation + RobotAction
     -> EpisodeRecorder.record_step
 ```
 
+Application service flow:
+
+```text
+CLI / Agent Tool / Python API / Future Web API
+  -> application service layer
+    -> gateway / robot_runtime / sim / reports
+```
+
+Stage 3.1 introduces this application layer so new entry points do not reassemble `ActionSource`, `SceneProvider`, backend, robot device, recorder, and runtime objects independently.
+
 ## 4. Layer Responsibilities
 
 Data model layer:
@@ -152,6 +162,13 @@ Runtime layer:
 - Sends actions to a robot device only after an `approve` decision.
 - Preserves runtime execution results, blocked reasons, backend metadata, and episode traceability.
 - Keeps Stage 3 scoped as a safety interposer rather than a LeRobot clone or planner.
+
+Application service layer:
+
+- Owns reusable orchestration that should not live inside CLI files.
+- `application.runtime_service.run_runtime_task` builds and runs one runtime task.
+- `application.review_service.review_command` wraps review-only safety-gate execution.
+- Lets legacy CLI, unified CLI, future batch jobs, and agent tools reuse the same service functions.
 
 ## 5. Mock Backend Vs PyBullet Backend
 
@@ -231,7 +248,9 @@ Implemented:
 - Stage 3 runtime action loop;
 - runtime execution-result propagation;
 - runtime episode metadata and step JSONL logs;
-- runtime demo CLI.
+- runtime demo CLI;
+- application runtime/review services;
+- unified CLI entry point for runtime and review commands.
 
 Not implemented:
 
@@ -244,4 +263,4 @@ Not implemented:
 - ROS2 / MoveIt integration;
 - LLM safety decision making.
 
-The current Stage 3.0 cleanup scope is runtime stabilization: keeping documentation aligned with the code, making gateway/evaluator/runtime boundaries explicit, preserving execution results, hardening episode logs, and avoiding premature Agent or hardware integration.
+The current Stage 3.1 scope is application-layer stabilization: moving reusable orchestration out of one-off CLI files, adding a unified CLI entry point, and preparing future batch or agent-facing tools to call services instead of duplicating runtime assembly logic.

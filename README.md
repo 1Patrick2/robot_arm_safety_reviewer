@@ -55,6 +55,8 @@ Stage 3 adds a minimal runtime safety interposer:
 - runtime execution-result propagation
 - episode metadata and step JSONL recorder
 - one-step runtime demo CLI
+- application runtime/review services
+- unified CLI entry point for service-backed commands
 
 Stage 1.5 status:
 
@@ -265,6 +267,27 @@ python -m cli.run_runtime_demo ^
   --json
 ```
 
+Run the same runtime flow through the Stage 3.1 unified CLI:
+
+```bash
+python -m cli.main runtime run ^
+  --task bench\sim_robot_arm\simple_joint_move_001 ^
+  --backend mock ^
+  --episode-root output_reports\runtime_demo ^
+  --json
+```
+
+Review a command through the unified CLI:
+
+```bash
+python -m cli.main review ^
+  --scene bench\sim_robot_arm\obstacle_collision_001\scene.json ^
+  --command bench\sim_robot_arm\obstacle_collision_001\command.json ^
+  --backend mock ^
+  --log-dir logs ^
+  --json
+```
+
 ## Architecture
 
 ```text
@@ -301,6 +324,7 @@ reports/                      Markdown and optional 3D visualization
 robots/                       RobotAdapter and MockRealMan6DoFAdapter
 sim/                          backend abstraction, mock backend, PyBullet backend, diagnostics
 robot_runtime/                Stage 3 observation/action runtime and episode recorder
+application/                  reusable service layer for runtime and review orchestration
 cli/                          runnable command-line entry points
 ```
 
