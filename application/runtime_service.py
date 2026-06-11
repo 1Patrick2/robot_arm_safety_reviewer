@@ -11,6 +11,8 @@ from robot_runtime.scene_provider import StaticSceneProvider
 from robot_runtime.types import RuntimeStepResult
 from sim.backend_factory import create_backend
 
+from .core import AppResult, ArtifactRef
+
 
 @dataclass(frozen=True)
 class RuntimeTaskRequest:
@@ -34,6 +36,20 @@ class RuntimeTaskResult:
             "episode_dir": str(self.episode_dir),
             "result": self.step_result.to_dict(),
         }
+
+    def to_app_result(self) -> AppResult:
+        return AppResult(
+            ok=True,
+            mode="runtime_task",
+            data=self.to_dict(),
+            artifacts=(
+                ArtifactRef(
+                    kind="runtime_episode",
+                    path=self.episode_dir,
+                    description="Runtime episode directory",
+                ),
+            ),
+        )
 
 
 def run_runtime_task(request: RuntimeTaskRequest) -> RuntimeTaskResult:
@@ -75,4 +91,3 @@ def run_runtime_task(request: RuntimeTaskRequest) -> RuntimeTaskResult:
         episode_dir=recorder.episode_dir,
         step_result=step_result,
     )
-

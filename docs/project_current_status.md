@@ -16,6 +16,7 @@ This stage extracts reusable application services from one-off CLI orchestration
 ## Current Focus
 
 - Application service layer.
+- Shared application result, artifact, and context envelope.
 - Unified CLI entry point.
 - Legacy CLI compatibility wrappers.
 - Service-level tests that do not rely on CLI as the only entry point.
@@ -27,7 +28,7 @@ Recent known-good verification on the local `robotarm-pybullet` conda environmen
 
 ```text
 pytest -q
-113 passed
+117 passed
 
 python -m cli.run_benchmark --backend pybullet --mode smoke --bench bench/sim_robot_arm
 8 completed, 0 runtime errors

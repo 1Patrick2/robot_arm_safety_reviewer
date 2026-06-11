@@ -6,6 +6,8 @@ from pathlib import Path
 from gateway.safety_gate import review_only
 from robot_safety.models import SafetyResult
 
+from .core import AppResult, ArtifactRef
+
 
 @dataclass(frozen=True)
 class ReviewCommandRequest:
@@ -27,6 +29,23 @@ class ReviewCommandResult:
             "log_path": str(self.log_path) if self.log_path else None,
             "safety_result": self.safety_result.to_dict(),
         }
+
+    def to_app_result(self) -> AppResult:
+        artifacts = ()
+        if self.log_path is not None:
+            artifacts = (
+                ArtifactRef(
+                    kind="execution_log",
+                    path=self.log_path,
+                    description="Replayable safety review log",
+                ),
+            )
+        return AppResult(
+            ok=True,
+            mode="review_command",
+            data=self.to_dict(),
+            artifacts=artifacts,
+        )
 
 
 def review_command(request: ReviewCommandRequest) -> ReviewCommandResult:

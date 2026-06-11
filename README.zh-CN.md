@@ -71,7 +71,7 @@ Replay consistency: passed
 ```text
 Python: D:\miniforge3\envs\robotarm-pybullet\python.exe
 PyBullet: available
-pytest: 113 passed
+pytest: 117 passed
 PyBullet smoke benchmark: passed
 ```
 
