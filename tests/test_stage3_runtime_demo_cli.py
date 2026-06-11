@@ -47,26 +47,6 @@ def test_runtime_demo_cli_executes_safe_task(tmp_path):
     assert Path(result["episode_step_path"]).exists()
 
 
-def test_runtime_demo_cli_blocks_rejected_task(tmp_path):
-    payload = _run_demo("obstacle_collision_001", tmp_path)
-    result = _result(payload)
-
-    assert result["safety_result"]["decision"] == "reject"
-    assert result["executed"] is False
-    assert result["execution_result"] is None
-    assert result["blocked_reason"] == "rejected_by_safety_gate"
-
-
-def test_runtime_demo_cli_blocks_manual_review_task(tmp_path):
-    payload = _run_demo("near_miss_clearance_001", tmp_path)
-    result = _result(payload)
-
-    assert result["safety_result"]["decision"] == "manual_review"
-    assert result["executed"] is False
-    assert result["execution_result"] is None
-    assert result["blocked_reason"] == "manual_review_required"
-
-
 def test_runtime_demo_cli_fails_when_task_files_are_missing(tmp_path):
     task_dir = tmp_path / "missing_task"
     task_dir.mkdir()

@@ -344,18 +344,17 @@ Episode logs preserve evidence.
 Recommended order:
 
 1. Review this design document and confirm scope.
-2. Write `docs/plans/stage3_runtime_mvp.md`.
-3. Add failing tests for runtime types, device, action source, scene provider, runtime, recorder, and CLI.
-4. Implement `robot_runtime/types.py`.
-5. Implement `robot_runtime/device.py` and `robot_runtime/adapters/mock_realman_device.py`.
-6. Implement `robot_runtime/action_source.py`.
-7. Implement `robot_runtime/scene_provider.py`.
-8. Implement `robot_runtime/safety_runtime.py`.
-9. Implement `robot_runtime/episode_recorder.py`.
-10. Implement `cli/run_runtime_demo.py`.
-11. Run focused Stage 3 tests.
-12. Run full `pytest`.
-13. Run safe, manual-review, and rejected runtime demos.
+2. Add failing tests for runtime types, device, action source, scene provider, runtime, recorder, and CLI.
+3. Implement `robot_runtime/types.py`.
+4. Implement `robot_runtime/device.py` and `robot_runtime/adapters/mock_realman_device.py`.
+5. Implement `robot_runtime/action_source.py`.
+6. Implement `robot_runtime/scene_provider.py`.
+7. Implement `robot_runtime/safety_runtime.py`.
+8. Implement `robot_runtime/episode_recorder.py`.
+9. Implement `cli/run_runtime_demo.py`.
+10. Run focused Stage 3 tests.
+11. Run full `pytest`.
+12. Run safe, manual-review, and rejected runtime demos.
 
 ## 12. Resume / Interview Value
 

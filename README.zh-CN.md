@@ -71,7 +71,7 @@ Replay consistency: passed
 ```text
 Python: D:\miniforge3\envs\robotarm-pybullet\python.exe
 PyBullet: available
-pytest: 117 passed
+pytest: 106 passed
 PyBullet smoke benchmark: passed
 ```
 
@@ -326,12 +326,6 @@ expected.json
 - learning-based risk triage，但只能作为 advisory，不能作为最终安全裁决
 
 ## 详细计划
-
-Stage 1 完整规划文档：
-
-```text
-docs/stage1_plan.md
-```
 
 Windows PyBullet 环境说明：
 

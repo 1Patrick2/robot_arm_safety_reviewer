@@ -372,10 +372,3 @@ Later:
 - Agent-ready tools for reviewing candidate commands
 - learning-based risk triage as advisory only, never as final safety authority
 
-## Detailed Plan
-
-The full Stage 1 planning document is kept in:
-
-```text
-docs/stage1_plan.md
-```

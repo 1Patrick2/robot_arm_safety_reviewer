@@ -28,7 +28,7 @@ Recent known-good verification on the local `robotarm-pybullet` conda environmen
 
 ```text
 pytest -q
-117 passed
+106 passed
 
 python -m cli.run_benchmark --backend pybullet --mode smoke --bench bench/sim_robot_arm
 8 completed, 0 runtime errors
@@ -67,7 +67,6 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest -q --basetemp .pytest_
 - `docs/interview_notes.md`: interview and resume narrative.
 - `docs/lerobot_interface_study.md`: Stage 3 positioning for a LeRobot-compatible safety runtime.
 - `docs/stage3_runtime_mvp_design.md`: Stage 3 MVP design for action runtime, scene provider, safety runtime, and episode recorder.
-- `docs/plans/stage3_runtime_mvp.md`: implementation plan and verification checklist for the Stage 3 MVP.
 - `docs/stage2_backend_diagnostics.md`: mock-vs-PyBullet diagnostics and calibration details.
 - `docs/windows_pybullet_setup.md`: Windows PyBullet environment setup.
 
