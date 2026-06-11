@@ -1,4 +1,5 @@
-"""Compare benchmark outputs across simulation backends."""
+"""Compare benchmark outputs across simulation backends.
+后端比较命令，把backend_comparison.py包装成cli命令，支持参数--bench, --backends, --log-dir, --output-json, --output-md等，方便在命令行执行后端比较，并输出结果到json或者markdown文件中。"""
 
 from __future__ import annotations
 

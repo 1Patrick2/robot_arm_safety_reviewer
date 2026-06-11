@@ -1,6 +1,10 @@
-"""URDF-vs-mock geometry calibration diagnostics."""
+"""URDF-vs-mock geometry calibration diagnostics.
+URDF与mock的校准诊断，主要功能是比较PyBullet URDF碰撞轴与我们之前实现的mock FK段之间的几何关系。它会重放基准测试任务的场景和轨迹，在PyBullet中捕获每个时间步的机器人链接位姿和与障碍物的最近点对信息，然后把这些信息与mock的FK段进行对比分析，计算长度差异、端点对齐误差等指标，最后给出一个结论分类和推荐
+"""
 
 from __future__ import annotations
+
+'''这个文件比pybullet_diagnostics更进一步，后者是回答pybullet自己看到的worst_pair是什么，而这个文件是回答pybullet的worst_pair和mock fk segment为什么不一致，是urdf模型的问题还是mock kinematic模型的问题。这个诊断对于理解和调试pybullet后端的几何实现非常有帮助，可以指导我们是否需要调整urdf模型或者接受一定的误差范围。'''
 
 import math
 import xml.etree.ElementTree as ET
@@ -16,6 +20,7 @@ from .pybullet_backend import PyBulletBackend
 from .pybullet_diagnostics import diagnose_task_geometry
 
 
+'''解析urdf里的box collision geometry，提取每个链接的碰撞盒信息，包括原点位置、尺寸等，返回一个字典，键是链接名称，值是另一个字典'''
 def parse_urdf_collision_boxes(urdf_path: str | Path) -> dict[str, dict[str, Any]]:
     """Extract simple box collision geometry from the mock URDF."""
 
@@ -39,6 +44,7 @@ def parse_urdf_collision_boxes(urdf_path: str | Path) -> dict[str, dict[str, Any
     return boxes
 
 
+'''核心函数，读取scene/command，插值得到轨迹trajectory，然后调用diagnose_scene_geometry来重放场景并捕获诊断数据pybullet diagnostics,取pybullet worst step的joints，计算mock在同一joints下的closest segment，最后返回一个结构化的字典结果，包括pybullet和mock的worst step信息，以及对比分析的结论和推荐。'''
 def calibrate_task_geometry(task_dir: str | Path, *, backend: PyBulletBackend | None = None) -> dict[str, Any]:
     """Compare mock FK segments with PyBullet URDF collision-axis geometry for one task."""
 
@@ -58,11 +64,19 @@ def calibrate_task_geometry(task_dir: str | Path, *, backend: PyBulletBackend | 
 
     joints = trajectory[worst_step]
     mock_points = forward_kinematics_6dof(scene.robot, joints)
+
+    '''解析urdf collision boxes'''
     boxes = parse_urdf_collision_boxes(backend.urdf_path)
     obstacle_id = diagnostic["worst_pair"]["obstacle"]
     obstacle = next((item for item in scene.obstacles if item.obstacle_id == obstacle_id), None)
+
+    '''这是mock与pybullet worst step的对比，计算mock在pybullet worst step的joints下的closest segment信息。'''
     mock_at_pybullet_worst_step = _mock_closest_segment(mock_points, scene, obstacle, step=worst_step)
+
+    ''''这是mock轨迹上的overall worst，计算mock在整个轨迹上的closest segment信息，看看是否有比pybullet worst step更糟糕的情况，如果有，说明可能是pybullet的worst step没有完全捕捉到mock的worst case。'''
     mock_overall_worst = _mock_trajectory_worst(trajectory, scene, obstacle)
+
+
     link_calibration = _link_calibration(
         boxes=boxes,
         diagnostic_step=diagnostic["steps"][worst_step],
@@ -143,6 +157,7 @@ def _empty_mock_result(*, step: int | None) -> dict[str, Any]:
     }
 
 
+'''这是把URDF collision box的主轴端点变换到world坐标，然后和mock FK的segment 的首尾端点做比较，计算长度差异和端点对齐误差。可以判断URDF link 长度是不是和 mock link 长度一样？如果长度一样，那是不是 pose / axis / kinematics 不一样？'''
 def _link_calibration(
     *,
     boxes: dict[str, dict[str, Any]],
@@ -212,6 +227,7 @@ def _rotate_vector_by_quaternion(vector, quaternion) -> list[float]:
     ]
 
 
+'''自动归因，通过max_length_delta,max_alignment_error以及pybullet_link和mock_link的对比，来判断是不是URDF尺寸不一致，如果尺寸没问题再判断是不是运动学/姿态不一致'''
 def _conclusion(*, pybullet_link: str | None, mock_link: str | None, link_calibration: dict[str, Any]) -> dict[str, str]:
     max_length_delta = max(abs(item["length_delta"]) for item in link_calibration.values())
     max_alignment_error = max(item["endpoint_alignment_error"] for item in link_calibration.values())
@@ -229,7 +245,7 @@ def _conclusion(*, pybullet_link: str | None, mock_link: str | None, link_calibr
         summary = "URDF collision axes are aligned with the mock FK segments within the current tolerance."
     return {"category": category, "summary": summary}
 
-
+'''根据结论给建议'''
 def _recommendation(category: str) -> str:
     if category == "geometry_size_mismatch":
         return "Inspect and adjust URDF collision sizes/origins before adding GUI replay."

@@ -1,4 +1,5 @@
-"""Markdown report writer for robot arm safety logs."""
+"""Markdown report writer for robot arm safety logs.
+把log变成markdown格式的报告，方便人阅读和审查。"""
 
 from __future__ import annotations
 
@@ -6,7 +7,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-
+'''从log种提取task_summary，robot_command,safety_checks，review_backend，scene_obstacles，critical_evidence，violations，gate_decision，recommended_action等信息，构建一个结构化的markdown报告。'''
+'''report完整解释任务是什么，命令是什么，安全检查结果是什么，审查后端是什么，场景中有哪些障碍物，关键证据是什么，违规项是什么，为什么不能执行，以及建议下一步怎么做。'''
 def build_markdown_report(log_payload: dict[str, Any], visualization_path: str | None = None) -> str:
     """Build a human-readable Markdown safety review report."""
 
@@ -171,7 +173,7 @@ def _review_backend_lines(metadata: dict[str, Any]) -> list[str]:
             lines.append(f"- {label}: `{metadata[key]}`")
     return lines
 
-
+'''根据decision给建议的下一步行动，如果是approve且执行成功了，就建议保留日志；如果是approve但执行失败了，就说明原因；如果是manual_review，就建议人工审查；如果是reject，就根据closest_link和closest_obstacle给出拒绝的理由，并建议修改目标关节或者请求一个无碰撞的轨迹。'''
 def _recommended_action_lines(safety: dict[str, Any], execution: dict[str, Any]) -> list[str]:
     decision = safety["decision"]
     if decision == "approve" and execution["executed"]:

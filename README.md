@@ -1,9 +1,21 @@
 ﻿
 # RobotArmSafetyReviewer
 
+[中文说明](README.zh-CN.md)
+
 Simulation-first safety middleware for 6-DOF robot arm joint-space commands.
 
 RobotArmSafetyReviewer reviews candidate robot arm commands before execution by checking joint limits, interpolated trajectory collision, minimum clearance, and large joint-motion risk. It outputs `approve`, `manual_review`, or `reject`, then writes replayable logs and human-readable safety reports.
+
+Project docs:
+
+- [Project architecture](docs/project_architecture.md)
+- [Core function map](docs/core_function_map.md)
+- [Interview notes](docs/interview_notes.md)
+- [LeRobot interface study](docs/lerobot_interface_study.md)
+- [Stage 3 runtime MVP design](docs/stage3_runtime_mvp_design.md)
+- [Current status](docs/project_current_status.md)
+- [Stage 2 backend diagnostics](docs/stage2_backend_diagnostics.md)
 
 ## What It Does
 
@@ -231,6 +243,16 @@ Generate URDF-vs-mock calibration diagnostics:
 python -m cli.calibrate_urdf_geometry ^
   --task bench\sim_robot_arm\mid_trajectory_collision_001 ^
   --output-json output_reports\mid_trajectory_urdf_calibration.json
+```
+
+Run the Stage 3 runtime MVP demo:
+
+```bash
+python -m cli.run_runtime_demo ^
+  --task bench\sim_robot_arm\simple_joint_move_001 ^
+  --backend mock ^
+  --episode-dir output_reports\runtime_demo ^
+  --json
 ```
 
 ## Architecture

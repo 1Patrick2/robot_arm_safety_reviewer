@@ -1,4 +1,5 @@
-"""Compare safety-review outputs across simulation backends."""
+"""Compare safety-review outputs across simulation backends.
+比较mock和pybullet两个后端输出的结果是否一致，不一致是什么不一致，统计每个任务的决策、风险等级、清晰度区间、归因等是否匹配，以及整体的匹配情况和错误情况。"""
 
 from __future__ import annotations
 
@@ -23,6 +24,7 @@ def compare_backends(
     for task_dir in discover_task_dirs(bench_dir):
         results: dict[str, Any] = {}
         for backend_name in backend_names:
+            '''这里函数里调用的事review_only是因为目的在于比较审查结果而非执行。'''
             results[backend_name] = _run_one_backend(task_dir, backend_name, log_dir)
         match_status = _match_status(results, backend_names)
         tasks.append(
@@ -144,7 +146,7 @@ def _run_one_backend(task_dir: Path, backend_name: str, log_dir: str | Path | No
         "error": None,
     }
 
-
+'''现在summary的匹配指标有6个，分别是decision_matches, risk_matches, clearance_band_matches, attribution_matches, strict_matches, backend_errors。判断顺序先看backed，这是最严重的。'''
 def _match_status(results: dict[str, Any], backend_names: list[str]) -> str:
     if any(results[name].get("error") for name in backend_names):
         return "backend_error"
@@ -158,7 +160,7 @@ def _match_status(results: dict[str, Any], backend_names: list[str]) -> str:
         return "attribution_mismatch"
     return "strict_match"
 
-
+'''把不同匹配结果转为更具体的诊断标签，方便后续分析和统计。'''
 def _diagnosis(results: dict[str, Any], backend_names: list[str], match_status: str) -> str:
     if match_status == "backend_error":
         failing = [name for name in backend_names if results[name].get("error")]
@@ -194,7 +196,7 @@ def _same_attribution(results: dict[str, Any], backend_names: list[str]) -> bool
 def _same_clearance_band(results: dict[str, Any], backend_names: list[str]) -> bool:
     return len({_clearance_band(results[name].get("min_clearance")) for name in backend_names}) <= 1
 
-
+'''根据clearance数值不用，但同一安全内，决策意义是一致的'''
 def _clearance_band(clearance: Any) -> str:
     if clearance is None:
         return "unknown"

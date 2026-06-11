@@ -1,4 +1,5 @@
-"""Structured PyBullet geometry diagnostics for benchmark tasks."""
+"""Structured PyBullet geometry diagnostics for benchmark tasks.
+pybullet几何诊断，主要功能是重放基准测试任务的场景和轨迹，在PyBullet的DIRECT模式下捕获每个时间步的机器人链接位姿和与障碍物的最近点对信息，包括清晰度、接触点位置和法线等。这些诊断数据可以用来分析和比较不同后端的碰撞检查结果，以及理解模型决策背后的几何因素。"""
 
 from __future__ import annotations
 
@@ -15,7 +16,7 @@ POSITION_ON_ROBOT_INDEX = 5
 POSITION_ON_OBSTACLE_INDEX = 6
 NORMAL_ON_OBSTACLE_INDEX = 7
 
-
+'''三件事，读scene,command，插值得到轨迹trajectory，然后调用diagnose_scene_geometry来重放场景并捕获诊断数据，最后返回一个结构化的字典结果。'''
 def diagnose_task_geometry(task_dir: str | Path, *, backend: PyBulletBackend | None = None) -> dict[str, Any]:
     """Replay a benchmark task and return JSON-serializable PyBullet geometry diagnostics."""
 
@@ -35,7 +36,7 @@ def diagnose_task_geometry(task_dir: str | Path, *, backend: PyBulletBackend | N
         backend=backend,
     )
 
-
+'''这是核心函数，重放场景并捕获诊断数据。它会连接PyBullet的DIRECT模式，加载URDF模型，获取关节和链接信息，创建障碍物，遍历轨迹的每个时间步，更新机器人状态，执行碰撞检测，记录关节位姿和最近点的信息，最后返回一个包含所有诊断数据的字典。'''
 def diagnose_scene_geometry(
     *,
     scene: Scene,
@@ -131,7 +132,7 @@ def diagnose_scene_geometry(
     finally:
         pybullet.disconnect(client_id)
 
-
+'''这个函数用来获取机器人每个链接的位姿信息，返回一个字典，键是链接名称，值是另一个字典，包含position和orientation两个字段，都是经过_rounded_vector处理过的列表。'''
 def _link_poses(pybullet, client_id: int, robot_id: int, link_name_map: dict[int, str]) -> dict[str, dict[str, Any]]:
     poses: dict[str, dict[str, Any]] = {}
     for link_index, link_name in link_name_map.items():

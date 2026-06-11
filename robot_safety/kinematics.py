@@ -11,7 +11,7 @@ import math
 
 from .models import Point3D, RobotModel
 
-
+# 简化的六轴正运动学
 def forward_kinematics_6dof(robot: RobotModel, joints: tuple[float, ...] | list[float]) -> list[Point3D]:
     """Return base plus six joint/end-effector points for a mock serial chain.
 

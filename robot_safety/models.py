@@ -35,6 +35,8 @@ class RobotModel:
     robot_id: str
     model_type: str
     model_version: str
+
+    '''关节名、关节限制、连杆长度、连杆半径和 base 位姿等参数'''
     joint_names: tuple[str, ...]
     joint_limits: tuple[JointLimit, ...]
     link_lengths: tuple[float, ...]
@@ -70,14 +72,14 @@ class JointCommand:
             source=str(data.get("source", "mock_user")),
         )
 
-
+# 圆形障碍物定义
 @dataclass(frozen=True)
 class SphereObstacle:
     obstacle_id: str
     position: Point3D
     radius: float
 
-
+# 定义审查规则的阈值
 @dataclass(frozen=True)
 class SafetyConfig:
     min_clearance: float = 0.05
@@ -86,7 +88,7 @@ class SafetyConfig:
     num_interpolation_steps: int = 40
     check_self_collision: bool = False
 
-
+# 场景定义，包括机器人模型、目标位置和障碍物列表等信息
 @dataclass(frozen=True)
 class Scene:
     scene_id: str
@@ -94,10 +96,12 @@ class Scene:
     obstacles: tuple[SphereObstacle, ...]
     safety_config: SafetyConfig
 
+    # 读json文件并创建Scene对象
     @classmethod
     def from_json(cls, path: str | Path) -> "Scene":
         return cls.from_dict(json.loads(Path(path).read_text(encoding="utf-8")))
 
+    # 转成强类型的Scene对象，并进行必要的验证
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Scene":
         return cls(
@@ -107,7 +111,7 @@ class Scene:
             safety_config=_safety_config_from_dict(data.get("safety_config", {})),
         )
 
-
+# 安全违规项定义，包括违规类型、描述信息、相关对象和数值等，这是证据项
 @dataclass(frozen=True)
 class Violation:
     type: str
@@ -120,10 +124,13 @@ class Violation:
     value: float | None = None
     limit: tuple[float, float] | None = None
 
+    # to_dict()会去掉none字段
     def to_dict(self) -> dict[str, Any]:
         return {key: value for key, value in asdict(self).items() if value is not None}
 
 
+# 最终审查结果定义，包括决策、风险等级、违规项列表和证据列表等信息
+'''SafetyResult 是系统的核心输出。它既包含最终决策 approve/manual_review/reject，也包含风险等级、joint limit 是否通过、轨迹是否碰撞、最小 clearance、最近 link/obstacle、worst step、violations 和 evidence. 其中 violations 是一个 Violation 对象的列表，每个 Violation 包含违规类型、描述信息、相关对象和数值等信息。evidence 是一个字符串列表，包含用于支持决策的证据项，可以是文本描述、数值数据或者其他相关信息。'''
 @dataclass(frozen=True)
 class SafetyResult:
     scene_id: str
@@ -148,7 +155,7 @@ class SafetyResult:
         data["evidence"] = list(self.evidence)
         return data
 
-
+# 以下是一些辅助函数，用于从字典创建强类型对象，并进行必要的验证和错误处理
 def _robot_from_dict(data: dict[str, Any]) -> RobotModel:
     joint_names = tuple(str(item) for item in data.get("joint_names", DEFAULT_JOINT_NAMES))
     link_lengths = _positive_float_tuple(data.get("link_lengths", DEFAULT_LINK_LENGTHS), "robot.link_lengths")

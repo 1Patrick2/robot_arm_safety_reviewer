@@ -1,10 +1,12 @@
-"""Rule-based safety decisions for joint-space commands."""
+"""Rule-based safety decisions for joint-space commands.
+怎么决定 approve/manual_review/reject，主要负责规则判断，joint limit检查，risk_level/decision分类等。
+"""
 
 from __future__ import annotations
 
 from .models import Decision, JointLimit, RiskLevel, SafetyConfig, Violation
 
-
+# 检查一个关节状态是否在限制内，如果有违规项就添加到 violations 列表中返回
 def check_joint_limits(joints: tuple[float, ...] | list[float], joint_limits: tuple[JointLimit, ...]) -> tuple[bool, list[Violation]]:
     """Check one joint state against configured limits."""
 
@@ -25,7 +27,7 @@ def check_joint_limits(joints: tuple[float, ...] | list[float], joint_limits: tu
             )
     return not violations, violations
 
-
+# 检查轨迹中的所有关节状态是否在限制内，如果有违规项就添加到 violations 列表中返回
 def check_trajectory_joint_limits(
     trajectory: list[tuple[float, ...]],
     joint_limits: tuple[JointLimit, ...],
@@ -48,7 +50,7 @@ def check_trajectory_joint_limits(
             )
     return not all_violations, all_violations
 
-
+# 把安全信号映射成风险等级
 def classify_risk_level(
     *,
     joint_limits_ok: bool,
@@ -65,7 +67,7 @@ def classify_risk_level(
         return "medium"
     return "low"
 
-
+# 输出最终决策
 def make_decision(
     *,
     joint_limits_ok: bool,

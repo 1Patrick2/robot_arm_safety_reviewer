@@ -1,4 +1,5 @@
-"""Generate PyBullet geometry diagnostics for one benchmark task."""
+"""Generate PyBullet geometry diagnostics for one benchmark task.
+诊断CLI命令，把diagnose_task_geometry.py包装成cli命令，支持参数--task, --output-json, --include-base-collision, --search-distance, --indent等，方便在命令行执行PyBullet几何诊断，并输出结果到json文件中。"""
 
 from __future__ import annotations
 

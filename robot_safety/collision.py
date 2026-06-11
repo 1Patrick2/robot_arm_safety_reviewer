@@ -1,4 +1,6 @@
-"""Link-sphere clearance checks for the Stage 1 safety gate."""
+"""Link-sphere clearance checks for the Stage 1 safety gate.
+把每个机械臂 link 看成一段线段加半径，也就是 capsule-like link；障碍物是 sphere。计算线段到球心的距离，再减去 sphere radius 和 link radius，得到 signed clearance
+"""
 
 from __future__ import annotations
 
@@ -8,7 +10,7 @@ from dataclasses import dataclass
 from .kinematics import forward_kinematics_6dof
 from .models import Point3D, RobotModel, SphereObstacle, Violation
 
-
+# 姿态碰撞检查结果类
 @dataclass(frozen=True)
 class StateCollisionResult:
     collision_free: bool
@@ -17,17 +19,17 @@ class StateCollisionResult:
     closest_obstacle: str | None
     violations: tuple[Violation, ...]
 
-
+# 轨迹碰撞检查结果类
 @dataclass(frozen=True)
 class TrajectoryCollisionResult:
     collision_free: bool
     min_clearance: float
     closest_robot_link: str | None
     closest_obstacle: str | None
-    worst_step: int | None
+    worst_step: int | None # 中间碰撞的索引量
     violations: tuple[Violation, ...]
 
-
+# 计算3D点到线段的最短距离，P1,P2是线段的两个端点，point是球心。返回值是点到线段的欧几里得距离。
 def distance_segment_to_point(p1: Point3D, p2: Point3D, point: Point3D) -> float:
     """Return Euclidean distance from a 3D point to a line segment."""
 
@@ -43,7 +45,7 @@ def distance_segment_to_point(p1: Point3D, p2: Point3D, point: Point3D) -> float
     projection = (sx + t * vx, sy + t * vy, sz + t * vz)
     return _distance(projection, point)
 
-
+# 计算线段到球的 signed clearance，等于点到线段距离减去球半径和 link 半径。正值表示安全距离，负值表示碰撞。
 def segment_sphere_clearance(
     p1: Point3D,
     p2: Point3D,
@@ -54,7 +56,14 @@ def segment_sphere_clearance(
 
     return distance_segment_to_point(p1, p2, sphere.position) - sphere.radius - link_radius
 
-
+# 检查机械臂姿态是否与障碍物碰撞
+'''for 每个 link segment:
+    for 每个 obstacle:
+        算 clearance
+        更新 min_clearance / closest link / closest obstacle
+        如果 clearance < 0:
+            添加 environment_collision violation
+最后返回该姿态的collision result'''
 def check_state_collision(
     points: list[Point3D],
     obstacles: tuple[SphereObstacle, ...],
@@ -97,7 +106,16 @@ def check_state_collision(
         violations=tuple(violations),
     )
 
-
+'''检查整条轨迹的碰撞，返回最小 clearance 的 step 和 link / obstacle 信息，以及所有 violation
+for step, joints in trajectory:
+    points = forward_kinematics_6dof(robot, joints)
+    result = check_state_collision(points, obstacles, robot.link_radius)
+    if result.min_clearance < global_min_clearance:
+        更新全局最小 clearance
+        更新 closest link / closest obstacle
+        更新 worst_step
+        保存该 step 的 violations
+这里是只保存最坏 step 的 violation，因为我们只关心轨迹中最危险的点。最后返回整个轨迹的 collision result'''
 def check_trajectory_collision(
     trajectory: list[tuple[float, ...]],
     robot: RobotModel,

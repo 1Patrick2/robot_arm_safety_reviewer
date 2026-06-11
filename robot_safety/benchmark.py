@@ -1,4 +1,5 @@
-"""Stage 1 benchmark runner for simulated robot arm safety tasks."""
+"""Stage 1 benchmark runner for simulated robot arm safety tasks.
+批量跑任务，输出结果，生成报告等功能"""
 
 from __future__ import annotations
 
@@ -10,7 +11,7 @@ from gateway.safety_gate import execute_if_safe
 
 from .scorer import score_execution_log, summarize_task_scores
 
-
+'''扫描benchmark目录，找到所有包含scene.json, command.json, expected.json的子目录，认为它们是任务目录，返回这些目录的路径列表'''
 def discover_task_dirs(bench_dir: str | Path) -> list[Path]:
     """Return task folders containing scene, command, and expected files."""
 
@@ -24,7 +25,7 @@ def discover_task_dirs(bench_dir: str | Path) -> list[Path]:
         and (path / "expected.json").exists()
     )
 
-
+'''执行所有任务，收集结果，统计得分等'''
 def run_benchmark(
     bench_dir: str | Path,
     *,
@@ -35,6 +36,7 @@ def run_benchmark(
 
     task_scores: list[dict[str, Any]] = []
     for task_dir in discover_task_dirs(bench_dir):
+        '''这是对每个任务走完整的安全审查流程，将结果传给score_execution_log进行评分，最后把所有任务的得分情况传给summarize_task_scores进行汇总统计。'''
         outcome = execute_if_safe(
             task_dir / "scene.json",
             task_dir / "command.json",
@@ -45,7 +47,7 @@ def run_benchmark(
         task_scores.append(score_execution_log(task_dir.name, outcome.execution_log, expected))
     return summarize_task_scores(task_scores)
 
-
+'''这个函数是专门用来跑一个后端的冒烟测试的，它会遍历所有任务，调用execute_if_safe来执行每个任务，并检查输出是否符合预期的结构化格式。它会统计完成的任务数量、运行时错误数量、结构化输出数量等指标，最后返回一个总结性的字典。'''
 def run_backend_smoke_benchmark(
     bench_dir: str | Path,
     *,
@@ -107,7 +109,7 @@ def run_backend_smoke_benchmark(
         "tasks": tasks,
     }
 
-
+'''检查smoke测试输出是否符合结构化要求，同时验证后端名称是否正确'''
 def _is_structured_smoke_output(safety: dict[str, Any], review_backend: dict[str, Any], backend_name: str) -> bool:
     return (
         safety.get("decision") in {"approve", "manual_review", "reject"}

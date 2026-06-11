@@ -1,5 +1,7 @@
 # Stage 2 Backend Diagnostics
 
+[中文版](stage2_backend_diagnostics.zh-CN.md)
+
 ## Purpose
 
 This document records backend comparison diagnostics between the deterministic mock backend and the PyBullet backend. The goal is not to prove that both backends match exactly. The goal is to make backend differences visible enough to decide the next engineering step.

@@ -1,4 +1,5 @@
-"""Mock RealMan-compatible 6-DOF robot adapter."""
+"""Mock RealMan-compatible 6-DOF robot adapter.
+在没有真实机械臂时候，用来验证execute_if_safe流程的适配器，模拟一个6自由度的机械臂，记录执行的目标关节位置和执行次数等信息"""
 
 from __future__ import annotations
 
@@ -25,6 +26,7 @@ class MockRealMan6DoFAdapter:
     def get_joint_state(self) -> tuple[float, ...]:
         return self._joints
 
+    '''模拟执行关节移动，直接更新内部关节状态，检查target_joints的长度和speed的正值要求，记录执行次数和最后的目标关节位置，返回一个成功的执行结果。'''
     def execute_joint_move(self, target_joints: tuple[float, ...] | list[float], speed: float) -> RobotExecutionResult:
         target = tuple(float(item) for item in target_joints)
         if len(target) != 6:
