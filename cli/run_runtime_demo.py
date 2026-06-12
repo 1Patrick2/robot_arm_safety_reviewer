@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import argparse
-import json
 from pathlib import Path
 
 from application.runtime_service import RuntimeTaskRequest, run_runtime_task
+from cli.output import print_runtime_task_result
 
 
 def main() -> None:
@@ -26,17 +26,7 @@ def main() -> None:
     except FileNotFoundError as exc:
         parser.error(str(exc))
 
-    result = runtime_result.step_result
-    payload = runtime_result.to_dict()
-    if args.json:
-        print(json.dumps(payload, indent=2))
-        return
-    print(f"Decision: {result.safety_result.decision}")
-    print(f"Risk Level: {result.safety_result.risk_level}")
-    print(f"Executed: {result.executed}")
-    print(f"Blocked Reason: {result.blocked_reason}")
-    print(f"Episode Dir: {runtime_result.episode_dir}")
-    print(f"Episode Step Path: {result.episode_step_path}")
+    print_runtime_task_result(runtime_result, as_json=args.json)
 
 
 if __name__ == "__main__":

@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import argparse
-import json
 from pathlib import Path
 
 from application.runtime_service import RuntimeTaskRequest, run_runtime_task
+from cli.output import print_runtime_task_result
 
 
 def register_runtime_commands(subparsers) -> None:
@@ -27,15 +27,5 @@ def handle_runtime_run(args: argparse.Namespace) -> None:
             episode_root=Path(args.episode_root),
         )
     )
-    if args.json:
-        print(json.dumps(result.to_dict(), indent=2))
-        return
-
-    step = result.step_result
-    print(f"Decision: {step.safety_result.decision}")
-    print(f"Risk Level: {step.safety_result.risk_level}")
-    print(f"Executed: {step.executed}")
-    print(f"Blocked Reason: {step.blocked_reason}")
-    print(f"Episode Dir: {result.episode_dir}")
-    print(f"Episode Step Path: {step.episode_step_path}")
+    print_runtime_task_result(result, as_json=args.json)
 

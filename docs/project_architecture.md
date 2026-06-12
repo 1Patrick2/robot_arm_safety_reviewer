@@ -170,7 +170,35 @@ Application service layer:
 - `application.review_service.review_command` wraps review-only safety-gate execution.
 - Lets legacy CLI, unified CLI, future batch jobs, and agent tools reuse the same service functions.
 
-## 5. Mock Backend Vs PyBullet Backend
+CLI output layer:
+
+- Owns JSON and text formatting for application result objects.
+- Keeps CLI command modules focused on argument parsing, request construction, and service calls.
+- Preserves legacy CLI output contracts while allowing future commands to share the same formatting helpers.
+
+## 5. Application Boundary Rules
+
+Allowed dependency direction:
+
+```text
+CLI / Future Agent Tool / Future Batch Job
+  -> application
+    -> robot_runtime / robot_safety / sim / gateway / reports
+```
+
+The application layer may import lower-level runtime, safety, simulation, gateway, report, future dataset adapter, and future runtime database packages.
+
+Lower-level packages must not import `application`, future `agent`, or future `robot_tools` packages. This keeps deterministic safety and runtime code reusable outside any CLI or agent surface.
+
+Future agent tools must call:
+
+```text
+agent diagnostic surface -> robot_tools -> application
+```
+
+Agents must not directly call `RobotDeviceAdapter.send_action()` or decide `approve`, `manual_review`, or `reject`. Safety decisions remain deterministic and application services remain the execution boundary.
+
+## 6. Mock Backend Vs PyBullet Backend
 
 Mock backend:
 
@@ -192,7 +220,7 @@ Expected difference:
 - The project compares decision, risk, clearance band, attribution, and strict match separately.
 - Remaining disagreements are documented in `docs/stage2_backend_diagnostics.md`.
 
-## 6. `review_only` Vs `execute_if_safe`
+## 7. `review_only` Vs `execute_if_safe`
 
 `review_only`:
 
@@ -210,7 +238,7 @@ Expected difference:
 
 This is the main safety-gate boundary: deterministic tools decide whether execution is allowed before any robot adapter is called.
 
-## 7. Benchmark / Scorer / Report / Diagnostics Relationship
+## 8. Benchmark / Scorer / Report / Diagnostics Relationship
 
 Benchmark:
 
@@ -233,7 +261,7 @@ Diagnostics:
 - are not the primary safety decision mechanism;
 - help improve URDF geometry, expected contracts, and future visualization.
 
-## 8. Current Boundary
+## 9. Current Boundary
 
 Implemented:
 
@@ -250,7 +278,9 @@ Implemented:
 - runtime episode metadata and step JSONL logs;
 - runtime demo CLI;
 - application runtime/review services;
-- unified CLI entry point for runtime and review commands.
+- unified CLI entry point for runtime and review commands;
+- shared CLI output formatting for runtime and review results;
+- Stage 3.1 boundary and agent adoption research docs.
 
 Not implemented:
 
@@ -263,4 +293,4 @@ Not implemented:
 - ROS2 / MoveIt integration;
 - LLM safety decision making.
 
-The current Stage 3.1 scope is application-layer stabilization: moving reusable orchestration out of one-off CLI files, adding a unified CLI entry point, and preparing future batch or agent-facing tools to call services instead of duplicating runtime assembly logic.
+Stage 3.1 is closed when application services, unified CLI commands, shared CLI output formatting, and boundary documentation are stable. The next implementation stage should add the `PolicyAction` / `PolicyActionSequence` interface before dataset adapters, visual sandboxing, runtime metrics storage, or diagnostic agents.

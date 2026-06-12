@@ -1,0 +1,27 @@
+{
+  "sequence_id": "near_miss_sequence_001",
+  "source": "mini_fixture",
+  "initial_joints": [0, 0, 0, 0, 0, 0],
+  "language_instruction": "move near an obstacle and require deterministic review",
+  "metadata": {
+    "expected_use": "stage33_manual_review_fixture"
+  },
+  "actions": [
+    {
+      "action_type": "joint_target",
+      "values": [0.4, 0.2, 0.1, 0, 0, 0],
+      "timestamp": 0.0,
+      "metadata": {
+        "step_name": "approach_near_obstacle"
+      }
+    },
+    {
+      "action_type": "delta_joint",
+      "values": [0.1, 0.1, 0, 0, 0, 0],
+      "timestamp": 1.0,
+      "metadata": {
+        "step_name": "small_near_obstacle_adjustment"
+      }
+    }
+  ]
+}

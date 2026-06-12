@@ -30,9 +30,12 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Runtime loop | `robot_runtime/safety_runtime.py` | `SafetyRuntime.step` | Reviews a proposed runtime action and sends it to the robot only after an `approve` decision. |
 | Runtime recorder | `robot_runtime/episode_recorder.py` | `EpisodeRecorder` | Writes Stage 3 runtime metadata and step JSONL logs. |
 | Runtime adapter | `robot_runtime/adapters/mock_realman_device.py` | `MockRealManDevice` | Wraps the Stage 1 mock robot adapter behind the Stage 3 runtime device protocol. |
+| Policy action | `robot_runtime/policy_action.py` | `PolicyAction`, `policy_action_to_robot_action` | Defines policy-proposed action inputs and converts `joint_target` / `delta_joint` actions into runtime `RobotAction` objects. |
+| Policy sequence | `robot_runtime/action_sequence.py` | `PolicyActionSequence` | Loads and serializes local action-sequence fixtures for future sequence runtime and dataset adapters. |
 | Application runtime | `application/runtime_service.py` | `RuntimeTaskRequest`, `run_runtime_task` | Reusable service for assembling action source, scene provider, backend, robot device, recorder, and runtime step execution. |
 | Application review | `application/review_service.py` | `ReviewCommandRequest`, `review_command` | Reusable service wrapper around review-only safety-gate execution. |
 | Application core | `application/core.py` | `AppContext`, `ArtifactRef`, `AppResult` | Common result, artifact, and run-context envelope for future service, CLI, batch, and agent-tool outputs. |
+| CLI output | `cli/output.py` | `print_json`, `print_runtime_task_result`, `print_review_command_result` | Shared formatting helpers that keep CLI command modules from duplicating JSON and text output logic. |
 | Benchmark | `robot_safety/benchmark.py` | `run_benchmark` | Discovers benchmark tasks, runs reviews, writes logs, and builds summaries. |
 | Scorer | `robot_safety/scorer.py` | `score_execution_log` | Compares actual logs with expected task contracts. |
 | Report | `reports/report_writer.py` | `build_markdown_report` | Converts one execution log into a human-readable Markdown safety report. |
@@ -50,6 +53,13 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Unified CLI command | `cli/commands/runtime.py` | `register_runtime_commands` | Registers `python -m cli.main runtime run`. |
 | Unified CLI command | `cli/commands/review.py` | `register_review_commands` | Registers `python -m cli.main review`. |
 
+Boundary rules:
+
+- CLI modules call application services and `cli.output`.
+- `application` may orchestrate `robot_runtime`, `robot_safety`, `sim`, `gateway`, and `reports`.
+- `robot_runtime`, `robot_safety`, `sim`, and `gateway` must not import `application`, future `agent`, or future `robot_tools`.
+- Future diagnostic agents should call tool wrappers that call application services; agents must not call robot device execution methods directly.
+
 Suggested reading order:
 
 1. `robot_safety/models.py`
@@ -60,4 +70,5 @@ Suggested reading order:
 6. `reports/backend_comparison.py`
 7. `sim/pybullet_diagnostics.py`, `sim/urdf_calibration.py`
 8. `robot_runtime/types.py`, `robot_runtime/safety_runtime.py`, `robot_runtime/episode_recorder.py`
-9. `application/core.py`, `application/runtime_service.py`, `application/review_service.py`, `cli/main.py`
+9. `robot_runtime/policy_action.py`, `robot_runtime/action_sequence.py`
+10. `application/core.py`, `application/runtime_service.py`, `application/review_service.py`, `cli/output.py`, `cli/main.py`
