@@ -1,15 +1,51 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
 from runtime_db.episode_ingest import build_artifact_records as _build_artifact_records
-from runtime_db.episode_ingest import build_run_record as _build_run_record
-from runtime_db.episode_ingest import build_step_records as _build_step_records
 from runtime_db.repository import RuntimeMetricsRepository
 from runtime_db.schema import init_runtime_db
 
 from .models import AgentContext, AgentContextArtifact, AgentContextStep
+
+
+def _normalise_step(step: dict[str, Any]) -> dict[str, Any]:
+    """Convert a step dict (from DB or episode) into a standard form with
+    a ``safety_result`` sub-dict.
+
+    DB rows from ``RuntimeMetricsRepository.get_steps()`` return flat columns
+    (``decision``, ``risk_level``, ``safety_result_json``, ...) rather than a
+    nested ``safety_result``.  This helper bridges the gap.
+    """
+    sr: dict[str, Any] | None = step.get("safety_result")
+    if isinstance(sr, dict) and sr:
+        return step  # already normalised (episode-dir path)
+
+    step = dict(step)  # shallow copy
+
+    # 1. Parse stored JSON if available
+    raw = step.get("safety_result_json")
+    if isinstance(raw, str) and raw.strip():
+        try:
+            sr = json.loads(raw)
+            if isinstance(sr, dict):
+                step["safety_result"] = sr
+                return step
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+    # 2. Fall back to top-level columns
+    step["safety_result"] = {
+        "decision": step.get("decision"),
+        "risk_level": step.get("risk_level"),
+        "min_clearance": step.get("min_clearance"),
+        "closest_robot_link": step.get("closest_robot_link"),
+        "closest_obstacle": step.get("closest_obstacle"),
+        "worst_step": step.get("worst_step"),
+    }
+    return step
 
 
 def _select_critical_steps(
@@ -25,6 +61,9 @@ def _select_critical_steps(
     3. The min-clearance step.
     4. Remaining slots filled with approve steps (lowest clearance first).
     """
+    # Normalise every step first (handles both DB rows and episode-dir dicts).
+    steps = [_normalise_step(s) for s in steps]
+
     rejected: list[dict] = []
     manual: list[dict] = []
     approved: list[dict] = []
@@ -39,19 +78,25 @@ def _select_critical_steps(
             approved.append(s)
 
     # Sort each group: lower clearance first, then lower step_index
-    def sort_key(s: dict) -> tuple:
-        sr = s.get("safety_result") or {}
-        return (sr.get("min_clearance") or 0.0, s.get("step_index") or 0)
+    # Use is-not-None checks so that 0.0 (contact boundary) is kept as-is
+    # and None (unknown) is sorted last.
+    def _clearance(s: dict) -> float:
+        c = (s.get("safety_result") or {}).get("min_clearance")
+        return float(c) if c is not None else float("inf")
 
-    rejected.sort(key=sort_key)
-    manual.sort(key=sort_key)
-    approved.sort(key=sort_key)
+    def _index(s: dict) -> int:
+        idx = s.get("step_index")
+        return int(idx) if idx is not None else 999999
+
+    rejected.sort(key=lambda s: (_clearance(s), _index(s)))
+    manual.sort(key=lambda s: (_clearance(s), _index(s)))
+    approved.sort(key=lambda s: (_clearance(s), _index(s)))
 
     selected: list[dict] = []
     seen: set[int | str] = set()
 
     def add(s: dict) -> None:
-        idx = s.get("step_index") or s.get("step_id")
+        idx = s.get("step_index") if s.get("step_index") is not None else s.get("step_id")
         if idx is not None and idx not in seen:
             seen.add(idx)
             selected.append(s)
@@ -65,9 +110,8 @@ def _select_critical_steps(
         add(s)
 
     # 3. Min-clearance step (may already be included)
-    min_candidates = approved if not selected else approved
-    if min_candidates and len(selected) < max_steps:
-        add(min_candidates[0])
+    if approved and len(selected) < max_steps:
+        add(approved[0])
 
     # 4. Fill remaining with approve (lowest clearance)
     for s in approved:
@@ -97,6 +141,19 @@ def _select_critical_steps(
     return result
 
 
+def _read_metadata_json(run: dict) -> dict[str, Any]:
+    """Parse the stored metadata_json from a DB run record."""
+    raw = run.get("metadata_json")
+    if isinstance(raw, str) and raw.strip():
+        try:
+            return json.loads(raw)
+        except (json.JSONDecodeError, ValueError):
+            pass
+    if isinstance(raw, dict):
+        return raw
+    return {}
+
+
 def build_agent_context_from_db(
     db_path: Path,
     episode_id: str,
@@ -106,8 +163,6 @@ def build_agent_context_from_db(
     """Build an AgentContext from a runtime_metrics.db query.
 
     Uses the repository layer — never reads the database directly.
-    Falls back to direct episode-dir loading when the database doesn't exist
-    or the episode is not yet ingested.
     """
     init_runtime_db(db_path)
     repo = RuntimeMetricsRepository(db_path)
@@ -117,10 +172,10 @@ def build_agent_context_from_db(
         raise KeyError(f"episode not found in metrics database: {episode_id}")
 
     db_steps = repo.get_steps(episode_id)
+    meta = _read_metadata_json(run)
 
-    # Build artifact records from the stored artifact paths in the database
+    # Build artifact records from the stored artifact paths
     artifacts: list[AgentContextArtifact] = []
-    # The DB stores runs.episode_dir — use it to check artifact files
     ep_dir_str = run.get("episode_dir")
     if ep_dir_str:
         ep_dir = Path(ep_dir_str)
@@ -134,7 +189,6 @@ def build_agent_context_from_db(
                     )
                 )
 
-    # Build step records from DB steps (already in dict format)
     critical_steps = _select_critical_steps(db_steps, max_steps=max_steps)
 
     return AgentContext(
@@ -142,7 +196,7 @@ def build_agent_context_from_db(
         sequence_id=run.get("sequence_id"),
         backend=run.get("backend"),
         device=run.get("device"),
-        run_mode=None,  # not stored in DB currently
+        run_mode=meta.get("run_mode"),
         total_steps=run.get("total_steps") or 0,
         approved_steps=run.get("approved_steps") or 0,
         executed_steps=run.get("executed_steps") or 0,
