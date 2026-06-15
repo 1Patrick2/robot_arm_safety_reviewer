@@ -35,7 +35,10 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Application runtime | `application/runtime_service.py` | `RuntimeTaskRequest`, `run_runtime_task` | Reusable service for assembling action source, scene provider, backend, robot device, recorder, and runtime step execution. |
 | Application review | `application/review_service.py` | `ReviewCommandRequest`, `review_command` | Reusable service wrapper around review-only safety-gate execution. |
 | Application core | `application/core.py` | `AppContext`, `ArtifactRef`, `AppResult` | Common result, artifact, and run-context envelope for future service, CLI, batch, and agent-tool outputs. |
-| CLI output | `cli/output.py` | `print_json`, `print_runtime_task_result`, `print_review_command_result` | Shared formatting helpers that keep CLI command modules from duplicating JSON and text output logic. |
+| Dataset adapter protocol | `dataset_adapters/base.py` | `DatasetAdapter` | Protocol for `list_sequences()` and `load_sequence()`. |
+| Mini sequence adapter | `dataset_adapters/mini_sequence_adapter.py` | `MiniSequenceAdapter` | Reads local `samples/policy_sequences/*.json` files and returns `PolicyActionSequence` objects. |
+| Dataset service | `application/dataset_service.py` | `DatasetListRequest`, `DatasetExportSequenceRequest`, `dataset_list`, `dataset_export_sequence` | Reusable application service wrapping adapter operations for CLI and future entry points. |
+| CLI output | `cli/output.py` | `print_json`, `print_runtime_task_result`, `print_review_command_result`, `print_sequence_runtime_result`, `print_dataset_list_result`, `print_dataset_export_result` | Shared formatting helpers that keep CLI command modules from duplicating JSON and text output logic. |
 | Benchmark | `robot_safety/benchmark.py` | `run_benchmark` | Discovers benchmark tasks, runs reviews, writes logs, and builds summaries. |
 | Scorer | `robot_safety/scorer.py` | `score_execution_log` | Compares actual logs with expected task contracts. |
 | Report | `reports/report_writer.py` | `build_markdown_report` | Converts one execution log into a human-readable Markdown safety report. |
@@ -52,12 +55,14 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Unified CLI | `cli/main.py` | `main` | Stage 3.1 unified entry point backed by application services. |
 | Unified CLI command | `cli/commands/runtime.py` | `register_runtime_commands` | Registers `python -m cli.main runtime run`. |
 | Unified CLI command | `cli/commands/review.py` | `register_review_commands` | Registers `python -m cli.main review`. |
+| Unified CLI command | `cli/commands/sequence.py` | `register_sequence_commands` | Registers `python -m cli.main sequence run`. |
+| Unified CLI command | `cli/commands/dataset.py` | `register_dataset_commands` | Registers `python -m cli.main dataset list` and `python -m cli.main dataset export-sequence`. |
 
 Boundary rules:
 
 - CLI modules call application services and `cli.output`.
-- `application` may orchestrate `robot_runtime`, `robot_safety`, `sim`, `gateway`, and `reports`.
-- `robot_runtime`, `robot_safety`, `sim`, and `gateway` must not import `application`, future `agent`, or future `robot_tools`.
+- `application` may orchestrate `robot_runtime`, `robot_safety`, `sim`, `gateway`, `reports`, and `dataset_adapters`.
+- `robot_runtime`, `robot_safety`, `sim`, `gateway`, and `dataset_adapters` must not import `application`, future `agent`, or future `robot_tools`.
 - Future diagnostic agents should call tool wrappers that call application services; agents must not call robot device execution methods directly.
 
 Suggested reading order:
@@ -71,4 +76,5 @@ Suggested reading order:
 7. `sim/pybullet_diagnostics.py`, `sim/urdf_calibration.py`
 8. `robot_runtime/types.py`, `robot_runtime/safety_runtime.py`, `robot_runtime/episode_recorder.py`
 9. `robot_runtime/policy_action.py`, `robot_runtime/action_sequence.py`
-10. `application/core.py`, `application/runtime_service.py`, `application/review_service.py`, `cli/output.py`, `cli/main.py`
+10. `application/core.py`, `application/runtime_service.py`, `application/review_service.py`, `application/sequence_runtime_service.py`, `application/dataset_service.py`, `cli/output.py`, `cli/main.py`
+11. `dataset_adapters/base.py`, `dataset_adapters/mini_sequence_adapter.py`

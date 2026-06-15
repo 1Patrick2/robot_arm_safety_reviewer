@@ -1,8 +1,8 @@
 # Project Current Status
 
-RobotArmSafetyReviewer is currently entering **Stage 3.2 PolicyAction Interface** after closing the Stage 3.1 application foundation.
+RobotArmSafetyReviewer is currently entering **Stage 3.4 Dataset Adapter MVP** after closing the Stage 3.3 sequence runtime loop.
 
-This stage extracts reusable application services from one-off CLI orchestration and adds a unified CLI entry point before adding batch jobs, agent tools, PyBullet robot-device execution, or hardware-facing adapters.
+This stage introduces the Dataset Adapter MVP: a Protocol-based abstraction for loading PolicyActionSequence objects from local sources, backed by a MiniSequenceAdapter plus application service and CLI wiring.
 
 ## Completed Scope
 
@@ -12,18 +12,18 @@ This stage extracts reusable application services from one-off CLI orchestration
 - Stage 2.6 documentation and explicit evaluator metadata cleanup.
 - Stage 3 MVP runtime action loop.
 - Stage 3.0 runtime cleanup: execution-result propagation, episode schema hardening, and CLI safety checks.
+- Stage 3.1 application service layer, unified CLI entry point, shared CLI output formatting.
+- Stage 3.2 PolicyAction and PolicyActionSequence models with joint_target / delta_joint conversion.
+- Stage 3.3 sequence runtime for multi-step policy action execution with approve / manual_review / reject blocking and episode recording.
+- Stage 3.4 Dataset Adapter MVP: DatasetAdapter Protocol, MiniSequenceAdapter for samples/policy_sequences, dataset service, and dataset CLI.
 
 ## Current Focus
 
-- Application service layer.
-- Shared application result, artifact, and context envelope.
-- Unified CLI entry point.
-- Legacy CLI compatibility wrappers.
-- Shared CLI output formatting.
-- Service-level tests that do not rely on CLI as the only entry point.
-- Keeping future batch and agent tools from duplicating runtime assembly logic.
-- Boundary docs and pattern-first agent research docs.
-- Stage 3.2 policy action model and local policy sequence fixtures.
+- Dataset Adapter Protocol and MiniSequenceAdapter are stable.
+- Next dataset adapter variants (LeRobot-style local adapter).
+- Visual Runtime Sandbox for episode trajectory and clearance visualization.
+- Keeping future batch jobs, CLI commands, and agent tools using the same application service boundary.
+- No DeepSeek, RealMan SDK, ROS2, or large-scale dataset integration until dataset-backed runtime and visual artifacts are stable.
 
 ## Current Verification Snapshot
 
@@ -86,8 +86,11 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest -q --basetemp .pytest_
 - Exact clearance and attribution can differ between mock and PyBullet; this is measured and documented rather than hidden.
 - Self-collision, workspace boundary, velocity/acceleration constraints, RealMan SDK execution, ROS2, MoveIt, VLA, and LLM agent control are not implemented.
 - The Stage 3 runtime currently executes one proposed action per `step()` call and records episode logs; it is not yet a multi-step policy rollout engine.
+- Sequence runtime (`run_sequence_runtime`) runs multi-step sequences using the same SafetyRuntime loop internally.
 - CLI output is centralized in `cli/output.py`; command modules should not duplicate result formatting.
-- `PolicyActionSequence` can be loaded from JSON, but sequence execution is not implemented yet.
+- `PolicyActionSequence` is defined as a frozen dataclass with JSON load/save and conversion to runtime actions.
+- Dataset adapters follow a Protocol-based pattern (`dataset_adapters/base.py`); only `MiniSequenceAdapter` exists so far.
+- The dataset adapter registry is a simple dict mapping; there is no pluggable discovery or external registration yet.
 - Future agent tools must call application services through a tool boundary and must not call robot device execution methods directly.
 
 ## Next Recommended Step
@@ -96,9 +99,10 @@ Do not jump directly into a large Agent or RealMan SDK integration.
 
 Recommended order:
 
-1. Add Stage 3.2 `PolicyAction` and `PolicyActionSequence`.
-2. Add Stage 3.3 sequence runtime for multi-step policy action execution.
-3. Add Stage 3.4 dataset adapters after the internal sequence contract is stable.
-4. Add visual sandbox artifacts and runtime metrics storage before any diagnostic agent.
-5. Add a diagnostic-only DeepSeek agent after metrics and failure traces are queryable.
-6. Defer RealMan SDK, ROS2, MoveIt, VLA, and LLM agent control until the runtime metrics and failure traces are stable.
+1. ✅ Stage 3.2 `PolicyAction` and `PolicyActionSequence` — done.
+2. ✅ Stage 3.3 sequence runtime — done.
+3. ✅ Stage 3.4 mini_sequence adapter, service, and CLI — done.
+4. Add a local LeRobot-style dataset adapter after the mini adapter contract is stable.
+5. Add visual sandbox artifacts and runtime metrics storage before any diagnostic agent.
+6. Add a diagnostic-only DeepSeek agent after metrics and failure traces are queryable.
+7. Defer RealMan SDK, ROS2, MoveIt, VLA, and LLM agent control until the runtime metrics and failure traces are stable.

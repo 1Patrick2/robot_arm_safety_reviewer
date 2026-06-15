@@ -168,6 +168,8 @@ Application service layer:
 - Owns reusable orchestration that should not live inside CLI files.
 - `application.runtime_service.run_runtime_task` builds and runs one runtime task.
 - `application.review_service.review_command` wraps review-only safety-gate execution.
+- `application.sequence_runtime_service.run_sequence_runtime` runs multi-step policy action sequences through the safety runtime.
+- `application.dataset_service.dataset_list` and `dataset_export_sequence` wrap dataset adapter operations.
 - Lets legacy CLI, unified CLI, future batch jobs, and agent tools reuse the same service functions.
 
 CLI output layer:
@@ -183,10 +185,10 @@ Allowed dependency direction:
 ```text
 CLI / Future Agent Tool / Future Batch Job
   -> application
-    -> robot_runtime / robot_safety / sim / gateway / reports
+    -> robot_runtime / robot_safety / sim / gateway / reports / dataset_adapters
 ```
 
-The application layer may import lower-level runtime, safety, simulation, gateway, report, future dataset adapter, and future runtime database packages.
+The application layer may import lower-level runtime, safety, simulation, gateway, report, dataset adapter, and future runtime database packages.
 
 Lower-level packages must not import `application`, future `agent`, or future `robot_tools` packages. This keeps deterministic safety and runtime code reusable outside any CLI or agent surface.
 
@@ -277,10 +279,13 @@ Implemented:
 - runtime execution-result propagation;
 - runtime episode metadata and step JSONL logs;
 - runtime demo CLI;
-- application runtime/review services;
-- unified CLI entry point for runtime and review commands;
-- shared CLI output formatting for runtime and review results;
-- Stage 3.1 boundary and agent adoption research docs.
+- Stage 3.2 PolicyAction and PolicyActionSequence models;
+- Stage 3.3 sequence runtime for multi-step policy action execution;
+- application runtime/review/sequence_runtime/dataset services;
+- unified CLI entry point for runtime, review, sequence, and dataset commands;
+- shared CLI output formatting for all result types;
+- Stage 3.1 boundary and agent adoption research docs;
+- Stage 3.4 DatasetAdapter Protocol and MiniSequenceAdapter.
 
 Not implemented:
 
@@ -293,4 +298,4 @@ Not implemented:
 - ROS2 / MoveIt integration;
 - LLM safety decision making.
 
-Stage 3.1 is closed when application services, unified CLI commands, shared CLI output formatting, and boundary documentation are stable. The next implementation stage should add the `PolicyAction` / `PolicyActionSequence` interface before dataset adapters, visual sandboxing, runtime metrics storage, or diagnostic agents.
+Stage 3.4 Dataset Adapter MVP is the current focus. The mini_sequence adapter, dataset service, and dataset CLI are stable. The next recommended step is a local LeRobot-style adapter, followed by visual sandboxing and metrics storage before any diagnostic agent or hardware integration.
