@@ -50,6 +50,7 @@ def print_sequence_runtime_result(result: SequenceRuntimeResult, *, as_json: boo
     print(f"Backend: {result.backend_name}")
     print(f"Device: {result.device_name}")
     print(f"Total Steps: {result.total_steps}")
+    print(f"Approved Steps: {result.approved_steps}")
     print(f"Executed Steps: {result.executed_steps}")
     print(f"Blocked Steps: {result.blocked_steps}")
     print(f"Rejected Steps: {result.rejected_steps}")

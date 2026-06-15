@@ -22,7 +22,7 @@ class SequenceRuntimeRequest:
     backend_name: str = "mock"
     device_name: str = "mock_realman"
     episode_root: Path = Path("output_reports/sequence_runtime")
-    stop_on_reject: bool = True
+    stop_on_block: bool = True
 
 
 @dataclass(frozen=True)
@@ -32,6 +32,7 @@ class SequenceRuntimeResult:
     device_name: str
     episode_dir: Path
     total_steps: int
+    approved_steps: int
     executed_steps: int
     blocked_steps: int
     rejected_steps: int
@@ -45,6 +46,7 @@ class SequenceRuntimeResult:
             "device": self.device_name,
             "episode_dir": str(self.episode_dir),
             "total_steps": self.total_steps,
+            "approved_steps": self.approved_steps,
             "executed_steps": self.executed_steps,
             "blocked_steps": self.blocked_steps,
             "rejected_steps": self.rejected_steps,
@@ -128,7 +130,7 @@ def run_sequence_runtime(request: SequenceRuntimeRequest) -> SequenceRuntimeResu
         for _ in sequence.actions:
             step_result = runtime.step()
             step_results.append(step_result)
-            if step_result.safety_result.decision != "approve" and request.stop_on_reject:
+            if step_result.safety_result.decision != "approve" and request.stop_on_block:
                 break
     finally:
         robot.disconnect()
@@ -151,6 +153,7 @@ def _build_result(
     step_results: tuple[RuntimeStepResult, ...],
 ) -> SequenceRuntimeResult:
     executed_steps = sum(1 for step in step_results if step.executed)
+    approved_steps = sum(1 for step in step_results if step.safety_result.decision == "approve")
     rejected_steps = sum(1 for step in step_results if step.safety_result.decision == "reject")
     manual_review_steps = sum(1 for step in step_results if step.safety_result.decision == "manual_review")
     blocked_steps = sum(1 for step in step_results if not step.executed)
@@ -160,6 +163,7 @@ def _build_result(
         device_name=device_name,
         episode_dir=episode_dir,
         total_steps=len(step_results),
+        approved_steps=approved_steps,
         executed_steps=executed_steps,
         blocked_steps=blocked_steps,
         rejected_steps=rejected_steps,

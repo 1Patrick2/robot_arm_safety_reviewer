@@ -40,6 +40,7 @@ def test_sequence_runtime_executes_safe_sequence(tmp_path):
 
     assert payload["sequence_id"] == "simple_safe_sequence_001"
     assert payload["total_steps"] == 2
+    assert payload["approved_steps"] == 2
     assert payload["executed_steps"] == 2
     assert payload["blocked_steps"] == 0
     assert [step.safety_result.decision for step in result.step_results] == ["approve", "approve"]
@@ -61,6 +62,7 @@ def test_sequence_runtime_blocks_collision_sequence(tmp_path):
     step = result.step_results[0]
 
     assert result.total_steps == 1
+    assert result.approved_steps == 0
     assert result.executed_steps == 0
     assert result.blocked_steps == 1
     assert result.rejected_steps == 1
@@ -91,20 +93,21 @@ def test_sequence_runtime_blocks_manual_review_sequence(tmp_path):
     )
 
     assert result.executed_steps == 0
+    assert result.approved_steps == 0
     assert result.manual_review_steps == 1
     assert result.blocked_steps == 1
     assert result.step_results[0].safety_result.decision == "manual_review"
     assert result.step_results[0].blocked_reason == "manual_review_required"
 
 
-def test_sequence_runtime_continue_on_reject_records_remaining_steps(tmp_path):
+def test_sequence_runtime_continue_on_block_records_remaining_steps(tmp_path):
     result = run_sequence_runtime(
         SequenceRuntimeRequest(
             sequence_path=SAMPLES / "near_miss_sequence.json",
             scene_path=BENCH / "near_miss_clearance_001" / "scene.json",
             backend_name="mock",
             episode_root=tmp_path,
-            stop_on_reject=False,
+            stop_on_block=False,
         )
     )
 
@@ -160,5 +163,38 @@ def test_sequence_cli_smoke_json(tmp_path):
 
     assert payload["sequence_id"] == "simple_safe_sequence_001"
     assert payload["total_steps"] == 2
+    assert payload["approved_steps"] == 2
     assert payload["executed_steps"] == 2
     assert Path(payload["episode_dir"]).exists()
+
+
+def test_sequence_cli_continue_on_block_json(tmp_path):
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "cli.main",
+            "sequence",
+            "run",
+            "--sequence",
+            str(SAMPLES / "near_miss_sequence.json"),
+            "--scene",
+            str(BENCH / "near_miss_clearance_001" / "scene.json"),
+            "--backend",
+            "mock",
+            "--episode-root",
+            str(tmp_path),
+            "--continue-on-block",
+            "--json",
+        ],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    payload = json.loads(completed.stdout)
+
+    assert payload["total_steps"] == 2
+    assert payload["approved_steps"] == 0
+    assert payload["blocked_steps"] == 2

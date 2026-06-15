@@ -17,7 +17,8 @@ def register_sequence_commands(subparsers) -> None:
     run_parser.add_argument("--backend", default="mock", choices=("mock", "pybullet"))
     run_parser.add_argument("--device", default="mock_realman", choices=("mock_realman",))
     run_parser.add_argument("--episode-root", default="output_reports/sequence_runtime")
-    run_parser.add_argument("--continue-on-reject", action="store_true")
+    run_parser.add_argument("--continue-on-block", action="store_true")
+    run_parser.add_argument("--continue-on-reject", action="store_true", help=argparse.SUPPRESS)
     run_parser.add_argument("--json", action="store_true")
     run_parser.set_defaults(handler=handle_sequence_run)
 
@@ -30,7 +31,7 @@ def handle_sequence_run(args: argparse.Namespace) -> None:
             backend_name=args.backend,
             device_name=args.device,
             episode_root=Path(args.episode_root),
-            stop_on_reject=not args.continue_on_reject,
+            stop_on_block=not (args.continue_on_block or args.continue_on_reject),
         )
     )
     print_sequence_runtime_result(result, as_json=args.json)
