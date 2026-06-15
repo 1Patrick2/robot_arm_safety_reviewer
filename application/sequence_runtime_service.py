@@ -23,6 +23,7 @@ class SequenceRuntimeRequest:
     device_name: str = "mock_realman"
     episode_root: Path = Path("output_reports/sequence_runtime")
     stop_on_block: bool = True
+    run_mode: str = "sequence_runtime"
 
 
 @dataclass(frozen=True)
@@ -115,6 +116,7 @@ def run_sequence_runtime(request: SequenceRuntimeRequest) -> SequenceRuntimeResu
         action_source_name=action_source.name,
         scene_provider_name=scene_provider.name,
         backend_name=request.backend_name,
+        run_mode=request.run_mode,
     )
     runtime = SafetyRuntime(
         robot=robot,

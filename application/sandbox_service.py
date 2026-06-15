@@ -22,6 +22,7 @@ class SandboxRunRequest:
     device_name: str = "mock_realman"
     output_root: Path = Path("output_reports/sandbox")
     stop_on_block: bool = True
+    run_mode: str = "sandbox"
 
 
 @dataclass(frozen=True)
@@ -77,6 +78,7 @@ def run_sandbox(request: SandboxRunRequest) -> SandboxRunResult:
             device_name=request.device_name,
             episode_root=request.output_root / "episodes",
             stop_on_block=request.stop_on_block,
+            run_mode=request.run_mode,
         )
     )
 

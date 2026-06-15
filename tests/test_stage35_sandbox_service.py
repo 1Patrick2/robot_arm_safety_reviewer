@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import json
+
 from application.sandbox_service import SandboxRunRequest, run_sandbox
 
 SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "policy_sequences"
@@ -100,3 +102,20 @@ class TestRunSandbox:
         assert "episode_summary" in kinds
         assert "clearance_curve" in kinds
         assert "trajectory_overview" in kinds
+
+    def test_metadata_contains_run_mode(self, tmp_path):
+        result = run_sandbox(
+            SandboxRunRequest(
+                sequence_path=SAMPLES / "simple_safe_sequence.json",
+                scene_path=BENCH / "simple_joint_move_001" / "scene.json",
+                backend_name="mock",
+                output_root=tmp_path,
+            )
+        )
+
+        episode_dir = result.sequence_runtime_result.episode_dir
+        meta_path = episode_dir / "metadata.json"
+        assert meta_path.exists()
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        assert meta["run_mode"] == "sandbox"
+        assert meta["artifact_schema_version"] == "stage3.visual_sandbox.v1"

@@ -20,6 +20,8 @@ class EpisodeRecorder:
         scene_provider_name: str,
         backend_name: str,
         episode_id: str | None = None,
+        run_mode: str = "sequence_runtime",
+        artifact_schema_version: str = "stage3.visual_sandbox.v1",
     ) -> None:
         self.root_dir = Path(root_dir)
         self.episode_id = episode_id or self._make_episode_id()
@@ -33,6 +35,8 @@ class EpisodeRecorder:
             action_source_name=action_source_name,
             scene_provider_name=scene_provider_name,
             backend_name=backend_name,
+            run_mode=run_mode,
+            artifact_schema_version=artifact_schema_version,
         )
 
     def record_step(self, result: RuntimeStepResult) -> Path:
@@ -53,6 +57,8 @@ class EpisodeRecorder:
         action_source_name: str,
         scene_provider_name: str,
         backend_name: str,
+        run_mode: str = "sequence_runtime",
+        artifact_schema_version: str = "stage3.visual_sandbox.v1",
     ) -> None:
         payload = {
             "schema_version": self.schema_version,
@@ -62,6 +68,8 @@ class EpisodeRecorder:
             "action_source": action_source_name,
             "scene_provider": scene_provider_name,
             "backend": backend_name,
+            "run_mode": run_mode,
+            "artifact_schema_version": artifact_schema_version,
             "project_stage": "stage3_runtime_mvp",
             "notes": None,
         }
