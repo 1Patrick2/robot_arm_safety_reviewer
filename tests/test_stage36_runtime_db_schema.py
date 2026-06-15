@@ -42,6 +42,22 @@ class TestInitRuntimeDb:
         assert row is not None
         assert row[0] == SCHEMA_VERSION
 
+    def test_runs_table_contains_new_worst_step_columns(self, tmp_path):
+        db_path = tmp_path / "test_columns.db"
+        init_runtime_db(db_path)
+
+        conn = sqlite3.connect(str(db_path))
+        try:
+            cursor = conn.execute("PRAGMA table_info(runs)")
+            columns = {row[1] for row in cursor.fetchall()}
+        finally:
+            conn.close()
+
+        assert "worst_sequence_step_index" in columns
+        assert "backend_worst_step" in columns
+        # legacy column is still present
+        assert "worst_step" in columns
+
     def test_repeated_init_does_not_error(self, tmp_path):
         db_path = tmp_path / "test_repeat.db"
         init_runtime_db(db_path)

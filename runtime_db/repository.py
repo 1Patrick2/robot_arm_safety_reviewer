@@ -35,10 +35,11 @@ class RuntimeMetricsRepository:
                     total_steps, approved_steps, executed_steps, blocked_steps,
                     rejected_steps, manual_review_steps,
                     min_clearance, worst_step,
+                    worst_sequence_step_index, backend_worst_step,
                     closest_robot_link, closest_obstacle,
                     summary_path, clearance_curve_path, trajectory_overview_path,
                     metadata_json
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     run["episode_id"],
@@ -58,6 +59,8 @@ class RuntimeMetricsRepository:
                     run.get("manual_review_steps"),
                     run.get("min_clearance"),
                     run.get("worst_step"),
+                    run.get("worst_sequence_step_index"),
+                    run.get("backend_worst_step"),
                     run.get("closest_robot_link"),
                     run.get("closest_obstacle"),
                     run.get("summary_path"),

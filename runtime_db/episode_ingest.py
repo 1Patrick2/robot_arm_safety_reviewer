@@ -48,16 +48,22 @@ def build_run_record(episode_dir: Path) -> dict[str, Any]:
     valid_clearances = [c for c in clearances if c is not None]
     min_clearance = min(valid_clearances) if valid_clearances else None
 
-    worst_step: int | None = None
+    # worst_sequence_step_index: which sequence step had the lowest clearance
+    worst_sequence_step_index: int | None = None
+    # backend_worst_step: the backend's internal worst-step index for that step
+    backend_worst_step: int | None = None
     closest_link: str | None = None
     closest_obs: str | None = None
-    # Find the worst step (lowest clearance) for overview
+    legacy_worst_step: int | None = None
     if valid_clearances:
         worst_idx = clearances.index(min_clearance)
         sr = steps[worst_idx].get("safety_result", {})
-        worst_step = sr.get("worst_step")
+        legacy_worst_step = sr.get("worst_step")
         closest_link = sr.get("closest_robot_link")
         closest_obs = sr.get("closest_obstacle")
+        # Sequence steps are 1-indexed in the episode context
+        worst_sequence_step_index = steps[worst_idx].get("step_index") or (worst_idx + 1)
+        backend_worst_step = legacy_worst_step
 
     summary_path = episode_dir / "episode_summary.md"
     clearance_path = episode_dir / "clearance_curve.png"
@@ -80,7 +86,9 @@ def build_run_record(episode_dir: Path) -> dict[str, Any]:
         "rejected_steps": rejected,
         "manual_review_steps": manual_review,
         "min_clearance": min_clearance,
-        "worst_step": worst_step,
+        "worst_step": legacy_worst_step,
+        "worst_sequence_step_index": worst_sequence_step_index,
+        "backend_worst_step": backend_worst_step,
         "closest_robot_link": closest_link,
         "closest_obstacle": closest_obs,
         "summary_path": str(summary_path) if summary_path.exists() else None,

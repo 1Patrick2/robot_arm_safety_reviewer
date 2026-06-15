@@ -42,6 +42,33 @@ class TestBuildRunRecord:
         assert record["blocked_steps"] == 0
         assert record["min_clearance"] is not None
 
+    def test_worst_step_fields(self, tmp_path):
+        """Verify worst_sequence_step_index and backend_worst_step are populated."""
+        ep_dir = _write_episode(tmp_path / "ep_worst", steps=[
+            {
+                "step_id": "s1", "step_index": 1,
+                "safety_result": {"decision": "approve", "risk_level": "low", "min_clearance": 0.05, "worst_step": 3},
+                "executed": True,
+            },
+            {
+                "step_id": "s2", "step_index": 2,
+                "safety_result": {"decision": "approve", "risk_level": "low", "min_clearance": 0.02, "worst_step": 7},
+                "executed": True,
+            },
+            {
+                "step_id": "s3", "step_index": 3,
+                "safety_result": {"decision": "approve", "risk_level": "low", "min_clearance": 0.10, "worst_step": 1},
+                "executed": True,
+            },
+        ])
+        record = build_run_record(ep_dir)
+        # worst sequence step is step 2 (clearance=0.02)
+        assert record["worst_sequence_step_index"] == 2
+        # backend worst_step for that step is 7
+        assert record["backend_worst_step"] == 7
+        # legacy worst_step preserved
+        assert record["worst_step"] == 7
+
 
 class TestBuildStepRecords:
     def test_extracts_steps(self, tmp_path):

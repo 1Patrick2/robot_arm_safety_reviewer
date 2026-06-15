@@ -71,6 +71,19 @@ INSERT OR IGNORE INTO schema_meta (key, value) VALUES ('schema_version', ?)
 """
 
 
+def _migrate_schema(conn: sqlite3.Connection) -> None:
+    """Apply schema migrations for databases created by an earlier schema version."""
+    migrations = [
+        "ALTER TABLE runs ADD COLUMN worst_sequence_step_index INTEGER",
+        "ALTER TABLE runs ADD COLUMN backend_worst_step INTEGER",
+    ]
+    for stmt in migrations:
+        try:
+            conn.execute(stmt)
+        except sqlite3.OperationalError:
+            pass  # column already exists
+
+
 def init_runtime_db(db_path: Path) -> Path:
     """Create or open a runtime metrics database and ensure all tables exist.
 
@@ -82,6 +95,7 @@ def init_runtime_db(db_path: Path) -> Path:
     conn = sqlite3.connect(str(db_path))
     try:
         conn.executescript(_CREATE_TABLES)
+        _migrate_schema(conn)
         conn.execute(_INSERT_SCHEMA, (SCHEMA_VERSION,))
         conn.commit()
     finally:
