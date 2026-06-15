@@ -1,0 +1,16 @@
+{
+  "episode_id": "episode_000001",
+  "source": "lerobot_style_local",
+  "initial_joints": [0, 0, 0, 0, 0, 0],
+  "language_instruction": "move joints through two small safe targets",
+  "actions": [
+    {
+      "action_type": "joint_target",
+      "values": [0.1, 0.2, 0.0, 0.0, 0.0, 0.0]
+    },
+    {
+      "action_type": "delta_joint",
+      "values": [0.05, -0.05, 0.0, 0.0, 0.0, 0.0]
+    }
+  ]
+}

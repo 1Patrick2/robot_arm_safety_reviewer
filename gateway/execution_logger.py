@@ -11,7 +11,7 @@ from typing import Any
 
 from robot_safety.models import JointCommand, SafetyResult, Scene
 
-
+'''完整记录原始scene,command，安全审查结果，后端信息，执行信息和环境信息等，生成一个结构化的日志，方便后续分析和回放。'''
 def build_execution_log(
     *,
     scene: Scene,
@@ -23,6 +23,7 @@ def build_execution_log(
     scene_path: str | Path | None = None,
     command_path: str | Path | None = None,
     adapter_result: dict[str, Any] | None = None,
+    review_backend: dict[str, Any] | None = None,
     log_id: str | None = None,
 ) -> dict[str, Any]:
     """Build a replayable safety review log payload."""
@@ -44,9 +45,10 @@ def build_execution_log(
         "review_summary": _review_summary(safety_result),
         "trajectory_summary": _trajectory_summary(scene, safety_result),
         "environment": {
-            "backend": "mock",
+            "backend": (review_backend or {"name": "mock"}).get("name", "mock"),
             "python_version": platform.python_version(),
         },
+        "review_backend": review_backend or {"name": "mock"},
         "scene": _scene_payload(scene),
         "command": _command_payload(command),
         "safety_result": safety_result.to_dict(),
@@ -57,7 +59,7 @@ def build_execution_log(
         },
     }
 
-
+'''提取摘要信息，包含审查决策、风险等级、最小间隙、最近障碍物和机器人链接等，供日志的review_summary字段使用。'''
 def _review_summary(result: SafetyResult) -> dict[str, Any]:
     return {
         "decision": result.decision,
@@ -68,7 +70,7 @@ def _review_summary(result: SafetyResult) -> dict[str, Any]:
         "worst_step": result.worst_step,
     }
 
-
+'''提取轨迹相关的摘要信息，包含轨迹是否碰撞、最小间隙、最严重的步骤等，供日志的trajectory_summary字段使用。'''
 def _trajectory_summary(scene: Scene, result: SafetyResult) -> dict[str, Any]:
     return {
         "num_steps": scene.safety_config.num_interpolation_steps,
@@ -78,7 +80,7 @@ def _trajectory_summary(scene: Scene, result: SafetyResult) -> dict[str, Any]:
         "collision_free": result.trajectory_collision_free,
     }
 
-
+# 写日志的函数，生成一个JSON文件，文件名包含时间戳和随机ID，内容是结构化的执行日志，方便后续分析和回放。
 def write_execution_log(payload: dict[str, Any], log_dir: str | Path = "logs") -> Path:
     """Write a JSON execution log and return the created path."""
 
@@ -89,7 +91,7 @@ def write_execution_log(payload: dict[str, Any], log_dir: str | Path = "logs") -
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     return path
 
-
+'''安全审查的结果和执行结果都记录在日志里，形成一个完整的审查和执行记录，方便后续分析和回放。'''
 def _scene_payload(scene: Scene) -> dict[str, Any]:
     return {
         "scene_id": scene.scene_id,

@@ -13,11 +13,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Review a robot arm joint-space command before execution.")
     parser.add_argument("--scene", required=True, help="Path to scene.json")
     parser.add_argument("--command", required=True, help="Path to command.json")
+    parser.add_argument(
+        "--backend", default="mock", choices=["mock", "pybullet"], help="Simulation backend for safety review"
+    )
     parser.add_argument("--log-dir", default="logs", help="Directory for execution logs")
     parser.add_argument("--json", action="store_true", help="Print full SafetyResult JSON")
     args = parser.parse_args()
 
-    outcome = review_only(args.scene, args.command, log_dir=args.log_dir)
+    outcome = review_only(args.scene, args.command, backend_name=args.backend, log_dir=args.log_dir)
     result = outcome.safety_result
     if args.json:
         print(json.dumps(result.to_dict(), ensure_ascii=False, indent=2))

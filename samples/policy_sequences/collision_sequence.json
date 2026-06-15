@@ -1,0 +1,19 @@
+{
+  "sequence_id": "collision_sequence_001",
+  "source": "mini_fixture",
+  "initial_joints": [0, 0, 0, 0, 0, 0],
+  "language_instruction": "attempt a movement that should be blocked by the safety runtime",
+  "metadata": {
+    "expected_use": "stage33_reject_fixture"
+  },
+  "actions": [
+    {
+      "action_type": "joint_target",
+      "values": [0.8, 0.6, 0.4, 0, 0, 0],
+      "timestamp": 0.0,
+      "metadata": {
+        "step_name": "move_toward_collision_region"
+      }
+    }
+  ]
+}

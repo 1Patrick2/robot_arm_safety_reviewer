@@ -14,13 +14,22 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Review and conditionally simulate a robot arm joint move.")
     parser.add_argument("--scene", required=True, help="Path to scene.json")
     parser.add_argument("--command", required=True, help="Path to command.json")
+    parser.add_argument(
+        "--backend", default="mock", choices=["mock", "pybullet"], help="Simulation backend for safety review"
+    )
     parser.add_argument("--robot", default="mock_realman", choices=["mock_realman"], help="Robot adapter to use")
     parser.add_argument("--log-dir", default="logs", help="Directory for execution logs")
     parser.add_argument("--json", action="store_true", help="Print full execution log JSON")
     args = parser.parse_args()
 
     adapter = _build_adapter(args.robot)
-    outcome = execute_if_safe(args.scene, args.command, robot_adapter=adapter, log_dir=args.log_dir)
+    outcome = execute_if_safe(
+        args.scene,
+        args.command,
+        robot_adapter=adapter,
+        backend_name=args.backend,
+        log_dir=args.log_dir,
+    )
     result = outcome.safety_result
     execution = outcome.execution_log["execution"]
     if args.json:

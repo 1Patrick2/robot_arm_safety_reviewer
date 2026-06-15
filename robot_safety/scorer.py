@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-
+'''检查expected.json格式，至少有expected_safety, expected_gateway和required_output_fields三个字段'''
 def validate_expected_schema(expected: dict[str, Any]) -> None:
     """Validate the small expected.json contract used by Stage 1 benchmarks."""
 
@@ -22,6 +22,7 @@ def validate_expected_schema(expected: dict[str, Any]) -> None:
     if not isinstance(safety["violations"], list):
         raise ValueError("expected_safety.violations must be a list")
 
+    '''clearance_assertion支持4种模式：not_applicable（不适用），range（范围），greater_than（大于某值），less_than（小于某值）。根据不同的模式，断言需要不同的字段，比如range需要lower和upper，greater_than和less_than需要value。'''
     assertion = safety["clearance_assertion"]
     if not isinstance(assertion, dict):
         raise ValueError("expected_safety.clearance_assertion must be an object")
@@ -43,6 +44,7 @@ def validate_expected_schema(expected: dict[str, Any]) -> None:
         raise ValueError("required_output_fields must be a list")
 
 
+'''核心函数，输入task_id,execution_log,expected，输出passed,checks,actual,expected等信息,检查风险等级，违规项覆盖，关键障碍物匹配，安全决策匹配，清晰度断言匹配，必需字段存在，网关执行匹配，网关原因匹配等多个维度'''
 def score_execution_log(task_id: str, execution_log: dict[str, Any], expected: dict[str, Any]) -> dict[str, Any]:
     """Compare one execution log against the benchmark expected contract."""
 
@@ -87,7 +89,7 @@ def score_execution_log(task_id: str, execution_log: dict[str, Any], expected: d
         },
     }
 
-
+'''统计所有任务的得分情况，并返回一个字典'''
 def summarize_task_scores(task_scores: list[dict[str, Any]]) -> dict[str, Any]:
     """Build aggregate benchmark metrics from per-task scores."""
 
