@@ -5,6 +5,7 @@ import argparse
 from .commands.dataset import register_dataset_commands
 from .commands.review import register_review_commands
 from .commands.runtime import register_runtime_commands
+from .commands.sandbox import register_sandbox_commands
 from .commands.sequence import register_sequence_commands
 
 
@@ -15,6 +16,7 @@ def main() -> None:
     register_dataset_commands(subparsers)
     register_runtime_commands(subparsers)
     register_review_commands(subparsers)
+    register_sandbox_commands(subparsers)
     register_sequence_commands(subparsers)
 
     args = parser.parse_args()

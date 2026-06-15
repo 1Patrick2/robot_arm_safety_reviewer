@@ -6,6 +6,7 @@ from typing import Any
 from application.dataset_service import DatasetListResult, DatasetExportSequenceResult
 from application.review_service import ReviewCommandResult
 from application.runtime_service import RuntimeTaskResult
+from application.sandbox_service import SandboxRunResult
 from application.sequence_runtime_service import SequenceRuntimeResult
 
 
@@ -79,3 +80,21 @@ def print_dataset_export_result(result: DatasetExportSequenceResult, *, as_json:
     print(f"Adapter: {result.adapter_name}")
     print(f"Sequence ID: {result.sequence_id}")
     print(f"Exported Path: {result.exported_path}")
+
+
+def print_sandbox_run_result(result: SandboxRunResult, *, as_json: bool) -> None:
+    if as_json:
+        print_json(result.to_dict())
+        return
+
+    runtime = result.sequence_runtime_result
+    print(f"Sequence: {runtime.sequence_id}")
+    print(f"Backend: {runtime.backend_name}")
+    print(f"Total Steps: {runtime.total_steps}")
+    print(f"Approved Steps: {runtime.approved_steps}")
+    print(f"Executed Steps: {runtime.executed_steps}")
+    print(f"Blocked Steps: {runtime.blocked_steps}")
+    print(f"Episode Dir: {runtime.episode_dir}")
+    print(f"Episode Summary: {result.episode_summary_path}")
+    print(f"Clearance Curve: {result.clearance_curve_path}")
+    print(f"Trajectory Overview: {result.trajectory_overview_path}")
