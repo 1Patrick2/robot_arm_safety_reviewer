@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from application.agent_context_service import AgentContextBuildResult
 from application.dataset_service import DatasetListResult, DatasetExportSequenceResult
 from application.metrics_service import (
     MetricsIngestResult,
@@ -155,3 +156,16 @@ def print_metrics_show_run_result(result: MetricsShowRunResult, *, as_json: bool
         sid = step.get("step_id") or step.get("step_index", "?")
         dec = step.get("decision", "?")
         print(f"  {sid}: {dec}")
+
+
+def print_agent_context_build_result(result: AgentContextBuildResult, *, as_json: bool) -> None:
+    if as_json:
+        print_json(result.to_dict())
+        return
+
+    d = result.to_dict()
+    print(f"Episode ID: {d.get('episode_id', '?')}")
+    print(f"Total Steps: {d.get('total_steps', '?')}")
+    print(f"Critical Steps: {d.get('critical_step_count', '?')}")
+    print(f"JSON: {d.get('json_path', 'N/A')}")
+    print(f"Markdown: {d.get('markdown_path', 'N/A')}")
