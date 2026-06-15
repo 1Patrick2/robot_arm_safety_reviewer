@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from application.dataset_service import DatasetListResult, DatasetExportSequenceResult
 from application.review_service import ReviewCommandResult
 from application.runtime_service import RuntimeTaskResult
 from application.sequence_runtime_service import SequenceRuntimeResult
@@ -56,3 +57,25 @@ def print_sequence_runtime_result(result: SequenceRuntimeResult, *, as_json: boo
     print(f"Rejected Steps: {result.rejected_steps}")
     print(f"Manual Review Steps: {result.manual_review_steps}")
     print(f"Episode Dir: {result.episode_dir}")
+
+
+def print_dataset_list_result(result: DatasetListResult, *, as_json: bool) -> None:
+    if as_json:
+        print_json(result.to_dict())
+        return
+
+    print(f"Adapter: {result.adapter_name}")
+    print(f"Source: {result.source}")
+    print(f"Sequences ({result.to_dict()['count']}):")
+    for sid in result.sequence_ids:
+        print(f"  - {sid}")
+
+
+def print_dataset_export_result(result: DatasetExportSequenceResult, *, as_json: bool) -> None:
+    if as_json:
+        print_json(result.to_dict())
+        return
+
+    print(f"Adapter: {result.adapter_name}")
+    print(f"Sequence ID: {result.sequence_id}")
+    print(f"Exported Path: {result.exported_path}")
