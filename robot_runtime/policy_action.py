@@ -9,7 +9,7 @@ from robot_runtime.types import RobotAction, RobotObservation
 SUPPORTED_POLICY_ACTION_TYPES = frozenset({"joint_target", "delta_joint"})
 
 
-def _float_tuple(values, field_name: str) -> tuple[float, ...]:
+def normalize_joint_values(values, field_name: str) -> tuple[float, ...]:
     try:
         result = tuple(float(item) for item in values)
     except TypeError as exc:
@@ -27,7 +27,7 @@ class PolicyAction:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "values", _float_tuple(self.values, "values"))
+        object.__setattr__(self, "values", normalize_joint_values(self.values, "values"))
         if self.timestamp is not None:
             object.__setattr__(self, "timestamp", float(self.timestamp))
 

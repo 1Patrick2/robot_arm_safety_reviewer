@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from robot_runtime.action_source import ReplayActionSource
-from robot_runtime.adapters.mock_realman_device import MockRealManDevice
+from robot_runtime.adapters import create_robot_device
 from robot_runtime.episode_recorder import EpisodeRecorder
 from robot_runtime.safety_runtime import SafetyRuntime
 from robot_runtime.scene_provider import StaticSceneProvider
@@ -63,7 +63,7 @@ def run_runtime_task(request: RuntimeTaskRequest) -> RuntimeTaskResult:
 
     action_source = ReplayActionSource(command_path)
     scene_provider = StaticSceneProvider(scene_path)
-    robot = MockRealManDevice(initial_joints=action_source.command.current_joints)
+    robot = create_robot_device(request.robot_name, initial_joints=action_source.command.current_joints)
     backend = create_backend(request.backend_name)
     recorder = EpisodeRecorder(
         root_dir=request.episode_root,

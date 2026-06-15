@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from robot_runtime.policy_action import PolicyAction, _float_tuple
+from robot_runtime.policy_action import PolicyAction, normalize_joint_values
 
 
 @dataclass(frozen=True)
@@ -18,7 +18,7 @@ class PolicyActionSequence:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "initial_joints", _float_tuple(self.initial_joints, "initial_joints"))
+        object.__setattr__(self, "initial_joints", normalize_joint_values(self.initial_joints, "initial_joints"))
         actions = tuple(
             action if isinstance(action, PolicyAction) else PolicyAction.from_dict(action)
             for action in self.actions

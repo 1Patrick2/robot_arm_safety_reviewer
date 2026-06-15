@@ -5,6 +5,7 @@ from typing import Any
 
 from application.review_service import ReviewCommandResult
 from application.runtime_service import RuntimeTaskResult
+from application.sequence_runtime_service import SequenceRuntimeResult
 
 
 def print_json(payload: dict[str, Any]) -> None:
@@ -38,3 +39,19 @@ def print_review_command_result(result: ReviewCommandResult, *, as_json: bool) -
     print(f"Closest Obstacle: {safety.closest_obstacle}")
     print(f"Worst Step: {safety.worst_step}")
     print(f"Log Path: {result.log_path or ''}")
+
+
+def print_sequence_runtime_result(result: SequenceRuntimeResult, *, as_json: bool) -> None:
+    if as_json:
+        print_json(result.to_dict())
+        return
+
+    print(f"Sequence: {result.sequence_id}")
+    print(f"Backend: {result.backend_name}")
+    print(f"Device: {result.device_name}")
+    print(f"Total Steps: {result.total_steps}")
+    print(f"Executed Steps: {result.executed_steps}")
+    print(f"Blocked Steps: {result.blocked_steps}")
+    print(f"Rejected Steps: {result.rejected_steps}")
+    print(f"Manual Review Steps: {result.manual_review_steps}")
+    print(f"Episode Dir: {result.episode_dir}")
