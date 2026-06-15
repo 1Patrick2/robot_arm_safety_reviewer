@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 
 from .commands.dataset import register_dataset_commands
+from .commands.metrics import register_metrics_commands
 from .commands.review import register_review_commands
 from .commands.runtime import register_runtime_commands
 from .commands.sandbox import register_sandbox_commands
@@ -14,6 +15,7 @@ def main() -> None:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     register_dataset_commands(subparsers)
+    register_metrics_commands(subparsers)
     register_runtime_commands(subparsers)
     register_review_commands(subparsers)
     register_sandbox_commands(subparsers)
