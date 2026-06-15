@@ -3,7 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from reports.runtime_visual_report import write_clearance_curve, write_trajectory_overview
+pytest.importorskip("matplotlib")
+
+from reports.runtime_visual_report import write_clearance_curve, write_trajectory_overview  # noqa: E402
 
 
 def _write_test_episode(episode_dir: Path) -> Path:

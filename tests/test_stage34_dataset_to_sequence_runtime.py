@@ -10,7 +10,7 @@ from application.dataset_service import (
 from application.sequence_runtime_service import SequenceRuntimeRequest, run_sequence_runtime
 
 SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "policy_sequences"
-LEROY_SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "lerobot_style"
+LEROBOT_SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "lerobot_style"
 BENCH = Path(__file__).resolve().parents[1] / "bench" / "sim_robot_arm"
 
 
@@ -67,7 +67,7 @@ def test_lerobot_style_dataset_then_sequence_runtime(tmp_path):
     export_result = dataset_export_sequence(
         DatasetExportSequenceRequest(
             adapter_name="lerobot_style",
-            source=LEROY_SAMPLES,
+            source=LEROBOT_SAMPLES,
             sequence_id="episode_000001",
             output=export_output,
         )
