@@ -23,6 +23,7 @@ class SandboxRunRequest:
     output_root: Path = Path("output_reports/sandbox")
     stop_on_block: bool = True
     run_mode: str = "sandbox"
+    metrics_db: Path | None = None
 
 
 @dataclass(frozen=True)
@@ -31,12 +32,15 @@ class SandboxRunResult:
     episode_summary_path: Path
     clearance_curve_path: Path
     trajectory_overview_path: Path
+    metrics_ingest_summary: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         base = self.sequence_runtime_result.to_dict()
         base["episode_summary_path"] = str(self.episode_summary_path)
         base["clearance_curve_path"] = str(self.clearance_curve_path)
         base["trajectory_overview_path"] = str(self.trajectory_overview_path)
+        if self.metrics_ingest_summary is not None:
+            base["metrics_ingest_summary"] = self.metrics_ingest_summary
         return base
 
     def to_app_result(self) -> AppResult:
@@ -93,9 +97,16 @@ def run_sandbox(request: SandboxRunRequest) -> SandboxRunResult:
     # 4. write trajectory overview into episode dir
     trajectory_path = write_trajectory_overview(episode_dir)
 
+    # 5. optionally ingest into metrics database
+    metrics_summary: dict[str, Any] | None = None
+    if request.metrics_db is not None:
+        from runtime_db.episode_ingest import ingest_episode  # noqa: PLC0415
+        metrics_summary = ingest_episode(request.metrics_db, episode_dir)
+
     return SandboxRunResult(
         sequence_runtime_result=runtime_result,
         episode_summary_path=summary_path,
         clearance_curve_path=clearance_path,
         trajectory_overview_path=trajectory_path,
+        metrics_ingest_summary=metrics_summary,
     )

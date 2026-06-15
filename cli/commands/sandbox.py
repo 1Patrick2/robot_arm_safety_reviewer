@@ -18,6 +18,7 @@ def register_sandbox_commands(subparsers) -> None:
     run_parser.add_argument("--device", default="mock_realman", choices=("mock_realman",))
     run_parser.add_argument("--output-root", default="output_reports/sandbox")
     run_parser.add_argument("--continue-on-block", action="store_true")
+    run_parser.add_argument("--metrics-db", default=None, help="Optional path to metrics database for auto-ingest")
     run_parser.add_argument("--json", action="store_true")
     run_parser.set_defaults(handler=handle_sandbox_run)
 
@@ -31,6 +32,7 @@ def handle_sandbox_run(args: argparse.Namespace) -> None:
             device_name=args.device,
             output_root=Path(args.output_root),
             stop_on_block=not args.continue_on_block,
+            metrics_db=Path(args.metrics_db) if args.metrics_db else None,
         )
     )
     print_sandbox_run_result(result, as_json=args.json)
