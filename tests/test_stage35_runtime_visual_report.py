@@ -65,6 +65,23 @@ class TestWriteClearanceCurve:
         with pytest.raises(FileNotFoundError):
             write_clearance_curve(tmp_path / "nonexistent")
 
+    def test_no_obstacle_sentinel_still_creates_png(self, tmp_path):
+        """999.0 sentinel values should produce a valid PNG with a label, not a flat misleading line."""
+        ep_dir = tmp_path / "no_obs"
+        ep_dir.mkdir()
+        (ep_dir / "metadata.json").write_text('{"episode_id": "no_obs"}', encoding="utf-8")
+        steps = [
+            {"step_id": "s1", "safety_result": {"decision": "approve", "min_clearance": 999.0}, "executed": True},
+            {"step_id": "s2", "safety_result": {"decision": "approve", "min_clearance": 999.0}, "executed": True},
+        ]
+        with (ep_dir / "steps.jsonl").open("w", encoding="utf-8") as f:
+            for s in steps:
+                f.write(json.dumps(s) + "\n")
+
+        plot_path = write_clearance_curve(ep_dir)
+        assert plot_path.exists()
+        assert plot_path.stat().st_size > 0
+
 
 class TestWriteTrajectoryOverview:
     def test_creates_png_file(self, tmp_path):

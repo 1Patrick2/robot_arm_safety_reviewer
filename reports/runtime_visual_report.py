@@ -60,12 +60,23 @@ def write_clearance_curve(episode_dir: Path, output_dir: Path | None = None) -> 
         clearances.append(c)
 
     fig, ax = plt.subplots()
-    ax.plot(step_indices, clearances, marker="o", linestyle="-", label="min_clearance")
-    ax.axhline(y=0, color="red", linestyle="--", linewidth=0.8, label="zero clearance")
-    ax.set_xlabel("Sequence Step Index")
-    ax.set_ylabel("Min Clearance (m)")
-    ax.set_title("Action-Level Clearance Curve")
-    ax.legend()
+
+    # Sentinel 999.0 from the mock backend means "no obstacle nearby".
+    # When all values are the sentinel, label the chart clearly.
+    if clearances and all(c is not None and c >= 999.0 for c in clearances):
+        ax.text(0.5, 0.5, "No obstacles in scene — clearance check skipped",
+                transform=ax.transAxes, ha="center", va="center", fontsize=12,
+                style="italic", color="gray")
+        ax.set_xlabel("Sequence Step Index")
+        ax.set_ylabel("Min Clearance (m)")
+        ax.set_title("Action-Level Clearance Curve (no obstacles)")
+    else:
+        ax.plot(step_indices, clearances, marker="o", linestyle="-", label="min_clearance")
+        ax.axhline(y=0, color="red", linestyle="--", linewidth=0.8, label="zero clearance")
+        ax.set_xlabel("Sequence Step Index")
+        ax.set_ylabel("Min Clearance (m)")
+        ax.set_title("Action-Level Clearance Curve")
+        ax.legend()
     ax.grid(True, linestyle=":", alpha=0.6)
 
     plot_path = target_dir / "clearance_curve.png"
