@@ -21,9 +21,9 @@ This stage adds a structured metrics database (SQLite) for querying episode resu
 
 ## Current Focus
 
-- Stage 3.6 Runtime Metrics DB is stable: episodes can be ingested and queried via CLI.
+- Stage 3.6 Runtime Metrics DB cleanup complete: sequence_id/device/pipeline_stage in metadata, worst-step semantics clarified.
 - Next: Stage 3.7 Agent Context Runtime for structured diagnostic agent evidence packaging.
-- No DeepSeek, RealMan SDK, ROS2 until agent runtime is stable.
+- No DeepSeek, RealMan SDK, ROS2 until agent context runtime is stable.
 
 ## Current Verification Snapshot
 
@@ -33,12 +33,20 @@ Latest recorded focused verification on the local `robotarm-pybullet` conda envi
 Stage 3.3 sequence runtime: 7 passed
 Stage 3.4 dataset adapters/service/CLI/integration: 28 passed
 Stage 3.5 visual sandbox: 24 passed
+Stage 3.6 runtime metrics DB: 34 passed
 ```
 
 Targeted commands:
 
 ```powershell
 D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage33_sequence_runtime.py -q --basetemp .pytest_tmp\stage33
+
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage34_mini_sequence_adapter.py tests/test_stage34_lerobot_style_adapter.py tests/test_stage34_dataset_service.py tests/test_stage34_dataset_cli.py tests/test_stage34_dataset_to_sequence_runtime.py -q --basetemp .pytest_tmp\stage34
+
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage35_episode_loader.py tests/test_stage35_runtime_episode_report.py tests/test_stage35_runtime_visual_report.py tests/test_stage35_sandbox_service.py tests/test_stage35_sandbox_cli.py tests/test_stage35_sandbox_pybullet_smoke.py -q --basetemp .pytest_tmp\stage35
+
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage36_runtime_db_schema.py tests/test_stage36_runtime_db_repository.py tests/test_stage36_episode_ingest.py tests/test_stage36_metrics_service.py tests/test_stage36_metrics_cli.py tests/test_stage36_sandbox_metrics_integration.py -q --basetemp .pytest_tmp\stage36
+```
 
 D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage34_mini_sequence_adapter.py tests/test_stage34_lerobot_style_adapter.py tests/test_stage34_dataset_service.py tests/test_stage34_dataset_cli.py tests/test_stage34_dataset_to_sequence_runtime.py -q --basetemp .pytest_tmp\stage34
 
