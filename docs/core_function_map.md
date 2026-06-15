@@ -37,6 +37,7 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Application core | `application/core.py` | `AppContext`, `ArtifactRef`, `AppResult` | Common result, artifact, and run-context envelope for future service, CLI, batch, and agent-tool outputs. |
 | Dataset adapter protocol | `dataset_adapters/base.py` | `DatasetAdapter` | Protocol for `list_sequences()` and `load_sequence()`. |
 | Mini sequence adapter | `dataset_adapters/mini_sequence_adapter.py` | `MiniSequenceAdapter` | Reads local `samples/policy_sequences/*.json` files and returns `PolicyActionSequence` objects. |
+| LeRobot-style adapter | `dataset_adapters/lerobot_style_adapter.py` | `LeRobotStyleAdapter` | Reads local `samples/lerobot_style/episodes/*.json` files with LeRobot-style episode layout. |
 | Dataset service | `application/dataset_service.py` | `DatasetListRequest`, `DatasetExportSequenceRequest`, `dataset_list`, `dataset_export_sequence` | Reusable application service wrapping adapter operations for CLI and future entry points. |
 | CLI output | `cli/output.py` | `print_json`, `print_runtime_task_result`, `print_review_command_result`, `print_sequence_runtime_result`, `print_dataset_list_result`, `print_dataset_export_result` | Shared formatting helpers that keep CLI command modules from duplicating JSON and text output logic. |
 | Benchmark | `robot_safety/benchmark.py` | `run_benchmark` | Discovers benchmark tasks, runs reviews, writes logs, and builds summaries. |

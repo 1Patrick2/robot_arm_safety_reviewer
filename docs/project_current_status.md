@@ -1,6 +1,6 @@
 # Project Current Status
 
-RobotArmSafetyReviewer is currently entering **Stage 3.4 Dataset Adapter MVP** after closing the Stage 3.3 sequence runtime loop.
+RobotArmSafetyReviewer is currently entering **Stage 3.5 Visual Runtime Sandbox** after closing Stage 3.4 Dataset Adapter MVP.
 
 This stage introduces the Dataset Adapter MVP: a Protocol-based abstraction for loading PolicyActionSequence objects from local sources, backed by a MiniSequenceAdapter plus application service and CLI wiring.
 
@@ -15,50 +15,30 @@ This stage introduces the Dataset Adapter MVP: a Protocol-based abstraction for 
 - Stage 3.1 application service layer, unified CLI entry point, shared CLI output formatting.
 - Stage 3.2 PolicyAction and PolicyActionSequence models with joint_target / delta_joint conversion.
 - Stage 3.3 sequence runtime for multi-step policy action execution with approve / manual_review / reject blocking and episode recording.
-- Stage 3.4 Dataset Adapter MVP: DatasetAdapter Protocol, MiniSequenceAdapter for samples/policy_sequences, dataset service, and dataset CLI.
+- Stage 3.4 Dataset Adapter MVP: DatasetAdapter Protocol, MiniSequenceAdapter (samples/policy_sequences), LeRobotStyleAdapter (samples/lerobot_style), dataset service, dataset CLI, and dataset-backed sequence runtime smoke.
 
 ## Current Focus
 
-- Dataset Adapter Protocol and MiniSequenceAdapter are stable.
-- Next dataset adapter variants (LeRobot-style local adapter).
-- Visual Runtime Sandbox for episode trajectory and clearance visualization.
-- Keeping future batch jobs, CLI commands, and agent tools using the same application service boundary.
-- No DeepSeek, RealMan SDK, ROS2, or large-scale dataset integration until dataset-backed runtime and visual artifacts are stable.
+- Stage 3.5 Visual Runtime Sandbox: episode loader, episode summary report, clearance curve artifact, trajectory overview, sandbox service, and sandbox CLI.
+- Keeping visual artifacts deterministic and LLM-free.
+- No DeepSeek, RealMan SDK, ROS2, or large-scale dataset integration until visual artifacts are stable.
 
 ## Current Verification Snapshot
 
-Recent known-good verification on the local `robotarm-pybullet` conda environment:
+Recent focused verification on the local `robotarm-pybullet` conda environment:
 
 ```text
-pytest -q
-106 passed
+python -m pytest tests/test_stage34_mini_sequence_adapter.py tests/test_stage34_lerobot_style_adapter.py tests/test_stage34_dataset_service.py tests/test_stage34_dataset_cli.py tests/test_stage34_dataset_to_sequence_runtime.py -q
+25 passed
 
-python -m cli.run_benchmark --backend pybullet --mode smoke --bench bench/sim_robot_arm
-8 completed, 0 runtime errors
-
-python -m cli.compare_backends --bench bench/sim_robot_arm --backends mock pybullet
-decision_matches=8, risk_matches=8, strict_matches=6, backend_errors=0
-
-python -m cli.run_runtime_demo --task bench/sim_robot_arm/simple_joint_move_001 --backend mock --json
-decision=approve, executed=true, execution_result.success=true
-
-python -m cli.run_runtime_demo --task bench/sim_robot_arm/near_miss_clearance_001 --backend mock --json
-decision=manual_review, executed=false, blocked_reason=manual_review_required
-
-python -m cli.run_runtime_demo --task bench/sim_robot_arm/obstacle_collision_001 --backend mock --json
-decision=reject, executed=false, blocked_reason=rejected_by_safety_gate
-
-python -m cli.main runtime run --task bench/sim_robot_arm/simple_joint_move_001 --backend mock --json
-decision=approve, executed=true
-
-python -m cli.main review --scene bench/sim_robot_arm/obstacle_collision_001/scene.json --command bench/sim_robot_arm/obstacle_collision_001/command.json --backend mock --json
-decision=reject
+python -m pytest tests/test_stage33_sequence_runtime.py -q
+7 passed
 ```
 
 Run the current verification with:
 
 ```powershell
-D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest -q --basetemp .pytest_tmp\current
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage34_mini_sequence_adapter.py tests/test_stage34_lerobot_style_adapter.py tests/test_stage34_dataset_service.py tests/test_stage34_dataset_cli.py tests/test_stage34_dataset_to_sequence_runtime.py -q --basetemp .pytest_tmp\current
 ```
 
 ## Main Documents
@@ -95,14 +75,19 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest -q --basetemp .pytest_
 
 ## Next Recommended Step
 
-Do not jump directly into a large Agent or RealMan SDK integration.
+Stage 3.4 Dataset Adapter MVP is closed. The next stage is Stage 3.5 Visual Runtime Sandbox.
 
 Recommended order:
 
-1. ✅ Stage 3.2 `PolicyAction` and `PolicyActionSequence` — done.
+1. ✅ Stage 3.2 PolicyAction / PolicyActionSequence — done.
 2. ✅ Stage 3.3 sequence runtime — done.
-3. ✅ Stage 3.4 mini_sequence adapter, service, and CLI — done.
-4. Add a local LeRobot-style dataset adapter after the mini adapter contract is stable.
-5. Add visual sandbox artifacts and runtime metrics storage before any diagnostic agent.
-6. Add a diagnostic-only DeepSeek agent after metrics and failure traces are queryable.
-7. Defer RealMan SDK, ROS2, MoveIt, VLA, and LLM agent control until the runtime metrics and failure traces are stable.
+3. ✅ Stage 3.4 mini_sequence + lerobot_style adapters, service, CLI, smoke — done.
+4. Add runtime episode loader.
+5. Add runtime episode summary report.
+6. Add clearance curve artifact.
+7. Add trajectory overview artifact.
+8. Add visual sandbox application service.
+9. Add visual sandbox CLI.
+10. Add PyBullet visual sandbox smoke test.
+11. Document Stage 3.5 visual sandbox progress.
+12. Defer DeepSeek Agent, RealMan SDK, ROS2, Runtime Metrics DB until visual artifacts are stable.

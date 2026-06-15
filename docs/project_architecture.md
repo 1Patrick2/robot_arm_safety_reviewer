@@ -285,7 +285,7 @@ Implemented:
 - unified CLI entry point for runtime, review, sequence, and dataset commands;
 - shared CLI output formatting for all result types;
 - Stage 3.1 boundary and agent adoption research docs;
-- Stage 3.4 DatasetAdapter Protocol and MiniSequenceAdapter.
+- Stage 3.4 DatasetAdapter Protocol, MiniSequenceAdapter, and LeRobotStyleAdapter.
 
 Not implemented:
 
