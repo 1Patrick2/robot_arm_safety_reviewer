@@ -117,6 +117,8 @@ def run_sequence_runtime(request: SequenceRuntimeRequest) -> SequenceRuntimeResu
         scene_provider_name=scene_provider.name,
         backend_name=request.backend_name,
         run_mode=request.run_mode,
+        sequence_id=sequence.sequence_id,
+        device_name=request.device_name,
     )
     runtime = SafetyRuntime(
         robot=robot,

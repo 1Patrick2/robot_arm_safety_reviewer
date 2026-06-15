@@ -22,6 +22,9 @@ class EpisodeRecorder:
         episode_id: str | None = None,
         run_mode: str = "sequence_runtime",
         artifact_schema_version: str = "stage3.visual_sandbox.v1",
+        sequence_id: str | None = None,
+        device_name: str | None = None,
+        pipeline_stage: str = "stage3.6_runtime_metrics_db",
     ) -> None:
         self.root_dir = Path(root_dir)
         self.episode_id = episode_id or self._make_episode_id()
@@ -37,6 +40,9 @@ class EpisodeRecorder:
             backend_name=backend_name,
             run_mode=run_mode,
             artifact_schema_version=artifact_schema_version,
+            sequence_id=sequence_id,
+            device_name=device_name,
+            pipeline_stage=pipeline_stage,
         )
 
     def record_step(self, result: RuntimeStepResult) -> Path:
@@ -59,17 +65,23 @@ class EpisodeRecorder:
         backend_name: str,
         run_mode: str = "sequence_runtime",
         artifact_schema_version: str = "stage3.visual_sandbox.v1",
+        sequence_id: str | None = None,
+        device_name: str | None = None,
+        pipeline_stage: str = "stage3.6_runtime_metrics_db",
     ) -> None:
         payload = {
             "schema_version": self.schema_version,
             "episode_id": self.episode_id,
             "created_at": datetime.now(timezone.utc).isoformat(),
             "robot": robot_name,
+            "device": device_name,
             "action_source": action_source_name,
             "scene_provider": scene_provider_name,
             "backend": backend_name,
             "run_mode": run_mode,
             "artifact_schema_version": artifact_schema_version,
+            "pipeline_stage": pipeline_stage,
+            "sequence_id": sequence_id,
             "project_stage": "stage3_runtime_mvp",
             "notes": None,
         }

@@ -119,3 +119,6 @@ class TestRunSandbox:
         meta = json.loads(meta_path.read_text(encoding="utf-8"))
         assert meta["run_mode"] == "sandbox"
         assert meta["artifact_schema_version"] == "stage3.visual_sandbox.v1"
+        assert meta["sequence_id"] == "simple_safe_sequence_001"
+        assert meta["device"] == "mock_realman"
+        assert meta["pipeline_stage"] is not None
