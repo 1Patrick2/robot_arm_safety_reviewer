@@ -48,11 +48,6 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage35_epi
 D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage36_runtime_db_schema.py tests/test_stage36_runtime_db_repository.py tests/test_stage36_episode_ingest.py tests/test_stage36_metrics_service.py tests/test_stage36_metrics_cli.py tests/test_stage36_sandbox_metrics_integration.py -q --basetemp .pytest_tmp\stage36
 ```
 
-D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage34_mini_sequence_adapter.py tests/test_stage34_lerobot_style_adapter.py tests/test_stage34_dataset_service.py tests/test_stage34_dataset_cli.py tests/test_stage34_dataset_to_sequence_runtime.py -q --basetemp .pytest_tmp\stage34
-
-D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage35_episode_loader.py tests/test_stage35_runtime_episode_report.py tests/test_stage35_runtime_visual_report.py tests/test_stage35_sandbox_service.py tests/test_stage35_sandbox_cli.py tests/test_stage35_sandbox_pybullet_smoke.py -q --basetemp .pytest_tmp\stage35
-```
-
 ## Main Documents
 
 - `README.md`: project entry point and quick start.
@@ -87,14 +82,83 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage35_epi
 
 ## Next Recommended Step
 
-Stage 3.6 Runtime Metrics DB is stable. The next stage is Stage 3.7 Agent Context Runtime.
+Stage 3.6 Runtime Metrics DB is stable. The next stage is **Stage 3.7 Agent Context Runtime**.
 
-Recommended order:
+Stage 3.7 should be implemented before any LLM diagnostic agent.
 
-1. [x] Stage 3.2 PolicyAction / PolicyActionSequence — done.
-2. [x] Stage 3.3 sequence runtime — done.
-3. [x] Stage 3.4 mini_sequence + lerobot_style adapters, service, CLI, smoke — done.
-4. [x] Stage 3.5 episode loader, summary report, visual artifacts, sandbox service + CLI — done.
-5. [x] Stage 3.6 SQLite schema, repository, episode ingest, metrics service, CLI — done.
-6. [ ] Add agent context runtime for structured diagnostic evidence.
-7. [ ] Defer DeepSeek, RealMan SDK, ROS2 until agent runtime and diagnostics are stable.
+### Goal
+
+Build deterministic diagnostic context packages from `runtime_metrics.db` and episode artifacts. These context packages will be used later by a diagnostic-only agent, but Stage 3.7 itself must not call any LLM.
+
+### Recommended Implementation Order
+
+1. **Add agent context data models**
+   - Add `AgentContext`, `AgentContextStep`, and `AgentContextArtifact` frozen dataclasses.
+   - Support `to_dict()` for serialization.
+   - Do not query SQLite in the model layer.
+
+2. **Build agent context from metrics database**
+   - Query one episode from `runtime_metrics.db` via the repository layer.
+   - Load run-level metrics, critical steps, and artifact records.
+   - Select critical steps deterministically: all reject steps, all manual_review steps, the minimum-clearance step, then limited approve examples.
+   - Keep `max_steps` configurable, default 10.
+
+3. **Render agent context files**
+   - Write `diagnostic_context.json`.
+   - Write `diagnostic_context.md`.
+   - Include episode overview, safety summary, critical steps, artifacts, and deterministic safety boundary statement.
+
+4. **Add application service**
+   - Add `AgentContextBuildRequest` and `AgentContextBuildResult`.
+   - Service calls the context builder and renderer.
+   - Result supports `to_dict()` and `to_app_result()`.
+   - CLI and future tools must call this service, not raw SQLite.
+
+5. **Add CLI command**
+   - Add `python -m cli.main context build`.
+   - Inputs: `--db`, `--episode-id`, `--output-dir`, `--max-steps`, `--json`.
+   - Output: `episode_id`, context paths, critical step count.
+
+### Stage 3.7 Boundaries
+
+- Do not call DeepSeek, OpenAI, or any LLM.
+- Do not make approve/reject decisions.
+- Do not modify or execute robot actions.
+- Do not connect RealMan SDK, ROS2, MoveIt, or VLA.
+- Do not build a web UI or multi-agent logic.
+
+### Completion Standard
+
+A user can run sandbox with metrics DB, list an episode, then build a deterministic diagnostic context package:
+
+```powershell
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main sandbox run ^
+  --sequence samples/policy_sequences/simple_safe_sequence.json ^
+  --scene bench/sim_robot_arm/simple_joint_move_001/scene.json ^
+  --backend mock ^
+  --output-root output_reports/sandbox ^
+  --metrics-db output_reports/runtime_metrics/runtime_metrics.db ^
+  --json
+
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main metrics list-runs ^
+  --db output_reports/runtime_metrics/runtime_metrics.db ^
+  --json
+
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main context build ^
+  --db output_reports/runtime_metrics/runtime_metrics.db ^
+  --episode-id episode_xxx ^
+  --output-dir output_reports/agent_context/episode_xxx ^
+  --json
+```
+
+Expected outputs:
+- `diagnostic_context.json`
+- `diagnostic_context.md`
+
+### Previously Completed
+
+1. ✅ Stage 3.2 PolicyAction / PolicyActionSequence — done.
+2. ✅ Stage 3.3 sequence runtime — done.
+3. ✅ Stage 3.4 mini_sequence + lerobot_style adapters, service, CLI, smoke — done.
+4. ✅ Stage 3.5 episode loader, summary report, visual artifacts, sandbox service + CLI — done.
+5. ✅ Stage 3.6 SQLite schema, repository, episode ingest, metrics service, CLI — done.
