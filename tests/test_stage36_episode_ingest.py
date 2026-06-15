@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from runtime_db.episode_ingest import (
     build_artifact_records,
     build_run_record,
@@ -91,3 +93,99 @@ class TestIngestEpisode:
         repo = RuntimeMetricsRepository(db_path)
         steps = repo.get_steps(ep_dir.name)
         assert len(steps) == 2  # still 2, not 4
+
+
+def _write_episode(episode_dir: Path, *, steps: list[dict]) -> Path:
+    """Write a minimal episode with metadata.json and steps.jsonl."""
+    episode_dir.mkdir(parents=True, exist_ok=True)
+    (episode_dir / "metadata.json").write_text(
+        json.dumps({"episode_id": episode_dir.name, "backend": "mock", "robot": "mock_realman"}),
+        encoding="utf-8",
+    )
+    with (episode_dir / "steps.jsonl").open("w", encoding="utf-8") as f:
+        for s in steps:
+            f.write(json.dumps(s) + "\n")
+    return episode_dir
+
+
+class TestBuildRunRecordReject:
+    def test_reject_episode_counts(self, tmp_path):
+        """Ingest an episode with a rejected step."""
+        ep_dir = _write_episode(tmp_path / "ep_reject", steps=[
+            {
+                "step_id": "s1",
+                "safety_result": {"decision": "reject", "risk_level": "high", "min_clearance": -0.1, "worst_step": 0},
+                "executed": False,
+                "blocked_reason": "rejected_by_safety_gate",
+            },
+        ])
+        record = build_run_record(ep_dir)
+        assert record["total_steps"] == 1
+        assert record["approved_steps"] == 0
+        assert record["executed_steps"] == 0
+        assert record["blocked_steps"] == 1
+        assert record["rejected_steps"] == 1
+        assert record["manual_review_steps"] == 0
+
+    def test_manual_review_episode_counts(self, tmp_path):
+        ep_dir = _write_episode(tmp_path / "ep_manual", steps=[
+            {
+                "step_id": "s1",
+                "safety_result": {"decision": "manual_review", "risk_level": "medium", "min_clearance": 0.01},
+                "executed": False,
+                "blocked_reason": "manual_review_required",
+            },
+        ])
+        record = build_run_record(ep_dir)
+        assert record["total_steps"] == 1
+        assert record["approved_steps"] == 0
+        assert record["executed_steps"] == 0
+        assert record["blocked_steps"] == 1
+        assert record["rejected_steps"] == 0
+        assert record["manual_review_steps"] == 1
+
+    def test_approved_but_execution_failed_counts_as_blocked(self, tmp_path):
+        """Approved step where robot execution fails: blocked_steps should count it."""
+        ep_dir = _write_episode(tmp_path / "ep_fail", steps=[
+            {
+                "step_id": "s1",
+                "safety_result": {"decision": "approve", "risk_level": "low", "min_clearance": 0.05},
+                "executed": False,
+                "blocked_reason": None,
+            },
+        ])
+        record = build_run_record(ep_dir)
+        assert record["approved_steps"] == 1
+        assert record["executed_steps"] == 0
+        # blocked matches runtime definition: not step.executed
+        assert record["blocked_steps"] == 1
+
+    def test_zero_clearance_boundary(self, tmp_path):
+        """min_clearance=0.0 and worst_step=0 are meaningful values, not missing."""
+        ep_dir = _write_episode(tmp_path / "ep_boundary", steps=[
+            {
+                "step_id": "s1",
+                "safety_result": {"decision": "manual_review", "risk_level": "medium", "min_clearance": 0.0, "worst_step": 0},
+                "executed": False,
+                "blocked_reason": "manual_review_required",
+            },
+        ])
+        record = build_run_record(ep_dir)
+        assert record["min_clearance"] == 0.0
+        assert record["worst_step"] == 0
+
+
+class TestBuildStepRecordsCorrupt:
+    def test_missing_steps_jsonl_raises(self, tmp_path):
+        ep_dir = tmp_path / "incomplete_episode"
+        ep_dir.mkdir()
+        (ep_dir / "metadata.json").write_text('{"episode_id": "incomplete"}', encoding="utf-8")
+        with pytest.raises(FileNotFoundError, match="steps.jsonl"):
+            build_step_records(ep_dir)
+
+    def test_missing_steps_jsonl_blocks_ingest(self, tmp_path):
+        ep_dir = tmp_path / "incomplete_episode"
+        ep_dir.mkdir()
+        (ep_dir / "metadata.json").write_text('{"episode_id": "incomplete"}', encoding="utf-8")
+        with pytest.raises(FileNotFoundError, match="steps.jsonl"):
+            ingest_episode(tmp_path / "metrics.db", ep_dir)

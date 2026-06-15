@@ -21,7 +21,7 @@ class RuntimeMetricsRepository:
         conn.row_factory = sqlite3.Row
         return conn
 
-    # ── write helpers ────────────────────────────────────────────────
+    # -- write helpers ---------------------------------------------------
 
     def upsert_run(self, run: dict[str, Any]) -> None:
         """Insert or replace a run record by *episode_id*."""
@@ -88,16 +88,16 @@ class RuntimeMetricsRepository:
                     """,
                     (
                         episode_id,
-                        step.get("step_index") or step.get("index"),
+                        step.get("step_index") if step.get("step_index") is not None else step.get("index"),
                         step.get("step_id"),
-                        step.get("decision") or (step.get("safety_result") or {}).get("decision"),
-                        step.get("risk_level") or (step.get("safety_result") or {}).get("risk_level"),
+                        step.get("decision") if step.get("decision") is not None else (step.get("safety_result") or {}).get("decision"),
+                        step.get("risk_level") if step.get("risk_level") is not None else (step.get("safety_result") or {}).get("risk_level"),
                         1 if step.get("executed") else 0,
                         step.get("blocked_reason"),
-                        step.get("min_clearance") or (step.get("safety_result") or {}).get("min_clearance"),
-                        step.get("closest_robot_link") or (step.get("safety_result") or {}).get("closest_robot_link"),
-                        step.get("closest_obstacle") or (step.get("safety_result") or {}).get("closest_obstacle"),
-                        step.get("worst_step") or (step.get("safety_result") or {}).get("worst_step"),
+                        step.get("min_clearance") if step.get("min_clearance") is not None else (step.get("safety_result") or {}).get("min_clearance"),
+                        step.get("closest_robot_link") if step.get("closest_robot_link") is not None else (step.get("safety_result") or {}).get("closest_robot_link"),
+                        step.get("closest_obstacle") if step.get("closest_obstacle") is not None else (step.get("safety_result") or {}).get("closest_obstacle"),
+                        step.get("worst_step") if step.get("worst_step") is not None else (step.get("safety_result") or {}).get("worst_step"),
                         json.dumps(step.get("proposed_action", {}), ensure_ascii=False),
                         json.dumps(step.get("safety_result", {}), ensure_ascii=False),
                         json.dumps(step.get("backend_metadata", {}), ensure_ascii=False),
@@ -122,7 +122,7 @@ class RuntimeMetricsRepository:
         finally:
             conn.close()
 
-    # ── queries ───────────────────────────────────────────────────────
+    # -- queries ---------------------------------------------------------
 
     def list_runs(self, limit: int = 20) -> list[dict[str, Any]]:
         conn = self._connect()

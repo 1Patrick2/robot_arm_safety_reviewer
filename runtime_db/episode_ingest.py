@@ -26,17 +26,20 @@ def build_run_record(episode_dir: Path) -> dict[str, Any]:
     meta: dict[str, Any] = json.loads(meta_path.read_text(encoding="utf-8"))
 
     steps_path = episode_dir / "steps.jsonl"
+    if not steps_path.exists():
+        raise FileNotFoundError(f"steps.jsonl not found in episode directory: {episode_dir}")
     steps: list[dict[str, Any]] = []
-    if steps_path.exists():
-        with steps_path.open("r", encoding="utf-8") as handle:
-            for line in handle:
-                line = line.strip()
-                if line:
-                    steps.append(json.loads(line))
+    with steps_path.open("r", encoding="utf-8") as handle:
+        for line in handle:
+            line = line.strip()
+            if line:
+                steps.append(json.loads(line))
 
     approved = sum(1 for s in steps if (s.get("safety_result") or {}).get("decision") == "approve")
     executed = sum(1 for s in steps if s.get("executed"))
-    blocked = sum(1 for s in steps if s.get("blocked_reason") is not None)
+    # blocked = not executed, matching the runtime definition in
+    # application/sequence_runtime_service.py:_build_result()
+    blocked = sum(1 for s in steps if not s.get("executed"))
     rejected = sum(1 for s in steps if (s.get("safety_result") or {}).get("decision") == "reject")
     manual_review = sum(1 for s in steps if (s.get("safety_result") or {}).get("decision") == "manual_review")
 
@@ -92,7 +95,7 @@ def build_step_records(episode_dir: Path) -> list[dict[str, Any]]:
     episode_dir = Path(episode_dir)
     steps_path = episode_dir / "steps.jsonl"
     if not steps_path.exists():
-        return []
+        raise FileNotFoundError(f"steps.jsonl not found: {steps_path}")
     import json  # noqa: PLC0415
     steps: list[dict[str, Any]] = []
     with steps_path.open("r", encoding="utf-8") as handle:

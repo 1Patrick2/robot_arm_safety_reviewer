@@ -125,7 +125,14 @@ def print_metrics_list_runs_result(result: MetricsListRunsResult, *, as_json: bo
     d = result.to_dict()
     print(f"Runs ({d['count']}):")
     for run in d["runs"]:
-        print(f"  {run.get('episode_id', '?'):30s} steps={run.get('total_steps', '?'):>2}  approved={run.get('approved_steps', '?'):>2}")
+        print(
+            f"  {run.get('episode_id', '?'):30s}"
+            f" steps={run.get('total_steps', '?'):>2}"
+            f"  approved={run.get('approved_steps', '?'):>2}"
+            f"  rejected={run.get('rejected_steps', '?'):>2}"
+            f"  blocked={run.get('blocked_steps', '?'):>2}"
+            f"  manual_review={run.get('manual_review_steps', '?'):>2}"
+        )
 
 
 def print_metrics_show_run_result(result: MetricsShowRunResult, *, as_json: bool) -> None:
