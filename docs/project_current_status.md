@@ -1,8 +1,8 @@
 # Project Current Status
 
-RobotArmSafetyReviewer has completed **Stage 3.5 Visual Runtime Sandbox**.
+RobotArmSafetyReviewer has completed **Stage 3.6 Runtime Metrics DB**.
 
-This stage introduces a visual sandbox layer that turns episode logs into static artifacts: Markdown summaries, clearance curve PNGs, and trajectory overview PNGs.
+This stage adds a structured metrics database (SQLite) for querying episode results alongside the existing visual sandbox artifacts.
 
 ## Completed Scope
 
@@ -17,12 +17,13 @@ This stage introduces a visual sandbox layer that turns episode logs into static
 - Stage 3.3 sequence runtime for multi-step policy action execution with approve / manual_review / reject blocking and episode recording.
 - Stage 3.4 Dataset Adapter MVP: DatasetAdapter Protocol, MiniSequenceAdapter (samples/policy_sequences), LeRobotStyleAdapter (samples/lerobot_style), dataset service, dataset CLI, and dataset-backed sequence runtime smoke.
 - Stage 3.5 Visual Runtime Sandbox: episode loader, episode summary report, clearance curve artifact, trajectory overview artifact, sandbox service, sandbox CLI, and PyBullet smoke test.
+- Stage 3.6 Runtime Metrics DB: SQLite schema, repository, episode ingest, metrics service, metrics CLI, and optional sandbox metrics integration.
 
 ## Current Focus
 
-- Stage 3.5 Visual Runtime Sandbox is stable and producing artifacts.
-- Next: Stage 3.6 Runtime Metrics DB for structured episode metrics storage and query.
-- No DeepSeek, RealMan SDK, ROS2, or large-scale dataset integration until metrics storage is stable.
+- Stage 3.6 Runtime Metrics DB is stable: episodes can be ingested and queried via CLI.
+- Next: Stage 3.7 Agent Context Runtime for structured diagnostic agent evidence packaging.
+- No DeepSeek, RealMan SDK, ROS2 until agent runtime is stable.
 
 ## Current Verification Snapshot
 
@@ -78,14 +79,14 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage35_epi
 
 ## Next Recommended Step
 
-Stage 3.5 Visual Runtime Sandbox is stable. The next stage is Stage 3.6 Runtime Metrics DB.
+Stage 3.6 Runtime Metrics DB is stable. The next stage is Stage 3.7 Agent Context Runtime.
 
 Recommended order:
 
-1. [x] Stage 3.2 PolicyAction / PolicyActionSequence.
-2. [x] Stage 3.3 sequence runtime.
-3. [x] Stage 3.4 mini_sequence + lerobot_style adapters, service, CLI, smoke.
-4. [x] Stage 3.5 episode loader, summary report, visual artifacts, sandbox service + CLI.
-5. [ ] Add Stage 3.6 Runtime Metrics DB for structured episode metrics.
-6. [ ] Add diagnostic agent after metrics and failure traces are queryable.
-7. [ ] Defer DeepSeek, RealMan SDK, ROS2 until runtime metrics and diagnostic agent are stable.
+1. [x] Stage 3.2 PolicyAction / PolicyActionSequence — done.
+2. [x] Stage 3.3 sequence runtime — done.
+3. [x] Stage 3.4 mini_sequence + lerobot_style adapters, service, CLI, smoke — done.
+4. [x] Stage 3.5 episode loader, summary report, visual artifacts, sandbox service + CLI — done.
+5. [x] Stage 3.6 SQLite schema, repository, episode ingest, metrics service, CLI — done.
+6. [ ] Add agent context runtime for structured diagnostic evidence.
+7. [ ] Defer DeepSeek, RealMan SDK, ROS2 until agent runtime and diagnostics are stable.

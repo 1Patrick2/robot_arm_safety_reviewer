@@ -39,7 +39,11 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Mini sequence adapter | `dataset_adapters/mini_sequence_adapter.py` | `MiniSequenceAdapter` | Reads local `samples/policy_sequences/*.json` files and returns `PolicyActionSequence` objects. |
 | LeRobot-style adapter | `dataset_adapters/lerobot_style_adapter.py` | `LeRobotStyleAdapter` | Reads local `samples/lerobot_style/episodes/*.json` files with LeRobot-style episode layout. |
 | Dataset service | `application/dataset_service.py` | `DatasetListRequest`, `DatasetExportSequenceRequest`, `dataset_list`, `dataset_export_sequence` | Reusable application service wrapping adapter operations for CLI and future entry points. |
-| CLI output | `cli/output.py` | `print_json`, `print_runtime_task_result`, `print_review_command_result`, `print_sequence_runtime_result`, `print_dataset_list_result`, `print_dataset_export_result` | Shared formatting helpers that keep CLI command modules from duplicating JSON and text output logic. |
+| Metrics DB schema | `runtime_db/schema.py` | `init_runtime_db` | Creates SQLite tables (runs, steps, artifacts, schema_meta). |
+| Metrics repository | `runtime_db/repository.py` | `RuntimeMetricsRepository` | Parameterised-SQL read/write for run and step records. |
+| Episode ingest | `runtime_db/episode_ingest.py` | `ingest_episode`, `build_run_record`, `build_step_records`, `build_artifact_records` | Extracts structured metrics from an episode directory and writes to DB. |
+| Metrics service | `application/metrics_service.py` | `metrics_ingest_episode`, `metrics_list_runs`, `metrics_show_run` | Application service wrapping runtime_db operations for CLI and agents. |
+| CLI output | `cli/output.py` | `print_json`, `print_runtime_task_result`, `print_review_command_result`, `print_sequence_runtime_result`, `print_dataset_list_result`, `print_dataset_export_result`, `print_sandbox_run_result`, `print_metrics_ingest_result`, `print_metrics_list_runs_result`, `print_metrics_show_run_result` | Shared formatting helpers that keep CLI command modules from duplicating JSON and text output logic. |
 | Benchmark | `robot_safety/benchmark.py` | `run_benchmark` | Discovers benchmark tasks, runs reviews, writes logs, and builds summaries. |
 | Scorer | `robot_safety/scorer.py` | `score_execution_log` | Compares actual logs with expected task contracts. |
 | Report | `reports/report_writer.py` | `build_markdown_report` | Converts one execution log into a human-readable Markdown safety report. |
@@ -58,6 +62,7 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Unified CLI command | `cli/commands/review.py` | `register_review_commands` | Registers `python -m cli.main review`. |
 | Unified CLI command | `cli/commands/sequence.py` | `register_sequence_commands` | Registers `python -m cli.main sequence run`. |
 | Unified CLI command | `cli/commands/dataset.py` | `register_dataset_commands` | Registers `python -m cli.main dataset list` and `python -m cli.main dataset export-sequence`. |
+| Unified CLI command | `cli/commands/metrics.py` | `register_metrics_commands` | Registers `python -m cli.main metrics ingest`, `list-runs`, and `show-run`. |
 
 Boundary rules:
 
