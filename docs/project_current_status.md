@@ -1,8 +1,8 @@
 # Project Current Status
 
-RobotArmSafetyReviewer is currently entering **Stage 3.5 Visual Runtime Sandbox** after closing Stage 3.4 Dataset Adapter MVP.
+RobotArmSafetyReviewer has completed **Stage 3.5 Visual Runtime Sandbox**.
 
-This stage introduces the Dataset Adapter MVP: a Protocol-based abstraction for loading PolicyActionSequence objects from local sources, backed by a MiniSequenceAdapter plus application service and CLI wiring.
+This stage introduces a visual sandbox layer that turns episode logs into static artifacts: Markdown summaries, clearance curve PNGs, and trajectory overview PNGs.
 
 ## Completed Scope
 
@@ -16,12 +16,13 @@ This stage introduces the Dataset Adapter MVP: a Protocol-based abstraction for 
 - Stage 3.2 PolicyAction and PolicyActionSequence models with joint_target / delta_joint conversion.
 - Stage 3.3 sequence runtime for multi-step policy action execution with approve / manual_review / reject blocking and episode recording.
 - Stage 3.4 Dataset Adapter MVP: DatasetAdapter Protocol, MiniSequenceAdapter (samples/policy_sequences), LeRobotStyleAdapter (samples/lerobot_style), dataset service, dataset CLI, and dataset-backed sequence runtime smoke.
+- Stage 3.5 Visual Runtime Sandbox: episode loader, episode summary report, clearance curve artifact, trajectory overview artifact, sandbox service, sandbox CLI, and PyBullet smoke test.
 
 ## Current Focus
 
-- Stage 3.5 Visual Runtime Sandbox: episode loader, episode summary report, clearance curve artifact, trajectory overview, sandbox service, and sandbox CLI.
-- Keeping visual artifacts deterministic and LLM-free.
-- No DeepSeek, RealMan SDK, ROS2, or large-scale dataset integration until visual artifacts are stable.
+- Stage 3.5 Visual Runtime Sandbox is stable and producing artifacts.
+- Next: Stage 3.6 Runtime Metrics DB for structured episode metrics storage and query.
+- No DeepSeek, RealMan SDK, ROS2, or large-scale dataset integration until metrics storage is stable.
 
 ## Current Verification Snapshot
 
@@ -75,19 +76,14 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage34_min
 
 ## Next Recommended Step
 
-Stage 3.4 Dataset Adapter MVP is closed. The next stage is Stage 3.5 Visual Runtime Sandbox.
+Stage 3.5 Visual Runtime Sandbox is stable. The next stage is Stage 3.6 Runtime Metrics DB.
 
 Recommended order:
 
 1. ✅ Stage 3.2 PolicyAction / PolicyActionSequence — done.
 2. ✅ Stage 3.3 sequence runtime — done.
 3. ✅ Stage 3.4 mini_sequence + lerobot_style adapters, service, CLI, smoke — done.
-4. Add runtime episode loader.
-5. Add runtime episode summary report.
-6. Add clearance curve artifact.
-7. Add trajectory overview artifact.
-8. Add visual sandbox application service.
-9. Add visual sandbox CLI.
-10. Add PyBullet visual sandbox smoke test.
-11. Document Stage 3.5 visual sandbox progress.
-12. Defer DeepSeek Agent, RealMan SDK, ROS2, Runtime Metrics DB until visual artifacts are stable.
+4. ✅ Stage 3.5 episode loader, summary report, visual artifacts, sandbox service + CLI — done.
+5. Add Stage 3.6 Runtime Metrics DB for structured episode metrics.
+6. Add diagnostic agent after metrics and failure traces are queryable.
+7. Defer DeepSeek, RealMan SDK, ROS2 until runtime metrics and diagnostic agent are stable.
