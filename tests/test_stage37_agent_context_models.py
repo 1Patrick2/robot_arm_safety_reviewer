@@ -92,3 +92,21 @@ class TestAgentContext:
         d = ctx.to_dict()
         assert d["critical_steps"] == []
         assert d["artifacts"] == []
+
+    def test_list_inputs_normalised_to_tuple(self, tmp_path):
+        ctx = AgentContext(
+            episode_id="ep_003",
+            critical_steps=[
+                AgentContextStep(step_index=1, decision="reject"),
+            ],
+            artifacts=[
+                AgentContextArtifact(kind="summary", path="/tmp/s.md"),
+            ],
+            limitations=["custom limitation"],
+        )
+        assert isinstance(ctx.critical_steps, tuple)
+        assert isinstance(ctx.artifacts, tuple)
+        assert isinstance(ctx.limitations, tuple)
+        d = ctx.to_dict()
+        assert len(d["critical_steps"]) == 1
+        assert d["critical_steps"][0]["decision"] == "reject"

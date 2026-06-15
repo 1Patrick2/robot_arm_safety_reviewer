@@ -87,44 +87,11 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage37_age
 
 ## Next Recommended Step
 
-Stage 3.6 Runtime Metrics DB is stable. The next stage is **Stage 3.7 Agent Context Runtime**.
+Stage 3.7 Agent Context Runtime is complete. The next stage is **Stage 3.8 Diagnostic-only LLM Agent** (only after agent context is stable).
 
-Stage 3.7 should be implemented before any LLM diagnostic agent.
+Stage 3.7 provides a deterministic, LLM-free diagnostic evidence packaging layer. Any future LLM integration must consume the agent context output and must not alter safety decisions or execute robot actions.
 
-### Goal
-
-Build deterministic diagnostic context packages from `runtime_metrics.db` and episode artifacts. These context packages will be used later by a diagnostic-only agent, but Stage 3.7 itself must not call any LLM.
-
-### Recommended Implementation Order
-
-1. **Add agent context data models**
-   - Add `AgentContext`, `AgentContextStep`, and `AgentContextArtifact` frozen dataclasses.
-   - Support `to_dict()` for serialization.
-   - Do not query SQLite in the model layer.
-
-2. **Build agent context from metrics database**
-   - Query one episode from `runtime_metrics.db` via the repository layer.
-   - Load run-level metrics, critical steps, and artifact records.
-   - Select critical steps deterministically: all reject steps, all manual_review steps, the minimum-clearance step, then limited approve examples.
-   - Keep `max_steps` configurable, default 10.
-
-3. **Render agent context files**
-   - Write `diagnostic_context.json`.
-   - Write `diagnostic_context.md`.
-   - Include episode overview, safety summary, critical steps, artifacts, and deterministic safety boundary statement.
-
-4. **Add application service**
-   - Add `AgentContextBuildRequest` and `AgentContextBuildResult`.
-   - Service calls the context builder and renderer.
-   - Result supports `to_dict()` and `to_app_result()`.
-   - CLI and future tools must call this service, not raw SQLite.
-
-5. **Add CLI command**
-   - Add `python -m cli.main context build`.
-   - Inputs: `--db`, `--episode-id`, `--output-dir`, `--max-steps`, `--json`.
-   - Output: `episode_id`, context paths, critical step count.
-
-### Stage 3.7 Boundaries
+### Stage 3.7 Boundaries (carried forward)
 
 - Do not call DeepSeek, OpenAI, or any LLM.
 - Do not make approve/reject decisions.

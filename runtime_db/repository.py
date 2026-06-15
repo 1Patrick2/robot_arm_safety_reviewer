@@ -147,6 +147,17 @@ class RuntimeMetricsRepository:
         finally:
             conn.close()
 
+    def get_artifacts(self, episode_id: str) -> list[dict[str, Any]]:
+        conn = self._connect()
+        try:
+            cursor = conn.execute(
+                "SELECT * FROM artifacts WHERE episode_id = ? ORDER BY id",
+                (episode_id,),
+            )
+            return [dict(row) for row in cursor.fetchall()]
+        finally:
+            conn.close()
+
     def get_steps(self, episode_id: str) -> list[dict[str, Any]]:
         conn = self._connect()
         try:

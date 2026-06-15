@@ -13,7 +13,7 @@ from .models import AgentContext, AgentContextArtifact, AgentContextStep
 
 def _normalise_step(step: dict[str, Any]) -> dict[str, Any]:
     """Convert a step dict (from DB or episode) into a standard form with
-    a ``safety_result`` sub-dict.
+    a ``safety_result`` sub-dict and ``proposed_action`` sub-dict.
 
     DB rows from ``RuntimeMetricsRepository.get_steps()`` return flat columns
     (``decision``, ``risk_level``, ``safety_result_json``, ...) rather than a
@@ -25,26 +25,40 @@ def _normalise_step(step: dict[str, Any]) -> dict[str, Any]:
 
     step = dict(step)  # shallow copy
 
-    # 1. Parse stored JSON if available
-    raw = step.get("safety_result_json")
-    if isinstance(raw, str) and raw.strip():
+    # 1. Parse stored safety_result_json if available
+    raw_sr = step.get("safety_result_json")
+    if isinstance(raw_sr, str) and raw_sr.strip():
         try:
-            sr = json.loads(raw)
+            sr = json.loads(raw_sr)
             if isinstance(sr, dict):
                 step["safety_result"] = sr
-                return step
+            else:
+                sr = None
         except (json.JSONDecodeError, ValueError):
-            pass
+            sr = None
+    else:
+        sr = None
 
-    # 2. Fall back to top-level columns
-    step["safety_result"] = {
-        "decision": step.get("decision"),
-        "risk_level": step.get("risk_level"),
-        "min_clearance": step.get("min_clearance"),
-        "closest_robot_link": step.get("closest_robot_link"),
-        "closest_obstacle": step.get("closest_obstacle"),
-        "worst_step": step.get("worst_step"),
-    }
+    if sr is None:
+        # 2. Fall back to top-level columns
+        step["safety_result"] = {
+            "decision": step.get("decision"),
+            "risk_level": step.get("risk_level"),
+            "min_clearance": step.get("min_clearance"),
+            "closest_robot_link": step.get("closest_robot_link"),
+            "closest_obstacle": step.get("closest_obstacle"),
+            "worst_step": step.get("worst_step"),
+        }
+
+    # 3. Parse proposed_action_json if available
+    if not step.get("proposed_action") and step.get("proposed_action_json"):
+        raw_pa = step.get("proposed_action_json")
+        if isinstance(raw_pa, str) and raw_pa.strip():
+            try:
+                step["proposed_action"] = json.loads(raw_pa)
+            except (json.JSONDecodeError, ValueError):
+                pass
+
     return step
 
 
@@ -174,20 +188,31 @@ def build_agent_context_from_db(
     db_steps = repo.get_steps(episode_id)
     meta = _read_metadata_json(run)
 
-    # Build artifact records from the stored artifact paths
+    # Build artifact records from DB artifacts table (with filesystem fallback)
     artifacts: list[AgentContextArtifact] = []
-    ep_dir_str = run.get("episode_dir")
-    if ep_dir_str:
-        ep_dir = Path(ep_dir_str)
-        if ep_dir.exists():
-            for rec in _build_artifact_records(ep_dir):
-                artifacts.append(
-                    AgentContextArtifact(
-                        kind=rec["kind"],
-                        path=rec["path"],
-                        description=rec.get("description"),
-                    )
+    db_artifacts = repo.get_artifacts(episode_id)
+    if db_artifacts:
+        for rec in db_artifacts:
+            artifacts.append(
+                AgentContextArtifact(
+                    kind=rec.get("kind", "unknown"),
+                    path=rec.get("path", ""),
+                    description=rec.get("description"),
                 )
+            )
+    else:
+        ep_dir_str = run.get("episode_dir")
+        if ep_dir_str:
+            ep_dir = Path(ep_dir_str)
+            if ep_dir.exists():
+                for rec in _build_artifact_records(ep_dir):
+                    artifacts.append(
+                        AgentContextArtifact(
+                            kind=rec["kind"],
+                            path=rec["path"],
+                            description=rec.get("description"),
+                        )
+                    )
 
     critical_steps = _select_critical_steps(db_steps, max_steps=max_steps)
 

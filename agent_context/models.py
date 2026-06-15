@@ -103,6 +103,15 @@ class AgentContext:
     artifacts: tuple[AgentContextArtifact, ...] = field(default_factory=tuple)
     limitations: tuple[str, ...] = field(default_factory=lambda: DEFAULT_LIMITATIONS)
 
+    def __post_init__(self) -> None:
+        # Normalise list inputs to tuples for immutability
+        if isinstance(self.critical_steps, list):
+            object.__setattr__(self, "critical_steps", tuple(self.critical_steps))
+        if isinstance(self.artifacts, list):
+            object.__setattr__(self, "artifacts", tuple(self.artifacts))
+        if isinstance(self.limitations, list):
+            object.__setattr__(self, "limitations", tuple(self.limitations))
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "episode_id": self.episode_id,

@@ -145,6 +145,27 @@ class TestNormaliseStep:
             "worst_step": None,
         }
 
+    def test_parses_proposed_action_json(self):
+        step = {
+            "step_index": 1,
+            "proposed_action_json": json.dumps(
+                {"action_type": "joint_move", "target_joints": [0.1, 0.2, 0.0, 0.0, 0.0, 0.0]}
+            ),
+        }
+        result = _normalise_step(step)
+        pa = result["proposed_action"]
+        assert pa.get("action_type") == "joint_move"
+        assert len(pa.get("target_joints", [])) == 6
+
+    def test_keeps_existing_proposed_action_over_json(self):
+        step = {
+            "step_index": 1,
+            "proposed_action": {"action_type": "joint_move", "target_joints": [0.1] * 6},
+            "proposed_action_json": json.dumps({"action_type": "wrong"}),
+        }
+        result = _normalise_step(step)
+        assert result["proposed_action"]["action_type"] == "joint_move"
+
 
 class TestSelectCriticalSteps:
     def test_reject_steps_first(self):
