@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from dataset_adapters.lerobot_style_adapter import LeRobotStyleAdapter
 from dataset_adapters.mini_sequence_adapter import MiniSequenceAdapter
 from robot_runtime.action_sequence import PolicyActionSequence
 
@@ -14,9 +15,10 @@ from .core import AppResult, ArtifactRef
 def _get_adapter(adapter_name: str):
     """Return an adapter instance for *adapter_name*.
 
-    Currently only *mini_sequence* is supported.
+    Currently supports *mini_sequence* and *lerobot_style*.
     """
     mapping = {
+        "lerobot_style": LeRobotStyleAdapter,
         "mini_sequence": MiniSequenceAdapter,
     }
     cls = mapping.get(adapter_name)

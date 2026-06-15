@@ -1,0 +1,6 @@
+{
+  "format": "lerobot_style_local",
+  "robot": "mock_realman_6dof",
+  "total_episodes": 1,
+  "description": "Local LeRobot-style sample episode for safety runtime validation"
+}
