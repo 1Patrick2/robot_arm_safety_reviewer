@@ -86,7 +86,14 @@ def write_clearance_curve(episode_dir: Path, output_dir: Path | None = None) -> 
 
 
 def write_trajectory_overview(episode_dir: Path, output_dir: Path | None = None) -> Path:
-    """Plot end-effector target positions per step and save as *trajectory_overview.png*."""
+    """Plot the robot arm FK chain for each step's target configuration.
+
+    Shows:
+    - Full arm link chain (base → joint1 → ... → end-effector) for each step.
+    - Green arms for approved steps, red arms for blocked/rejected steps.
+    - Trajectory path connecting end-effector positions in sequence order.
+    - Step index labels at each end-effector position.
+    """
     plt = _get_plt()
     bundle = load_episode(episode_dir)
     target_dir = output_dir or episode_dir
@@ -95,49 +102,71 @@ def write_trajectory_overview(episode_dir: Path, output_dir: Path | None = None)
     robot = _default_robot()
     steps = bundle.steps
 
-    approved_pts: list[tuple[int, float, float, float]] = []
-    blocked_pts: list[tuple[int, float, float, float]] = []
-
-    for idx, step in enumerate(steps):
-        obs = step.get("observation", {})
-        action = step.get("proposed_action", {})
-        jp = obs.get("joint_positions")
-        tj = action.get("target_joints")
-        if not jp or not tj:
-            continue
-
-        target_fk = forward_kinematics_6dof(robot, tj)
-        ee = target_fk[-1]
-        decision = step.get("safety_result", {}).get("decision")
-        if decision == "approve":
-            approved_pts.append((idx + 1, ee[0], ee[1], ee[2]))
-        else:
-            blocked_pts.append((idx + 1, ee[0], ee[1], ee[2]))
-
-    fig = plt.figure()
+    fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection="3d")
-    ax.set_title("Episode Trajectory Overview (End-Effector Targets)")
+    ax.set_title("Episode Trajectory Overview (Robot Arm Configurations)")
     ax.set_xlabel("X (m)")
     ax.set_ylabel("Y (m)")
     ax.set_zlabel("Z (m)")
 
-    if approved_pts:
-        ax.scatter(
-            [p[1] for p in approved_pts], [p[2] for p in approved_pts], [p[3] for p in approved_pts],
-            marker="o", color="green", s=60, label="approved",
-        )
-        for p in approved_pts:
-            ax.text(p[1], p[2], p[3], f"  {p[0]}", fontsize=8)
+    all_ee: list[tuple[int, float, float, float, str]] = []  # (idx, x, y, z, decision)
 
-    if blocked_pts:
-        ax.scatter(
-            [p[1] for p in blocked_pts], [p[2] for p in blocked_pts], [p[3] for p in blocked_pts],
-            marker="x", color="red", s=80, label="blocked",
-        )
-        for p in blocked_pts:
-            ax.text(p[1], p[2], p[3], f"  {p[0]}", fontsize=8)
+    for idx, step in enumerate(steps):
+        action = step.get("proposed_action", {})
+        tj = action.get("target_joints")
+        if not tj:
+            continue
 
-    ax.legend()
+        target_fk = forward_kinematics_6dof(robot, tj)
+        decision = step.get("safety_result", {}).get("decision", "unknown")
+        is_approved = decision == "approve"
+        color = "green" if is_approved else "red"
+        alpha = 0.7 if is_approved else 0.9
+        ls = "-" if is_approved else "--"
+
+        # Draw full arm FK chain
+        fk_x = [p[0] for p in target_fk]
+        fk_y = [p[1] for p in target_fk]
+        fk_z = [p[2] for p in target_fk]
+        ax.plot(fk_x, fk_y, fk_z, color=color, alpha=alpha, linestyle=ls,
+                linewidth=2, marker="o", markersize=4, label=f"step {idx+1}" if idx == 0 else "")
+
+        # Mark end-effector
+        ee = target_fk[-1]
+        marker = "o" if is_approved else "x"
+        ax.scatter([ee[0]], [ee[1]], [ee[2]], marker=marker,
+                   color=color, s=100 if is_approved else 120, zorder=5)
+        ax.text(ee[0], ee[1], ee[2], f"  {idx + 1}", fontsize=9, color=color)
+
+        all_ee.append((idx + 1, ee[0], ee[1], ee[2], decision))
+
+    # Connect end-effector trajectory path in sequence order
+    if len(all_ee) > 1:
+        ee_seq_x = [p[1] for p in all_ee]
+        ee_seq_y = [p[2] for p in all_ee]
+        ee_seq_z = [p[3] for p in all_ee]
+        ax.plot(ee_seq_x, ee_seq_y, ee_seq_z, color="gray", alpha=0.4,
+                linestyle=":", linewidth=1, label="trajectory path")
+
+    ax.legend(loc="upper left", fontsize=8)
+    # Auto-scale axes to fit all FK points with a margin
+    all_x = []
+    all_y = []
+    all_z = []
+    for step in steps:
+        action = step.get("proposed_action", {})
+        tj = action.get("target_joints")
+        if tj:
+            fk = forward_kinematics_6dof(robot, tj)
+            all_x.extend(p[0] for p in fk)
+            all_y.extend(p[1] for p in fk)
+            all_z.extend(p[2] for p in fk)
+    if all_x:
+        margin = 0.1
+        ax.set_xlim(min(all_x) - margin, max(all_x) + margin)
+        ax.set_ylim(min(all_y) - margin, max(all_y) + margin)
+        ax.set_zlim(min(all_z) - margin, max(all_z) + margin)
+
     plot_path = target_dir / "trajectory_overview.png"
     fig.savefig(plot_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
