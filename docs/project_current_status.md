@@ -18,12 +18,14 @@ This stage adds a structured metrics database (SQLite) for querying episode resu
 - Stage 3.4 Dataset Adapter MVP: DatasetAdapter Protocol, MiniSequenceAdapter (samples/policy_sequences), LeRobotStyleAdapter (samples/lerobot_style), dataset service, dataset CLI, and dataset-backed sequence runtime smoke.
 - Stage 3.5 Visual Runtime Sandbox: episode loader, episode summary report, clearance curve artifact, trajectory overview artifact, sandbox service, sandbox CLI, and PyBullet smoke test.
 - Stage 3.6 Runtime Metrics DB: SQLite schema, repository, episode ingest, metrics service, metrics CLI, and optional sandbox metrics integration.
+- Stage 3.7 Agent Context Runtime: data models, builder from metrics DB, context render (JSON + Markdown), application service, and context build CLI.
 
 ## Current Focus
 
-- Stage 3.6 Runtime Metrics DB cleanup complete: sequence_id/device/pipeline_stage in metadata, worst-step semantics clarified.
-- Next: Stage 3.7 Agent Context Runtime for structured diagnostic agent evidence packaging.
-- No DeepSeek, RealMan SDK, ROS2 until agent context runtime is stable.
+- Stage 3.7 Agent Context Runtime is complete: models, builder, renderer, service, and CLI.
+- Stage 3.7 is a deterministic evidence packaging layer — no LLM calls.
+- Next: Stage 3.8 Diagnostic-only LLM agent (only after agent context is stable).
+- No DeepSeek, RealMan SDK, ROS2 until Stage 3.8 is planned and bounded.
 
 ## Current Verification Snapshot
 
@@ -34,6 +36,7 @@ Stage 3.3 sequence runtime: 7 passed
 Stage 3.4 dataset adapters/service/CLI/integration: 28 passed
 Stage 3.5 visual sandbox: 24 passed
 Stage 3.6 runtime metrics DB: 34 passed
+Stage 3.7 agent context: 30 passed
 ```
 
 Targeted commands:
@@ -46,6 +49,8 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage34_min
 D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage35_episode_loader.py tests/test_stage35_runtime_episode_report.py tests/test_stage35_runtime_visual_report.py tests/test_stage35_sandbox_service.py tests/test_stage35_sandbox_cli.py tests/test_stage35_sandbox_pybullet_smoke.py -q --basetemp .pytest_tmp\stage35
 
 D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage36_runtime_db_schema.py tests/test_stage36_runtime_db_repository.py tests/test_stage36_episode_ingest.py tests/test_stage36_metrics_service.py tests/test_stage36_metrics_cli.py tests/test_stage36_sandbox_metrics_integration.py -q --basetemp .pytest_tmp\stage36
+
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage37_agent_context_models.py tests/test_stage37_agent_context_builder.py tests/test_stage37_agent_context_render.py tests/test_stage37_agent_context_service.py tests/test_stage37_agent_context_cli.py -q --basetemp .pytest_tmp\stage37
 ```
 
 ## Main Documents
@@ -162,3 +167,4 @@ Expected outputs:
 3. ✅ Stage 3.4 mini_sequence + lerobot_style adapters, service, CLI, smoke — done.
 4. ✅ Stage 3.5 episode loader, summary report, visual artifacts, sandbox service + CLI — done.
 5. ✅ Stage 3.6 SQLite schema, repository, episode ingest, metrics service, CLI — done.
+6. ✅ Stage 3.7 Agent Context Runtime: models, builder, renderer, service, CLI — done.
