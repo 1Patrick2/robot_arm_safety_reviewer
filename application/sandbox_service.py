@@ -82,14 +82,14 @@ def run_sandbox(request: SandboxRunRequest) -> SandboxRunResult:
 
     episode_dir = runtime_result.episode_dir
 
-    # 2. write episode summary
-    summary_path = write_runtime_episode_report(episode_dir, output_dir=request.output_root)
+    # 2. write episode summary into episode dir
+    summary_path = write_runtime_episode_report(episode_dir)
 
-    # 3. write clearance curve
-    clearance_path = write_clearance_curve(episode_dir, output_dir=request.output_root)
+    # 3. write clearance curve into episode dir
+    clearance_path = write_clearance_curve(episode_dir)
 
-    # 4. write trajectory overview
-    trajectory_path = write_trajectory_overview(episode_dir, output_dir=request.output_root)
+    # 4. write trajectory overview into episode dir
+    trajectory_path = write_trajectory_overview(episode_dir)
 
     return SandboxRunResult(
         sequence_runtime_result=runtime_result,
