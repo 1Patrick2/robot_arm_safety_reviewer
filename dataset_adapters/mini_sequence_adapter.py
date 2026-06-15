@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from robot_runtime.action_sequence import PolicyActionSequence
@@ -42,9 +43,12 @@ class MiniSequenceAdapter:
             if child.suffix != ".json":
                 continue
             try:
-                seq = PolicyActionSequence.from_json(child)
-                if seq.sequence_id == sequence_id:
-                    return seq
+                raw = json.loads(child.read_text(encoding="utf-8"))
             except Exception:
                 continue
+            if raw.get("sequence_id") != sequence_id:
+                continue
+            # Found the target file — use full validation and let any
+            # parse/validation error propagate.
+            return PolicyActionSequence.from_dict(raw)
         raise KeyError(f"sequence not found: {sequence_id}")

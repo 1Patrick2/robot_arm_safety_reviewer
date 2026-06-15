@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -11,7 +12,7 @@ from .core import AppResult, ArtifactRef
 
 
 def _get_adapter(adapter_name: str):
-    """Return the adapter instance for *adapter_name*.
+    """Return an adapter instance for *adapter_name*.
 
     Currently only *mini_sequence* is supported.
     """
@@ -21,7 +22,7 @@ def _get_adapter(adapter_name: str):
     cls = mapping.get(adapter_name)
     if cls is None:
         raise ValueError(f"unsupported dataset adapter: {adapter_name}")
-    return cls
+    return cls()
 
 
 @dataclass(frozen=True)
@@ -105,7 +106,7 @@ def dataset_export_sequence(request: DatasetExportSequenceRequest) -> DatasetExp
         output = Path(request.output)
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(
-            __import__("json").dumps(sequence.to_dict(), ensure_ascii=False, indent=2),
+            json.dumps(sequence.to_dict(), ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
         exported_path = output
