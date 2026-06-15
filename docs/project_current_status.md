@@ -26,20 +26,22 @@ This stage introduces a visual sandbox layer that turns episode logs into static
 
 ## Current Verification Snapshot
 
-Recent focused verification on the local `robotarm-pybullet` conda environment:
+Latest recorded focused verification on the local `robotarm-pybullet` conda environment:
 
 ```text
-python -m pytest tests/test_stage34_mini_sequence_adapter.py tests/test_stage34_lerobot_style_adapter.py tests/test_stage34_dataset_service.py tests/test_stage34_dataset_cli.py tests/test_stage34_dataset_to_sequence_runtime.py -q
-25 passed
-
-python -m pytest tests/test_stage33_sequence_runtime.py -q
-7 passed
+Stage 3.3 sequence runtime: 7 passed
+Stage 3.4 dataset adapters/service/CLI/integration: 28 passed
+Stage 3.5 visual sandbox: 24 passed
 ```
 
-Run the current verification with:
+Targeted commands:
 
 ```powershell
-D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage34_mini_sequence_adapter.py tests/test_stage34_lerobot_style_adapter.py tests/test_stage34_dataset_service.py tests/test_stage34_dataset_cli.py tests/test_stage34_dataset_to_sequence_runtime.py -q --basetemp .pytest_tmp\current
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage33_sequence_runtime.py -q --basetemp .pytest_tmp\stage33
+
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage34_mini_sequence_adapter.py tests/test_stage34_lerobot_style_adapter.py tests/test_stage34_dataset_service.py tests/test_stage34_dataset_cli.py tests/test_stage34_dataset_to_sequence_runtime.py -q --basetemp .pytest_tmp\stage34
+
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage35_episode_loader.py tests/test_stage35_runtime_episode_report.py tests/test_stage35_runtime_visual_report.py tests/test_stage35_sandbox_service.py tests/test_stage35_sandbox_cli.py tests/test_stage35_sandbox_pybullet_smoke.py -q --basetemp .pytest_tmp\stage35
 ```
 
 ## Main Documents
@@ -66,12 +68,12 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage34_min
 - The PyBullet backend is a diagnostic simulation backend, not certified hardware validation.
 - Exact clearance and attribution can differ between mock and PyBullet; this is measured and documented rather than hidden.
 - Self-collision, workspace boundary, velocity/acceleration constraints, RealMan SDK execution, ROS2, MoveIt, VLA, and LLM agent control are not implemented.
-- The Stage 3 runtime currently executes one proposed action per `step()` call and records episode logs; it is not yet a multi-step policy rollout engine.
-- Sequence runtime (`run_sequence_runtime`) runs multi-step sequences using the same SafetyRuntime loop internally.
+- `SafetyRuntime.step()` remains a single-step primitive; `run_sequence_runtime` orchestrates multi-step `PolicyActionSequence` rollouts on top of it.
 - CLI output is centralized in `cli/output.py`; command modules should not duplicate result formatting.
 - `PolicyActionSequence` is defined as a frozen dataclass with JSON load/save and conversion to runtime actions.
-- Dataset adapters follow a Protocol-based pattern (`dataset_adapters/base.py`); only `MiniSequenceAdapter` exists so far.
+- Dataset adapters follow a Protocol-based pattern (`dataset_adapters/base.py`); `MiniSequenceAdapter` and `LeRobotStyleAdapter` are implemented for local samples.
 - The dataset adapter registry is a simple dict mapping; there is no pluggable discovery or external registration yet.
+- Visual sandbox artifacts are static reports and PNGs generated from episode logs; this is not an interactive simulator or hardware controller.
 - Future agent tools must call application services through a tool boundary and must not call robot device execution methods directly.
 
 ## Next Recommended Step
@@ -80,10 +82,10 @@ Stage 3.5 Visual Runtime Sandbox is stable. The next stage is Stage 3.6 Runtime 
 
 Recommended order:
 
-1. ✅ Stage 3.2 PolicyAction / PolicyActionSequence — done.
-2. ✅ Stage 3.3 sequence runtime — done.
-3. ✅ Stage 3.4 mini_sequence + lerobot_style adapters, service, CLI, smoke — done.
-4. ✅ Stage 3.5 episode loader, summary report, visual artifacts, sandbox service + CLI — done.
-5. Add Stage 3.6 Runtime Metrics DB for structured episode metrics.
-6. Add diagnostic agent after metrics and failure traces are queryable.
-7. Defer DeepSeek, RealMan SDK, ROS2 until runtime metrics and diagnostic agent are stable.
+1. [x] Stage 3.2 PolicyAction / PolicyActionSequence.
+2. [x] Stage 3.3 sequence runtime.
+3. [x] Stage 3.4 mini_sequence + lerobot_style adapters, service, CLI, smoke.
+4. [x] Stage 3.5 episode loader, summary report, visual artifacts, sandbox service + CLI.
+5. [ ] Add Stage 3.6 Runtime Metrics DB for structured episode metrics.
+6. [ ] Add diagnostic agent after metrics and failure traces are queryable.
+7. [ ] Defer DeepSeek, RealMan SDK, ROS2 until runtime metrics and diagnostic agent are stable.
