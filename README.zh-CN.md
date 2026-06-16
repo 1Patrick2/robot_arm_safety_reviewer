@@ -8,7 +8,7 @@ Robot Action Safety Sandbox 是一个确定性的 3D 机械臂动作安全运行
 
 ## 当前状态
 
-当前阶段：**Stage 3.7 Agent Context Runtime 已完成**。
+当前阶段：**Stage 3.8 Diagnostic Runtime 进行中**。
 
 已完成范围：
 
@@ -22,6 +22,11 @@ Robot Action Safety Sandbox 是一个确定性的 3D 机械臂动作安全运行
 - Stage 3.5：从 runtime episode 生成可视化 sandbox 证据。
 - Stage 3.6：SQLite runtime metrics database。
 - Stage 3.7：从 metrics DB 生成确定性的 agent context 诊断包。
+- Stage 3.8A：证据正确性加固（scene robot model、障碍物渲染、结构化证据数据）。
+- Stage 3.8B：诊断工具（只读 context 查询层）。
+- Stage 3.8C：确定性诊断报告（无需 LLM）。
+- Stage 3.8D：diagnostic agent runner 及安全边界检查。
+- Stage 3.8E：DeepSeek adapter（可选 smoke-only，不属于确定性安全决策路径）。
 
 ## 安全边界
 
@@ -33,7 +38,7 @@ Robot Action Safety Sandbox 是一个确定性的 3D 机械臂动作安全运行
 
 暂不推进：
 
-- Diagnostic-only LLM agent 集成。
+- 完整诊断 CLI（`cli.main diagnostic report`, `cli.main diagnostic agent-run`）。
 - RealMan SDK / 硬件执行。
 - ROS2 / MoveIt。
 - VLA 或自主机器人控制 Agent。

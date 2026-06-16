@@ -8,7 +8,7 @@ The project started as `RobotArmSafetyReviewer`. It is still a safety reviewer, 
 
 ## Current Status
 
-Current stage: **Stage 3.7 Agent Context Runtime completed**.
+Current stage: **Stage 3.8 Diagnostic Runtime in progress**.
 
 Completed scope:
 
@@ -22,6 +22,11 @@ Completed scope:
 - Stage 3.5: visual sandbox artifacts from runtime episodes.
 - Stage 3.6: SQLite runtime metrics database.
 - Stage 3.7: deterministic agent context package generation from metrics DB records.
+- Stage 3.8A: evidence correctness hardening (scene robot model, obstacle rendering, structured evidence data).
+- Stage 3.8B: diagnostic tools (read-only context query layer).
+- Stage 3.8C: deterministic diagnostic report (LLM-free).
+- Stage 3.8D: diagnostic agent runner with safety boundary checker.
+- Stage 3.8E: DeepSeek adapter (optional smoke-only, not part of deterministic safety path).
 
 ## Safety Boundary
 
@@ -33,7 +38,7 @@ Completed scope:
 
 Deferred:
 
-- Diagnostic-only LLM agent integration.
+- Full diagnostic CLI (`cli.main diagnostic report`, `cli.main diagnostic agent-run`).
 - RealMan SDK / hardware execution.
 - ROS2 / MoveIt.
 - VLA or autonomous robot-control agent.
