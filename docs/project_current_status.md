@@ -22,10 +22,12 @@ The current repository contains a deterministic robot-arm safety runtime, visual
 
 ## Current Focus
 
+- Stage 3.8A Evidence Correctness Hardening — validate visual artifacts, FK chains, and metric consistency.
+- Priority: correctness > interpretability > completeness > LLM integration.
+- Every visual artifact must be traceable to its data source (scene, robot model, safety result).
+- No DeepSeek, RealMan SDK, ROS2 until evidence correctness is stable.
 - Keep docs synchronized with the codebase.
 - Keep generated artifacts out of git.
-- Treat future agent work as diagnostic-only.
-- Review diffs for safety risks before pushing or merging.
 
 ## Current Verification Snapshot
 
@@ -52,6 +54,13 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage36_run
 
 D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_stage37_agent_context_models.py tests/test_stage37_agent_context_builder.py tests/test_stage37_agent_context_render.py tests/test_stage37_agent_context_service.py tests/test_stage37_agent_context_cli.py -q --basetemp .pytest_tmp\stage37
 ```
+
+## Evidence Correctness Principles
+
+1. **Images are evidence, not decoration.** Every PNG must be reproducible from structured data.
+2. **Robot model must be traceable.** FK chains must either use the scene's robot model or explicitly declare a fallback.
+3. **Obstacles must appear in trajectory visuals.** Without obstacle rendering, a clearance value cannot be visually verified.
+4. **FK numeric stability must be tested.** All-zero joints, single-joint motions, and multi-joint targets must produce correct FK chains.
 
 ## Main Documents
 

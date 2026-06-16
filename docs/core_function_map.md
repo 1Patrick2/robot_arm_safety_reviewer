@@ -47,6 +47,11 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Agent context builder | `agent_context/builder.py` | `build_agent_context_from_db` | Builds a diagnostic context package from runtime metrics DB records. |
 | Agent context renderer | `agent_context/render.py` | `write_agent_context_files` | Writes `diagnostic_context.json` and `diagnostic_context.md`. |
 | Agent context service | `application/agent_context_service.py` | `build_agent_context` | Application service wrapping context generation for CLI and future diagnostic tools. |
+| Diagnostics tools | `diagnostics/tools.py` | `load_diagnostic_context`, `get_episode_summary`, `list_critical_steps`, `get_worst_step`, `get_artifact_index` | Read-only query layer over diagnostic_context.json. |
+| Diagnostics report | `diagnostics/report.py` | `build_diagnostic_report` | Generates deterministic diagnostic_report.md from context. |
+| Diagnostic agent runner | `diagnostic_agent/runner.py` | `run_diagnostic_agent` | Runs a diagnostic-only agent with strict safety boundaries. |
+| Diagnostic agent fake | `diagnostic_agent/fake_adapter.py` | `run_fake_agent` | Deterministic fake agent for testing without an LLM. |
+| DeepSeek adapter | `diagnostic_agent/deepseek_adapter.py` | `run_deepseek_agent` | Provider adapter for DeepSeek API diagnostic smoke tests. |
 | CLI output | `cli/output.py` | `print_json`, result-specific print helpers | Shared formatting helpers that keep CLI command modules from duplicating JSON and text output logic. |
 | Benchmark | `robot_safety/benchmark.py` | `run_benchmark` | Discovers benchmark tasks, runs reviews, writes logs, and builds summaries. |
 | Scorer | `robot_safety/scorer.py` | `score_execution_log` | Compares actual logs with expected task contracts. |
