@@ -51,6 +51,17 @@ class TestFakeDiagnosticAgent:
         report_text = Path(result["report_path"]).read_text(encoding="utf-8")
         assert "reject" in report_text
 
+    def test_fake_report_passes_safety_check(self, tmp_path):
+        """Fake agent output should not trigger safety violations."""
+        context_path = tmp_path / "context.json"
+        context_path.write_text(json.dumps(SAMPLE_CONTEXT), encoding="utf-8")
+        result = run_diagnostic_agent(
+            context_path=context_path,
+            output_dir=tmp_path / "output3",
+            provider="fake",
+        )
+        assert result.get("safety_violations") == []
+
 
 class TestDeepSeekProviderBranch:
     """Test that the deepseek provider branch correctly calls the adapter."""
@@ -81,3 +92,5 @@ class TestDeepSeekProviderBranch:
         assert report_path.exists()
         report_text = report_path.read_text(encoding="utf-8")
         assert "Mock DeepSeek Report" in report_text
+        # Safety violations should be listed (empty = clean)
+        assert result.get("safety_violations") == []

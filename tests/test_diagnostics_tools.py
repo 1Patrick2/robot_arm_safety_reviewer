@@ -56,6 +56,12 @@ class TestLoadDiagnosticContext:
         with pytest.raises(ValueError, match="must be a JSON object"):
             load_diagnostic_context(path)
 
+    def test_raises_for_malformed_json(self, tmp_path):
+        path = tmp_path / "bad.json"
+        path.write_text("{invalid json}", encoding="utf-8")
+        with pytest.raises(ValueError, match="invalid diagnostic context JSON"):
+            load_diagnostic_context(path)
+
 
 class TestGetEpisodeSummary:
     def test_returns_summary_dict(self, context_path):

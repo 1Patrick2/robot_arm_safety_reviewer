@@ -6,6 +6,7 @@ from typing import Any
 
 from .deepseek_adapter import run_deepseek_agent
 from .fake_adapter import run_fake_agent
+from .safety_check import check_agent_report
 
 
 def run_diagnostic_agent(
@@ -43,10 +44,26 @@ def run_diagnostic_agent(
     else:
         raise ValueError(f"unsupported provider: {provider}")
 
+    # Post-generation safety check: detect forbidden patterns
+    violations = check_agent_report(report, context)
+    if violations:
+        banner = (
+            "\n\n---\n"
+            "**⚠ SAFETY BOUNDARY VIOLATION DETECTED**\n"
+            f"The agent output contains {len(violations)} forbidden pattern(s): "
+            f"{violations}.\n"
+            "This report has been flagged. "
+            "The diagnostic agent must not approve, reject, modify, or "
+            "execute robot actions.\n"
+            "---\n"
+        )
+        report += banner
+
     report_path = output_dir / "diagnostic_agent_report.md"
     report_path.write_text(report, encoding="utf-8")
 
     return {
         "provider": provider,
         "report_path": str(report_path),
+        "safety_violations": violations,
     }

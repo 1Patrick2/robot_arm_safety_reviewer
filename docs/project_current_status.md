@@ -1,8 +1,6 @@
 # Project Current Status
 
-Robot Action Safety Sandbox has completed **Stage 3.7 Agent Context Runtime**.
-
-The current repository contains a deterministic robot-arm safety runtime, visual sandbox artifacts, a runtime metrics database, and a deterministic diagnostic context package generator.
+Robot Action Safety Sandbox is currently working on **Stage 3.8 Diagnostic Runtime**.
 
 ## Completed Scope
 
@@ -19,13 +17,17 @@ The current repository contains a deterministic robot-arm safety runtime, visual
 - Stage 3.5 Visual Runtime Sandbox: episode summary, clearance curve, trajectory overview, sandbox service, and sandbox CLI.
 - Stage 3.6 Runtime Metrics DB: SQLite schema, repository, episode ingest, metrics service, metrics CLI, and optional sandbox metrics integration.
 - Stage 3.7 Agent Context Runtime: data models, builder from metrics DB, JSON/Markdown renderer, application service, and context build CLI.
+- Stage 3.8A Evidence Correctness Hardening: scene-based robot model, obstacle rendering, structured evidence data export.
+- Stage 3.8B Diagnostic Tools: read-only query layer over diagnostic_context.json.
+- Stage 3.8C Deterministic Diagnostic Report: LLM-free report generation.
+- Stage 3.8D Diagnostic Agent Runner: fake provider + safety boundary checker on agent output.
+- Stage 3.8E DeepSeek Adapter (optional): smoke-only provider, not part of deterministic safety path.
 
 ## Current Focus
 
-- Stage 3.8A Evidence Correctness Hardening — validate visual artifacts, FK chains, and metric consistency.
+- Stage 3.8 Diagnostic Runtime integration guardrails: end-to-end test, LLM output boundary checker.
+- DeepSeek adapter is optional smoke-only; it is not part of the deterministic safety decision path.
 - Priority: correctness > interpretability > completeness > LLM integration.
-- Every visual artifact must be traceable to its data source (scene, robot model, safety result).
-- No DeepSeek, RealMan SDK, ROS2 until evidence correctness is stable.
 - Keep docs synchronized with the codebase.
 - Keep generated artifacts out of git.
 

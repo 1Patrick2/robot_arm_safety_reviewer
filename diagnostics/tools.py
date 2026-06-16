@@ -10,12 +10,15 @@ def load_diagnostic_context(path: str | Path) -> dict[str, Any]:
 
     Raises:
         FileNotFoundError: If the file does not exist.
-        ValueError: If the JSON is not a dict.
+        ValueError: If the JSON is not a dict or cannot be parsed.
     """
     path = Path(path)
     if not path.exists():
         raise FileNotFoundError(f"diagnostic context not found: {path}")
-    data = json.loads(path.read_text(encoding="utf-8"))
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"invalid diagnostic context JSON: {path}") from exc
     if not isinstance(data, dict):
         raise ValueError(f"diagnostic context must be a JSON object, got {type(data).__name__}")
     return data
