@@ -167,6 +167,23 @@ def write_trajectory_evidence_data(
         "steps": step_records,
     }
 
+    # Include obstacle data if scene is available
+    if scene_path and scene_path.exists():
+        try:
+            scene = json.loads(scene_path.read_text(encoding="utf-8"))
+            obstacles = []
+            for obs in scene.get("obstacles", []):
+                obstacles.append({
+                    "obstacle_id": obs.get("obstacle_id", "unknown"),
+                    "type": obs.get("type", "unknown"),
+                    "center": obs.get("position", [0, 0, 0]),
+                    "radius": obs.get("radius", 0),
+                })
+            if obstacles:
+                payload["obstacles"] = obstacles
+        except Exception:
+            pass
+
     data_path = ep_dir / "trajectory_overview_data.json"
     data_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     return data_path
@@ -180,7 +197,9 @@ def write_trajectory_overview(episode_dir: Path, output_dir: Path | None = None)
     - Green arms for approved steps, red arms for blocked/rejected steps.
     - Trajectory path connecting end-effector positions in sequence order.
     - Step index labels at each end-effector position.
+    - Scene obstacle spheres when scene data is available.
     """
+    import numpy as np  # noqa: PLC0415
     plt = _get_plt()
     bundle = load_episode(episode_dir)
     target_dir = output_dir or episode_dir
@@ -252,6 +271,25 @@ def write_trajectory_overview(episode_dir: Path, output_dir: Path | None = None)
                 linestyle=":", linewidth=1, label="trajectory path")
 
     ax.legend(loc="upper left", fontsize=8)
+
+    # Draw scene obstacles if scene data is available
+    if scene_path and scene_path.exists():
+        try:
+            scene = json.loads(scene_path.read_text(encoding="utf-8"))
+            for obs in scene.get("obstacles", []):
+                center = obs.get("position", [0, 0, 0])
+                radius = obs.get("radius", 0.02)
+                name = obs.get("obstacle_id", "obstacle")
+                u = np.linspace(0, 2 * np.pi, 20)
+                v = np.linspace(0, np.pi, 20)
+                x = center[0] + radius * np.outer(np.cos(u), np.sin(v))
+                y = center[1] + radius * np.outer(np.sin(u), np.sin(v))
+                z = center[2] + radius * np.outer(np.ones(np.size(u)), np.cos(v))
+                ax.plot_surface(x, y, z, color="orange", alpha=0.3)
+                ax.text(center[0], center[1], center[2], f"  {name}", fontsize=8, color="orange")
+        except Exception:
+            pass
+
     # Auto-scale axes to fit all FK points with a margin
     all_x = []
     all_y = []
