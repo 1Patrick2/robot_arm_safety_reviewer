@@ -70,9 +70,8 @@ def build_diagnostic_report(bundle: dict[str, Any]) -> str:
             "## Artifact References",
             "",
         ]
-        for a in artifacts:
-            desc = a.get("description") or a.get("kind", "?")
-            lines.append(f"- **{desc}**: `{a.get('path', '?')}`")
+        for kind, path in artifacts.items():
+            lines.append(f"- **{kind}**: `{path}`")
         lines.append("")
 
     lines += [

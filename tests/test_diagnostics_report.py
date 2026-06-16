@@ -62,7 +62,7 @@ class TestBuildDiagnosticReport:
     def test_report_contains_artifact_references(self, bundle):
         report = build_diagnostic_report(bundle)
         assert "## Artifact References" in report
-        assert "Clearance curve" in report
+        assert "clearance_curve" in report
 
     def test_report_contains_deterministic_boundary(self, bundle):
         report = build_diagnostic_report(bundle)

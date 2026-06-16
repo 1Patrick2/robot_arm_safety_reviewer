@@ -123,13 +123,18 @@ def write_trajectory_evidence_data(
     *,
     robot_model_source: str = "default_mock_fallback",
     scene_path: Path | None = None,
+    output_dir: Path | None = None,
 ) -> Path:
     """Write trajectory_overview_data.json alongside the PNG.
 
     This structured data enables deterministic testing of FK correctness
     without relying on pixel-level image comparison.
+
+    *output_dir* controls where the JSON is written; defaults to *episode_dir*.
     """
     ep_dir = Path(episode_dir)
+    target_dir = Path(output_dir) if output_dir is not None else ep_dir
+    target_dir.mkdir(parents=True, exist_ok=True)
 
     # Try scene robot first, fall back to default
     robot = _default_robot()
@@ -162,7 +167,7 @@ def write_trajectory_evidence_data(
         "episode_id": meta.get("episode_id", ep_dir.name),
         "scene_path": meta.get("scene_path"),
         "robot_model_source": robot_model_source,
-        "joint_names": ["j1", "j2", "j3", "j4", "j5", "j6"],
+        "joint_names": list(robot.joint_names),
         "joint_units": "rad",
         "steps": step_records,
     }
@@ -184,7 +189,7 @@ def write_trajectory_evidence_data(
         except Exception:
             pass
 
-    data_path = ep_dir / "trajectory_overview_data.json"
+    data_path = target_dir / "trajectory_overview_data.json"
     data_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     return data_path
 
@@ -290,7 +295,7 @@ def write_trajectory_overview(episode_dir: Path, output_dir: Path | None = None)
         except Exception:
             pass
 
-    # Auto-scale axes to fit all FK points with a margin
+    # Auto-scale axes to fit all FK points and obstacles with a margin
     all_x = []
     all_y = []
     all_z = []
@@ -302,6 +307,20 @@ def write_trajectory_overview(episode_dir: Path, output_dir: Path | None = None)
             all_x.extend(p[0] for p in fk)
             all_y.extend(p[1] for p in fk)
             all_z.extend(p[2] for p in fk)
+
+    # Include obstacle bounds in auto-scale
+    if scene_path and scene_path.exists():
+        try:
+            scene = json.loads(scene_path.read_text(encoding="utf-8"))
+            for obs in scene.get("obstacles", []):
+                center = obs.get("position", [0, 0, 0])
+                radius = obs.get("radius", 0.02)
+                all_x.extend([center[0] - radius, center[0] + radius])
+                all_y.extend([center[1] - radius, center[1] + radius])
+                all_z.extend([center[2] - radius, center[2] + radius])
+        except Exception:
+            pass
+
     if all_x:
         margin = 0.1
         ax.set_xlim(min(all_x) - margin, max(all_x) + margin)
@@ -313,6 +332,6 @@ def write_trajectory_overview(episode_dir: Path, output_dir: Path | None = None)
     plt.close(fig)
 
     # Write structured evidence data alongside the PNG
-    write_trajectory_evidence_data(episode_dir, steps, robot_model_source=robot_model_source, scene_path=scene_path)
+    write_trajectory_evidence_data(episode_dir, steps, robot_model_source=robot_model_source, scene_path=scene_path, output_dir=target_dir)
 
     return plot_path

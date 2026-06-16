@@ -50,6 +50,12 @@ class TestLoadDiagnosticContext:
         with pytest.raises(FileNotFoundError):
             load_diagnostic_context(tmp_path / "nonexistent.json")
 
+    def test_raises_for_non_dict_json(self, tmp_path):
+        path = tmp_path / "array.json"
+        path.write_text(json.dumps([1, 2, 3]), encoding="utf-8")
+        with pytest.raises(ValueError, match="must be a JSON object"):
+            load_diagnostic_context(path)
+
 
 class TestGetEpisodeSummary:
     def test_returns_summary_dict(self, context_path):
@@ -69,16 +75,42 @@ class TestListCriticalSteps:
 
 
 class TestGetWorstStep:
-    def test_returns_step_with_lowest_clearance(self, context_path):
+    def test_uses_worst_sequence_step_index(self, context_path):
+        """Should prefer matching by worst_sequence_step_index over min clearance."""
         bundle = load_diagnostic_context(context_path)
         worst = get_worst_step(bundle)
         assert worst is not None
-        assert worst["min_clearance"] == -0.05
+        # worst_sequence_step_index is 2, which matches step_index=2
+        assert worst["step_index"] == 2
+        assert worst["decision"] == "reject"
+
+    def test_fallback_to_min_clearance(self):
+        """When worst_sequence_step_index doesn't match any step, fallback."""
+        ctx = {
+            "critical_steps": [
+                {"step_index": 1, "min_clearance": 0.1},
+                {"step_index": 5, "min_clearance": 0.02},
+            ],
+            # wrong_sequence_step_index should not match any step
+        }
+        # No worst_sequence_step_index set, should fallback to min clearance
+        worst = get_worst_step(ctx)
+        assert worst is not None
+        assert worst["step_index"] == 5
+        assert worst["min_clearance"] == 0.02
+
+    def test_no_critical_steps_returns_none(self):
+        assert get_worst_step({}) is None
 
 
 class TestGetArtifactIndex:
-    def test_returns_artifacts(self, context_path):
+    def test_returns_kind_path_dict(self, context_path):
         bundle = load_diagnostic_context(context_path)
         index = get_artifact_index(bundle)
-        assert len(index) == 1
-        assert index[0]["kind"] == "clearance_curve"
+        # Should return {kind: path} dict
+        assert isinstance(index, dict)
+        assert "clearance_curve" in index
+        assert index["clearance_curve"] == "/tmp/curve.png"
+
+    def test_empty_artifacts(self):
+        assert get_artifact_index({}) == {}
