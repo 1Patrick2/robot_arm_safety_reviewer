@@ -6,8 +6,8 @@ Robot Action Safety Sandbox is a deterministic robot action safety evaluation an
 
 It evaluates policy action sequences through a deterministic safety runtime, records runtime evidence, builds diagnostic context, generates reports, and optionally runs diagnostic-only LLM analysis.
 
-**LLM / diagnostic agent is optional and diagnostic-only.**  
-**Safety decisions are made by the deterministic safety runtime.**  
+**LLM / diagnostic agent is optional and diagnostic-only.**
+**Safety decisions are made by the deterministic safety runtime.**
 **Agent output must not approve, reject, modify, or execute robot actions.**
 
 The project started as `RobotArmSafetyReviewer`. It is still a safety reviewer, not a motion planner. It must not silently modify trajectories, generate obstacle-avoiding paths, or let an LLM decide robot safety.

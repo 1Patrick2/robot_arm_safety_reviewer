@@ -1,6 +1,6 @@
 # Project Current Status
 
-Robot Action Safety Sandbox is currently working on **Stage 3.8 Diagnostic Runtime**.
+Robot Action Safety Sandbox is currently working on **Stage 3.12 Demo Flow & Documentation Hardening — complete**.
 
 ## Completed Scope
 
@@ -22,11 +22,15 @@ Robot Action Safety Sandbox is currently working on **Stage 3.8 Diagnostic Runti
 - Stage 3.8C Deterministic Diagnostic Report: LLM-free report generation.
 - Stage 3.8D Diagnostic Agent Runner: fake provider + safety boundary checker on agent output.
 - Stage 3.8E DeepSeek Adapter (optional): smoke-only provider, not part of deterministic safety path.
+- Stage 3.9 Diagnostic Runtime Integration: runtime runner, runtime trace, integration guardrails.
+- Stage 3.10 Evidence Manifest: unified diagnostic output evidence index with artifact existence checks.
+- Stage 3.11 Diagnostic Regression: batch pipeline sandbox → metrics → diagnostic run → manifest → summary, with artifact completeness validation.
+- Stage 3.12 Demo Flow & Documentation: README command chain, architecture layers, output artifact reference.
 
 ## Current Focus
 
-- Stage 3.8 Diagnostic Runtime integration guardrails: end-to-end test, LLM output boundary checker.
-- DeepSeek adapter is optional smoke-only; it is not part of the deterministic safety decision path.
+- Stage 3 is complete. The diagnostic runtime pipeline is fully integrated: sandbox → metrics DB → diagnostic context → deterministic report → optional agent with guardrails → evidence manifest → regression summary.
+- All CLI commands (`diagnostic run`, `diagnostic report`, `diagnostic regression`) are operational and tested.
 - Priority: correctness > interpretability > completeness > LLM integration.
 - Keep docs synchronized with the codebase.
 - Keep generated artifacts out of git.

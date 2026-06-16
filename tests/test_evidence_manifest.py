@@ -158,6 +158,40 @@ class TestBuildEvidenceManifest:
         assert vis_artifacts[0]["exists"] is False
         assert manifest["checks"]["has_visual_evidence"] is False
 
+    def test_only_episode_summary_does_not_count_as_visual_evidence(self, tmp_path):
+        """episode_summary alone should not set has_visual_evidence to True."""
+        summary_path = tmp_path / "episode_summary.md"
+        summary_path.write_text("# Summary", encoding="utf-8")
+
+        ctx = tmp_path / "diagnostic_context.json"
+        ctx.write_text(json.dumps({
+            "episode_id": "ep_summary_only",
+            "artifacts": [
+                {"kind": "episode_summary", "path": str(summary_path)},
+            ],
+        }), encoding="utf-8")
+
+        manifest = build_evidence_manifest(context_path=ctx)
+        assert manifest["checks"]["has_visual_evidence"] is False
+
+    def test_corrupted_trace_sets_trace_valid_false(self, tmp_path):
+        """Corrupted trace JSON should not be silently treated as 'no violations'."""
+        ctx = tmp_path / "diagnostic_context.json"
+        ctx.write_text(json.dumps({
+            "episode_id": "ep_corrupt_trace",
+            "artifacts": [],
+        }), encoding="utf-8")
+
+        bad_trace = tmp_path / "bad_trace.json"
+        bad_trace.write_text("not valid json", encoding="utf-8")
+
+        manifest = build_evidence_manifest(
+            context_path=ctx,
+            trace_path=bad_trace,
+        )
+        assert manifest["trace_valid"] is False
+        assert manifest["checks"]["has_guardrail_violations"] is False
+
 
 class TestWriteEvidenceManifest:
     def test_writes_json(self, tmp_path):

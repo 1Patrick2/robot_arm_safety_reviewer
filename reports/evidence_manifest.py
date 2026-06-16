@@ -87,6 +87,7 @@ def build_evidence_manifest(
         return any(a["kind"] in kinds and a["exists"] for a in artifacts)
 
     has_guardrail_violations = False
+    trace_valid = True
     if trace_path is not None:
         tp = Path(trace_path)
         if tp.exists():
@@ -95,10 +96,10 @@ def build_evidence_manifest(
                 if trace_data.get("has_violations"):
                     has_guardrail_violations = True
             except (OSError, json.JSONDecodeError, AttributeError):
-                pass
+                trace_valid = False
 
     checks: dict[str, bool] = {
-        "has_visual_evidence": _any_existing({"episode_summary", "clearance_curve", "trajectory_overview"}),
+        "has_visual_evidence": _any_existing({"clearance_curve", "trajectory_overview"}),
         "has_structured_visual_data": _any_existing({"trajectory_overview_data", "clearance_curve_data"}),
         "has_diagnostic_context": _artifact_exists("diagnostic_context_json"),
         "has_diagnostic_report": _artifact_exists("deterministic_report"),
@@ -132,6 +133,7 @@ def build_evidence_manifest(
         "summary": summary,
         "artifacts": artifacts,
         "checks": checks,
+        "trace_valid": trace_valid,
     }
 
 
