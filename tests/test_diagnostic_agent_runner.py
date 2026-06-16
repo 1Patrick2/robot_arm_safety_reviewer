@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from diagnostic_agent.runner import run_diagnostic_agent
+from diagnostic_runtime.agent.runner import run_diagnostic_agent
 
 SAMPLE_CONTEXT = {
     "episode_id": "ep_001",

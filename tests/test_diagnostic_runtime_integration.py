@@ -10,9 +10,9 @@ from pathlib import Path
 
 from application.sandbox_service import SandboxRunRequest, run_sandbox
 from application.agent_context_service import AgentContextBuildRequest, build_agent_context
-from diagnostics.tools import load_diagnostic_context, get_episode_summary, get_worst_step, list_critical_steps, get_artifact_index
-from diagnostics.report import build_diagnostic_report
-from diagnostic_agent.runner import run_diagnostic_agent
+from diagnostic_runtime.tools.context_tools import load_diagnostic_context, get_episode_summary, get_worst_step, list_critical_steps, get_artifact_index
+from diagnostic_runtime.report.deterministic import build_diagnostic_report
+from diagnostic_runtime.agent.runner import run_diagnostic_agent
 
 SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "policy_sequences"
 BENCH = Path(__file__).resolve().parents[1] / "bench" / "sim_robot_arm"

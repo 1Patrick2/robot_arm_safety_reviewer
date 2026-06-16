@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from diagnostics.tools import (
+from diagnostic_runtime.tools.context_tools import (
     load_diagnostic_context,
     get_episode_summary,
     list_critical_steps,

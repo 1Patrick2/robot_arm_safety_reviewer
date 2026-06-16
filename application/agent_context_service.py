@@ -4,9 +4,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from agent_context.builder import build_agent_context_from_db
-from agent_context.models import AgentContext
-from agent_context.render import write_agent_context_files
+from diagnostic_runtime.context.builder import build_agent_context_from_db
+from diagnostic_runtime.context.models import AgentContext
+from diagnostic_runtime.context.render import write_agent_context_files
 from application.core import AppResult, ArtifactRef
 
 DEFAULT_DB = Path("output_reports/runtime_metrics/runtime_metrics.db")

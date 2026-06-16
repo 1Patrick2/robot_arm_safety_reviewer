@@ -171,7 +171,6 @@ diagnostic_runtime/           diagnostic runtime framework
 application/                  review, runtime, sequence, dataset, sandbox, metrics, and context services
 cli/                          unified command-line interface
 reports/                      safety reports and runtime visual artifacts
-```
 gateway/                      legacy safety gate and replayable execution logs
 robots/                       low-level mock RealMan-compatible adapter
 ```
