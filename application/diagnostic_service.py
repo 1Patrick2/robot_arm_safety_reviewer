@@ -287,7 +287,6 @@ def run_diagnostic_regression(request: DiagnosticRegressionRequest) -> Diagnosti
     for case in request.cases:
         case_output = root_dir / case.case_id
         case_output.mkdir(parents=True, exist_ok=True)
-        errors: list[str] = []
 
         try:
             # 1. Run sandbox with metrics-db

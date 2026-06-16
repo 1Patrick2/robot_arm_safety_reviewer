@@ -197,3 +197,36 @@ class TestDiagnosticRegression:
         assert Path(case["trace_path"]).exists()
         assert case["evidence_manifest_path"] is not None
         assert Path(case["evidence_manifest_path"]).exists()
+
+    def test_diagnostic_regression_with_agent_json(self, tmp_path):
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-m", "cli.main",
+                "diagnostic", "regression",
+                "--output-dir", str(tmp_path / "regression_agent"),
+                "--run-agent",
+                "--json",
+            ],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+        payload = json.loads(completed.stdout)
+        assert payload["schema_version"] == "diagnostic_regression.v1"
+        assert payload["total_cases"] >= 1
+        assert payload["passed_cases"] >= 1
+        assert payload["failed_cases"] == 0
+
+        case = payload["cases"][0]
+        assert case["ok"] is True
+        assert case["errors"] == []
+        assert case["agent_report_path"] is not None
+        assert Path(case["agent_report_path"]).exists()
+        assert case["evidence_manifest_path"] is not None
+        assert Path(case["evidence_manifest_path"]).exists()
+
+        manifest = json.loads(Path(case["evidence_manifest_path"]).read_text(encoding="utf-8"))
+        assert manifest["checks"]["has_agent_report"] is True
