@@ -47,6 +47,13 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Diagnostic context builder | `diagnostic_runtime/context/builder.py` | `build_agent_context_from_db` | Builds a diagnostic context package from runtime metrics DB records. |
 | Diagnostic context renderer | `diagnostic_runtime/context/render.py` | `write_agent_context_files` | Writes `diagnostic_context.json` and `diagnostic_context.md`. |
 | Diagnostic context service | `application/agent_context_service.py` | `build_agent_context` | Application service wrapping context generation for CLI and future diagnostic tools. |
+| Diagnostic context service | `application/agent_context_service.py` | `build_agent_context` | Application service wrapping context generation for CLI and future diagnostic tools. |
+| Diagnostic service | `application/diagnostic_service.py` | `run_diagnostic` | Full diagnostic pipeline: build context → runtime → report → optional agent → manifest. |
+| Diagnostic service | `application/diagnostic_service.py` | `run_diagnostic_report` | Report-only path from existing context (reuses diagnostic runtime). |
+| Diagnostic service | `application/diagnostic_service.py` | `run_diagnostic_regression` | Batch pipeline over fixed cases: sandbox → metrics → diagnostic → manifest → summary. |
+| Evidence manifest | `reports/evidence_manifest.py` | `build_evidence_manifest` | Builds `evidence_manifest.json` — unified evidence index with artifact existence checks. |
+| Evidence manifest | `reports/evidence_manifest.py` | `write_evidence_manifest` | Writes manifest dict to JSON file. |
+| CLI diagnostic commands | `cli/commands/diagnostic.py` | `register_diagnostic_commands` | Registers `diagnostic run`, `diagnostic report`, `diagnostic regression`. |
 | Diagnostics tools | `diagnostic_runtime/tools/context_tools.py` | `load_diagnostic_context`, `get_episode_summary`, `list_critical_steps`, `get_worst_step`, `get_artifact_index` | Read-only query layer over diagnostic_context.json. |
 | Diagnostics report | `diagnostic_runtime/report/deterministic.py` | `build_diagnostic_report` | Generates deterministic diagnostic_report.md from context. |
 | Diagnostic agent runner | `diagnostic_runtime/agent/runner.py` | `run_diagnostic_agent` | Runs a diagnostic-only agent with strict safety boundaries. |
@@ -102,4 +109,3 @@ Suggested reading order:
 15. `diagnostic_runtime/tools/context_tools.py`, `diagnostic_runtime/report/deterministic.py`
 16. `diagnostic_runtime/agent/runner.py`, `diagnostic_runtime/agent/adapters/fake.py`
 17. `diagnostic_runtime/guardrails/safety_check.py`, `diagnostic_runtime/runtime/runner.py`
-14. `agent_context/models.py`, `agent_context/builder.py`, `agent_context/render.py`, `application/agent_context_service.py`

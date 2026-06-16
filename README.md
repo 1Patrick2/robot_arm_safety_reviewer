@@ -2,13 +2,19 @@
 
 [Chinese README](README.zh-CN.md)
 
-Robot Action Safety Sandbox is a deterministic 3D robot-arm safety runtime. It checks candidate joint-space actions before execution, records replayable episode evidence, stores runtime metrics, and builds diagnostic context packages for review.
+Robot Action Safety Sandbox is a deterministic robot action safety evaluation and diagnostic framework.
+
+It evaluates policy action sequences through a deterministic safety runtime, records runtime evidence, builds diagnostic context, generates reports, and optionally runs diagnostic-only LLM analysis.
+
+**LLM / diagnostic agent is optional and diagnostic-only.**  
+**Safety decisions are made by the deterministic safety runtime.**  
+**Agent output must not approve, reject, modify, or execute robot actions.**
 
 The project started as `RobotArmSafetyReviewer`. It is still a safety reviewer, not a motion planner. It must not silently modify trajectories, generate obstacle-avoiding paths, or let an LLM decide robot safety.
 
 ## Current Status
 
-Current stage: **Stage 3.8 Diagnostic Runtime in progress**.
+Current stage: **Stage 3.12 Demo Flow & Documentation Hardening — complete**.
 
 Completed scope:
 
@@ -27,6 +33,10 @@ Completed scope:
 - Stage 3.8C: deterministic diagnostic report (LLM-free).
 - Stage 3.8D: diagnostic agent runner with safety boundary checker.
 - Stage 3.8E: DeepSeek adapter (optional smoke-only, not part of deterministic safety path).
+- Stage 3.9: diagnostic runtime integration guardrails and trace.
+- Stage 3.10: evidence manifest for diagnostic outputs.
+- Stage 3.11: diagnostic regression for batch verification.
+- Stage 3.12: demo flow documentation and project hardening.
 
 ## Safety Boundary
 
@@ -38,7 +48,6 @@ Completed scope:
 
 Deferred:
 
-- Full diagnostic CLI (`cli.main diagnostic report`, `cli.main diagnostic agent-run`).
 - RealMan SDK / hardware execution.
 - ROS2 / MoveIt.
 - VLA or autonomous robot-control agent.
@@ -121,36 +130,90 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main metrics show-run ^
   --json
 ```
 
-### Build Diagnostic Agent Context
+### Quick Demo — Full Pipeline in One Command
 
 ```powershell
-D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main context build ^
-  --db output_reports\runtime_metrics\runtime_metrics.db ^
-  --episode-id episode_xxx ^
-  --output-dir output_reports\agent_context\episode_xxx ^
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic regression ^
+  --output-dir output_reports\diagnostics_regression ^
   --json
 ```
 
-Generated context artifacts:
+This runs one regression case through the full pipeline:
+sandbox → metrics DB → diagnostic context → deterministic report → trace → evidence manifest → summary.
+
+### Run Diagnostic Pipeline from an Episode
+
+```powershell
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic run ^
+  --episode-id <episode_id> ^
+  --db output_reports\runtime_metrics\runtime_metrics.db ^
+  --output-dir output_reports\diagnostics ^
+  --json
+```
+
+### Generate Report from Existing Context
+
+```powershell
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic report ^
+  --context output_reports\diagnostics\<episode_id>\context\diagnostic_context.json ^
+  --output-dir output_reports\diagnostic_report ^
+  --json
+```
+
+### Run Diagnostic Regression
+
+```powershell
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic regression ^
+  --output-dir output_reports\diagnostics_regression ^
+  --run-agent ^
+  --json
+```
+
+## Output Artifacts
+
+Each stage produces specific evidence files:
+
+| Stage | Files |
+|---|---|
+| Episode recording | `metadata.json`, `steps.jsonl`, `episode_summary.md` |
+| Visual sandbox | `clearance_curve.png`, `trajectory_overview.png`, `trajectory_overview_data.json` |
+| Runtime metrics DB | `runtime_metrics.db` (SQLite — `runs`, `steps`, `artifacts` tables) |
+| Diagnostic context | `diagnostic_context.json`, `diagnostic_context.md` |
+| Diagnostic runtime | `diagnostic_report.md`, `diagnostic_runtime_trace.json` |
+| Diagnostic agent (optional) | `diagnostic_agent_report.md` |
+| Evidence manifest | `evidence_manifest.json` — unified evidence index for one diagnostic run. Records all artifacts, existence checks, and summary metrics. |
+| Regression summary | `regression_summary.json` — aggregate results across multiple regression cases. |
+
+## What This Project Is Not
 
 ```text
-diagnostic_context.json
-diagnostic_context.md
+This project is NOT:
+- an LLM-controlled robot executor
+- a motion planner replacement
+- a RAG chatbot
+- a VLA training system
+- a real hardware integration layer
+- a robot control agent
+
+It IS:
+- a safety evaluation and diagnostic runtime framework for robot action sequences
 ```
 
 ## Architecture
 
 ```text
 PolicyActionSequence / dataset sample
-  -> application service
-  -> SafetyRuntime.step()
-  -> deterministic safety review
-  -> approve: RobotDeviceAdapter.send_action()
-  -> manual_review / reject: block execution
+  -> sandbox run
+  -> deterministic SafetyRuntime review
   -> EpisodeRecorder
-  -> visual reports
+  -> visual artifacts
   -> runtime metrics DB
-  -> diagnostic runtime framework (context / tools / report / agent / guardrails / trace)
+  -> diagnostic context
+  -> diagnostic runtime
+  -> deterministic diagnostic report
+  -> optional diagnostic agent report
+  -> evidence_manifest.json
+  -> diagnostic regression summary
 ```
 
 Main modules:

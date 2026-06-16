@@ -1,12 +1,12 @@
-# RobotArmSafetyReviewer Project Architecture
+# Robot Action Safety Sandbox — Project Architecture
 
 ## 1. Project Positioning
 
-RobotArmSafetyReviewer is a simulation-first pre-execution safety reviewer for 6-DOF robot-arm joint-space commands.
+Robot Action Safety Sandbox is a deterministic robot action safety evaluation and diagnostic framework.
 
-It is not a path planner, a MoveIt replacement, a RealMan digital twin, or an LLM-controlled robot policy. Its job is narrower and safer: given a structured scene and a candidate joint command, it reviews whether the command should be approved, rejected, or sent to manual review.
+It is not a path planner, a MoveIt replacement, a RealMan digital twin, or an LLM-controlled robot policy. Its job is narrower and safer: given a structured scene and a proposed action sequence, it reviews whether each action should be approved, rejected, or sent to manual review — then packages the evidence for diagnostic analysis.
 
-The core project value is turning "is this robot-arm command safe?" into a deterministic, replayable, benchmarkable, and reportable engineering workflow.
+The core project value is turning "is this robot-arm action safe?" into a deterministic, replayable, benchmarkable, and reportable engineering workflow.
 
 ## 2. Inputs And Outputs
 
@@ -178,7 +178,88 @@ CLI output layer:
 - Keeps CLI command modules focused on argument parsing, request construction, and service calls.
 - Preserves legacy CLI output contracts while allowing future commands to share the same formatting helpers.
 
-## 5. Application Boundary Rules
+## 5. Current Architecture Layers
+
+### CLI Layer
+
+Entry point for all user-facing operations. Parses arguments, calls application services, formats output.
+
+```text
+cli.main
+  |- diagnostic (run / report / regression)
+  |- sandbox run
+  |- metrics ingest / list-runs / show-run
+  |- context build
+  |- sequence run
+  |- review
+  |- runtime run
+```
+
+### Application Layer
+
+Reusable orchestration that does not live inside CLI files.
+
+```text
+application/
+  |- sandbox_service.py        run_sandbox()
+  |- metrics_service.py        metrics_ingest_episode(), metrics_list_runs(), metrics_show_run()
+  |- agent_context_service.py  build_agent_context()
+  |- diagnostic_service.py     run_diagnostic(), run_diagnostic_report(), run_diagnostic_regression()
+  |- runtime_service.py        run_runtime_task()
+  |- sequence_runtime_service.py run_sequence_runtime()
+  |- review_service.py         review_command()
+  |- dataset_service.py        dataset_list(), dataset_export_sequence()
+```
+
+### Runtime Layer
+
+Deterministic safety review and episode recording for multi-step action sequences.
+
+```text
+robot_runtime/
+  |- safety_runtime.py         SafetyRuntime.step() — reviews and gates each action
+  |- episode_recorder.py       EpisodeRecorder — writes metadata.json + steps.jsonl
+  |- device.py                 RobotDeviceAdapter protocol
+  |- adapters/                 mock_realman_device.py
+```
+
+### Diagnostic Runtime Layer
+
+Read-only diagnostic analysis built on top of runtime evidence. Does not modify safety decisions.
+
+```text
+diagnostic_runtime/
+  |- context/                  context models, metrics DB builder, JSON/Markdown renderer
+  |- tools/                    read-only query helpers (load_context, get_summary, list_critical_steps)
+  |- report/                   deterministic report generator (LLM-free)
+  |- agent/                    optional agent runner with fake / DeepSeek adapters
+  |- guardrails/               post-generation safety boundary checks
+  |- runtime/                  unified orchestration and runtime trace output
+```
+
+### Reports and Evidence Layer
+
+Deterministic visual and structured evidence output.
+
+```text
+reports/
+  |- runtime_visual_report.py     clearance_curve.png, trajectory_overview.png + _data.json
+  |- runtime_episode_report.py    episode_summary.md
+  |- evidence_manifest.py         build_evidence_manifest() — unified evidence index
+```
+
+### Dependency Direction
+
+```text
+CLI -> application service -> runtime / diagnostic runtime -> reports
+```
+
+- CLI modules call application services and `cli.output`.
+- Application services orchestrate runtime, diagnostic runtime, and report layers.
+- Diagnostic agent reads diagnostic context and writes a report — it never approves, rejects, modifies, or executes robot actions.
+- Lower layers must not import `application` or `agent` packages.
+
+## 6. Application Boundary Rules
 
 Allowed dependency direction:
 
@@ -288,6 +369,11 @@ Implemented:
 - Stage 3.5 Visual Runtime Sandbox: episode loader, report, clearance curve, trajectory overview, sandbox service, sandbox CLI.
 - Stage 3.6 Runtime Metrics DB: SQLite schema, repository, episode ingest, metrics service, metrics CLI.
 - Stage 3.7 Agent Context Runtime: context models, metrics DB builder, JSON/Markdown renderer, context service, context CLI.
+- Stage 3.8A-3.8E: evidence correctness hardening, diagnostic tools, deterministic report, agent runner guardrails, DeepSeek adapter.
+- Stage 3.9 Diagnostic Runtime Integration: runtime runner, runtime trace, integration guardrails.
+- Stage 3.10 Evidence Manifest: unified evidence index with existence checks, artifact summaries, regression validation.
+- Stage 3.11 Diagnostic Regression: batch pipeline sandbox → metrics → diagnostic run → manifest → summary.
+- Stage 3.12 Demo Flow & Documentation: README command chain, architecture layers, output artifact reference.
 
 Not implemented:
 
@@ -300,4 +386,4 @@ Not implemented:
 - ROS2 / MoveIt integration;
 - LLM safety decision making.
 
-Stage 3.7 Agent Context Runtime is the current completed runtime boundary. It packages deterministic episode evidence for diagnostic review only; it does not make safety decisions, modify actions, or execute robot commands.
+Stage 3.12 Demo Flow & Documentation is the current completed scope. The diagnostic runtime pipeline has been fully integrated: from sandbox execution through metrics DB, diagnostic context, deterministic report, optional agent report with guardrails, evidence manifest, and regression summary.
