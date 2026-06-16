@@ -119,6 +119,7 @@ def run_sequence_runtime(request: SequenceRuntimeRequest) -> SequenceRuntimeResu
         run_mode=request.run_mode,
         sequence_id=sequence.sequence_id,
         device_name=request.device_name,
+        scene_path=str(request.scene_path),
     )
     runtime = SafetyRuntime(
         robot=robot,

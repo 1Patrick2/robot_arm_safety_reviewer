@@ -25,6 +25,7 @@ class EpisodeRecorder:
         sequence_id: str | None = None,
         device_name: str | None = None,
         pipeline_stage: str = "stage3.6_runtime_metrics_db",
+        scene_path: str | None = None,
     ) -> None:
         self.root_dir = Path(root_dir)
         self.episode_id = episode_id or self._make_episode_id()
@@ -43,6 +44,7 @@ class EpisodeRecorder:
             sequence_id=sequence_id,
             device_name=device_name,
             pipeline_stage=pipeline_stage,
+            scene_path=scene_path,
         )
 
     def record_step(self, result: RuntimeStepResult) -> Path:
@@ -68,6 +70,7 @@ class EpisodeRecorder:
         sequence_id: str | None = None,
         device_name: str | None = None,
         pipeline_stage: str = "stage3.6_runtime_metrics_db",
+        scene_path: str | None = None,
     ) -> None:
         payload = {
             "schema_version": self.schema_version,
@@ -82,6 +85,7 @@ class EpisodeRecorder:
             "artifact_schema_version": artifact_schema_version,
             "pipeline_stage": pipeline_stage,
             "sequence_id": sequence_id,
+            "scene_path": scene_path,
             "project_stage": "stage3_runtime_mvp",
             "notes": None,
         }

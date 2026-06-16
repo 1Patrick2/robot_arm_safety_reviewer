@@ -46,6 +46,36 @@ def _default_robot() -> RobotModel:
     )
 
 
+def _load_robot_from_scene(scene_path: Path) -> RobotModel | None:
+    """Load a RobotModel from a scene.json file.
+
+    Returns None if the scene file doesn't exist or doesn't contain
+    a valid robot model description.
+    """
+    try:
+        scene = json.loads(scene_path.read_text(encoding="utf-8"))
+        data = scene.get("robot")
+        if not data:
+            return None
+        import robot_safety.models as m  # noqa: PLC0415
+        link_lengths = data.get("link_lengths", (0.18, 0.32, 0.28, 0.2, 0.14, 0.1))
+        return RobotModel(
+            robot_id=data.get("robot_id", "unknown"),
+            model_type=data.get("model_type", "unknown"),
+            model_version=data.get("model_version", "unknown"),
+            joint_names=tuple(data.get("joint_names", [f"j{i}" for i in range(1, 7)])),
+            joint_limits=tuple(
+                m.JointLimit(-3.14, 3.14) for _ in range(6)
+            ),
+            link_lengths=tuple(link_lengths),
+            link_radius=data.get("link_radius", 0.03),
+            base_position=tuple(data.get("base_position", [0.0, 0.0, 0.0])),
+            base_orientation=tuple(data.get("base_orientation", [0.0, 0.0, 0.0, 1.0])),
+        )
+    except Exception:
+        return None
+
+
 def write_clearance_curve(episode_dir: Path, output_dir: Path | None = None) -> Path:
     """Plot action-level min_clearance per step and save as *clearance_curve.png*."""
     plt = _get_plt()
@@ -100,7 +130,14 @@ def write_trajectory_evidence_data(
     without relying on pixel-level image comparison.
     """
     ep_dir = Path(episode_dir)
+
+    # Try scene robot first, fall back to default
     robot = _default_robot()
+    if scene_path and scene_path.exists():
+        scene_robot = _load_robot_from_scene(scene_path)
+        if scene_robot is not None:
+            robot = scene_robot
+
     meta_path = ep_dir / "metadata.json"
     meta = {}
     if meta_path.exists():
@@ -149,7 +186,23 @@ def write_trajectory_overview(episode_dir: Path, output_dir: Path | None = None)
     target_dir = output_dir or episode_dir
     target_dir.mkdir(parents=True, exist_ok=True)
 
+    ep_dir = Path(episode_dir)
+    meta_path = ep_dir / "metadata.json"
+    scene_path: Path | None = None
+    robot_model_source = "default_mock_fallback"
+    if meta_path.exists():
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        sp = meta.get("scene_path")
+        if sp:
+            scene_path = Path(sp)
+
     robot = _default_robot()
+    if scene_path and scene_path.exists():
+        scene_robot = _load_robot_from_scene(scene_path)
+        if scene_robot is not None:
+            robot = scene_robot
+            robot_model_source = "scene"
+
     steps = bundle.steps
 
     fig = plt.figure(figsize=(10, 8))
@@ -222,6 +275,6 @@ def write_trajectory_overview(episode_dir: Path, output_dir: Path | None = None)
     plt.close(fig)
 
     # Write structured evidence data alongside the PNG
-    write_trajectory_evidence_data(episode_dir, steps)
+    write_trajectory_evidence_data(episode_dir, steps, robot_model_source=robot_model_source, scene_path=scene_path)
 
     return plot_path
