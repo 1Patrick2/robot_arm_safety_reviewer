@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -49,3 +50,34 @@ class TestFakeDiagnosticAgent:
         )
         report_text = Path(result["report_path"]).read_text(encoding="utf-8")
         assert "reject" in report_text
+
+
+class TestDeepSeekProviderBranch:
+    """Test that the deepseek provider branch correctly calls the adapter."""
+
+    def test_calls_deepseek_adapter_and_writes_report(self, tmp_path):
+        """Mock run_deepseek_agent to verify the runner wires it correctly."""
+        context_path = tmp_path / "context.json"
+        context_path.write_text(json.dumps(SAMPLE_CONTEXT), encoding="utf-8")
+        output_dir = tmp_path / "ds_output"
+
+        with patch("diagnostic_agent.runner.run_deepseek_agent") as mock_fn:
+            mock_fn.return_value = "# Mock DeepSeek Report\n\nEvidence check."
+            result = run_diagnostic_agent(
+                context_path=context_path,
+                output_dir=output_dir,
+                provider="deepseek",
+            )
+
+        assert result["provider"] == "deepseek"
+        assert "report_path" in result
+        mock_fn.assert_called_once()
+        # Verify the full context dict was passed to the adapter
+        called_context = mock_fn.call_args[0][0]
+        assert called_context["episode_id"] == "ep_001"
+        assert called_context["total_steps"] == 2
+
+        report_path = Path(result["report_path"])
+        assert report_path.exists()
+        report_text = report_path.read_text(encoding="utf-8")
+        assert "Mock DeepSeek Report" in report_text

@@ -39,7 +39,7 @@ def run_diagnostic_agent(
     if provider == "fake":
         report = run_fake_agent(context)
     elif provider == "deepseek":
-        raise NotImplementedError("DeepSeek adapter not yet connected")
+        report = run_deepseek_agent(context)
     else:
         raise ValueError(f"unsupported provider: {provider}")
 
