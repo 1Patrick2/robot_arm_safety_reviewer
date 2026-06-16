@@ -5,3 +5,4 @@
 .venv/
 logs/
 output_reports/
+main_prompt.md

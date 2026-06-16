@@ -43,7 +43,11 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Metrics repository | `runtime_db/repository.py` | `RuntimeMetricsRepository` | Parameterised-SQL read/write for run and step records. |
 | Episode ingest | `runtime_db/episode_ingest.py` | `ingest_episode`, `build_run_record`, `build_step_records`, `build_artifact_records` | Extracts structured metrics from an episode directory and writes to DB. |
 | Metrics service | `application/metrics_service.py` | `metrics_ingest_episode`, `metrics_list_runs`, `metrics_show_run` | Application service wrapping runtime_db operations for CLI and agents. |
-| CLI output | `cli/output.py` | `print_json`, `print_runtime_task_result`, `print_review_command_result`, `print_sequence_runtime_result`, `print_dataset_list_result`, `print_dataset_export_result`, `print_sandbox_run_result`, `print_metrics_ingest_result`, `print_metrics_list_runs_result`, `print_metrics_show_run_result` | Shared formatting helpers that keep CLI command modules from duplicating JSON and text output logic. |
+| Agent context model | `agent_context/models.py` | `AgentContext`, `AgentContextStep`, `AgentContextArtifact` | Defines deterministic diagnostic context data for review tools. |
+| Agent context builder | `agent_context/builder.py` | `build_agent_context_from_db` | Builds a diagnostic context package from runtime metrics DB records. |
+| Agent context renderer | `agent_context/render.py` | `write_agent_context_files` | Writes `diagnostic_context.json` and `diagnostic_context.md`. |
+| Agent context service | `application/agent_context_service.py` | `build_agent_context` | Application service wrapping context generation for CLI and future diagnostic tools. |
+| CLI output | `cli/output.py` | `print_json`, result-specific print helpers | Shared formatting helpers that keep CLI command modules from duplicating JSON and text output logic. |
 | Benchmark | `robot_safety/benchmark.py` | `run_benchmark` | Discovers benchmark tasks, runs reviews, writes logs, and builds summaries. |
 | Scorer | `robot_safety/scorer.py` | `score_execution_log` | Compares actual logs with expected task contracts. |
 | Report | `reports/report_writer.py` | `build_markdown_report` | Converts one execution log into a human-readable Markdown safety report. |
@@ -63,12 +67,13 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Unified CLI command | `cli/commands/sequence.py` | `register_sequence_commands` | Registers `python -m cli.main sequence run`. |
 | Unified CLI command | `cli/commands/dataset.py` | `register_dataset_commands` | Registers `python -m cli.main dataset list` and `python -m cli.main dataset export-sequence`. |
 | Unified CLI command | `cli/commands/metrics.py` | `register_metrics_commands` | Registers `python -m cli.main metrics ingest`, `list-runs`, and `show-run`. |
+| Unified CLI command | `cli/commands/context.py` | `register_context_commands` | Registers `python -m cli.main context build`. |
 
 Boundary rules:
 
 - CLI modules call application services and `cli.output`.
-- `application` may orchestrate `robot_runtime`, `robot_safety`, `sim`, `gateway`, `reports`, and `dataset_adapters`.
-- `robot_runtime`, `robot_safety`, `sim`, `gateway`, and `dataset_adapters` must not import `application`, future `agent`, or future `robot_tools`.
+- `application` may orchestrate `robot_runtime`, `robot_safety`, `sim`, `gateway`, `reports`, `runtime_db`, `agent_context`, and `dataset_adapters`.
+- `robot_runtime`, `robot_safety`, `sim`, `gateway`, `runtime_db`, `agent_context`, and `dataset_adapters` must not import `application`, `agent`, or `robot_tools`.
 - Future diagnostic agents should call tool wrappers that call application services; agents must not call robot device execution methods directly.
 
 Suggested reading order:
@@ -86,3 +91,4 @@ Suggested reading order:
 11. `dataset_adapters/base.py`, `dataset_adapters/mini_sequence_adapter.py`
 12. `runtime_db/schema.py`, `runtime_db/repository.py`, `runtime_db/episode_ingest.py`
 13. `application/metrics_service.py`, `application/sandbox_service.py`
+14. `agent_context/models.py`, `agent_context/builder.py`, `agent_context/render.py`, `application/agent_context_service.py`

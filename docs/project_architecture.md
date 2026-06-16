@@ -284,10 +284,10 @@ Implemented:
 - application runtime/review/sequence_runtime/dataset services;
 - unified CLI entry point for runtime, review, sequence, and dataset commands;
 - shared CLI output formatting for all result types;
-- Stage 3.1 boundary and agent adoption research docs;
 - Stage 3.4 DatasetAdapter Protocol, MiniSequenceAdapter, and LeRobotStyleAdapter.
 - Stage 3.5 Visual Runtime Sandbox: episode loader, report, clearance curve, trajectory overview, sandbox service, sandbox CLI.
 - Stage 3.6 Runtime Metrics DB: SQLite schema, repository, episode ingest, metrics service, metrics CLI.
+- Stage 3.7 Agent Context Runtime: context models, metrics DB builder, JSON/Markdown renderer, context service, context CLI.
 
 Not implemented:
 
@@ -300,4 +300,4 @@ Not implemented:
 - ROS2 / MoveIt integration;
 - LLM safety decision making.
 
-Stage 3.6 Runtime Metrics DB is the current focus. The SQLite schema, repository, episode ingest, metrics service, and metrics CLI are stable. The next recommended step is Stage 3.7 Agent Context Runtime for structured diagnostic agent evidence packaging.
+Stage 3.7 Agent Context Runtime is the current completed runtime boundary. It packages deterministic episode evidence for diagnostic review only; it does not make safety decisions, modify actions, or execute robot commands.
