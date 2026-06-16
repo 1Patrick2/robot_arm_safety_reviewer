@@ -4,6 +4,7 @@ import argparse
 
 from .commands.context import register_context_commands
 from .commands.dataset import register_dataset_commands
+from .commands.diagnostic import register_diagnostic_commands
 from .commands.metrics import register_metrics_commands
 from .commands.review import register_review_commands
 from .commands.runtime import register_runtime_commands
@@ -17,6 +18,7 @@ def main() -> None:
 
     register_context_commands(subparsers)
     register_dataset_commands(subparsers)
+    register_diagnostic_commands(subparsers)
     register_metrics_commands(subparsers)
     register_runtime_commands(subparsers)
     register_review_commands(subparsers)
