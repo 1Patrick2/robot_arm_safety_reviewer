@@ -4,12 +4,26 @@ import argparse
 from pathlib import Path
 
 from application.diagnostic_service import (
+    DiagnosticRegressionCase,
+    DiagnosticRegressionRequest,
     DiagnosticReportRequest,
     DiagnosticRunRequest,
     run_diagnostic,
     run_diagnostic_report,
+    run_diagnostic_regression,
 )
-from cli.output import print_diagnostic_run_result, print_diagnostic_report_result
+from cli.output import print_diagnostic_run_result, print_diagnostic_report_result, print_diagnostic_regression_result
+
+SAMPLES = Path(__file__).resolve().parents[2] / "samples" / "policy_sequences"
+BENCH = Path(__file__).resolve().parents[2] / "bench" / "sim_robot_arm"
+
+DEFAULT_REGRESSION_CASES = (
+    DiagnosticRegressionCase(
+        case_id="simple_safe_sequence",
+        sequence_path=SAMPLES / "simple_safe_sequence.json",
+        scene_path=BENCH / "simple_joint_move_001" / "scene.json",
+    ),
+)
 
 
 def register_diagnostic_commands(subparsers) -> None:
@@ -34,6 +48,16 @@ def register_diagnostic_commands(subparsers) -> None:
     report_parser.add_argument("--json", action="store_true")
     report_parser.set_defaults(handler=handle_diagnostic_report)
 
+    # diagnostic regression
+    regression_parser = diag_subparsers.add_parser("regression", help="Run diagnostic regression on fixed sample cases")
+    regression_parser.add_argument("--output-dir", default="output_reports/diagnostics_regression", help="Root directory for regression output")
+    regression_parser.add_argument("--backend", default="mock", choices=("mock", "pybullet"))
+    regression_parser.add_argument("--provider", default="fake", choices=("fake", "deepseek"))
+    regression_parser.add_argument("--run-agent", action="store_true")
+    regression_parser.add_argument("--max-steps", type=int, default=10)
+    regression_parser.add_argument("--json", action="store_true")
+    regression_parser.set_defaults(handler=handle_diagnostic_regression)
+
 
 def handle_diagnostic_run(args: argparse.Namespace) -> None:
     result = run_diagnostic(
@@ -57,3 +81,17 @@ def handle_diagnostic_report(args: argparse.Namespace) -> None:
         )
     )
     print_diagnostic_report_result(result, as_json=args.json)
+
+
+def handle_diagnostic_regression(args: argparse.Namespace) -> None:
+    result = run_diagnostic_regression(
+        DiagnosticRegressionRequest(
+            cases=DEFAULT_REGRESSION_CASES,
+            output_dir=Path(args.output_dir),
+            backend_name=args.backend,
+            provider=args.provider,
+            run_agent=args.run_agent,
+            max_steps=args.max_steps,
+        )
+    )
+    print_diagnostic_regression_result(result, as_json=args.json)

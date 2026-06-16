@@ -5,7 +5,7 @@ from typing import Any
 
 from application.agent_context_service import AgentContextBuildResult
 from application.dataset_service import DatasetListResult, DatasetExportSequenceResult
-from application.diagnostic_service import DiagnosticRunResult, DiagnosticReportResult
+from application.diagnostic_service import DiagnosticRunResult, DiagnosticReportResult, DiagnosticRegressionResult
 from application.metrics_service import (
     MetricsIngestResult,
     MetricsListRunsResult,
@@ -203,3 +203,24 @@ def print_diagnostic_report_result(result: DiagnosticReportResult, *, as_json: b
     print(f"Trace: {d.get('trace_path', 'N/A')}")
     if d.get("evidence_manifest_path"):
         print(f"Evidence Manifest: {d['evidence_manifest_path']}")
+
+
+def print_diagnostic_regression_result(result: DiagnosticRegressionResult, *, as_json: bool) -> None:
+    if as_json:
+        print_json(result.to_dict())
+        return
+
+    d = result.to_dict()
+    print(f"Diagnostic Regression")
+    print(f"Total Cases: {d.get('total_cases', 0)}")
+    print(f"Passed Cases: {d.get('passed_cases', 0)}")
+    print(f"Failed Cases: {d.get('failed_cases', 0)}")
+    print(f"Summary: {d.get('summary_path', 'N/A')}")
+    print("Cases:")
+    for case in d.get("cases", []):
+        status = "PASS" if case.get("ok") else "FAIL"
+        ep = case.get("episode_id") or ""
+        if case.get("errors"):
+            print(f"  - {case['case_id']}: {status} errors={case['errors']}")
+        else:
+            print(f"  - {case['case_id']}: {status} episode={ep}")

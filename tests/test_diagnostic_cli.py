@@ -152,3 +152,41 @@ class TestDiagnosticCli:
         assert manifest["checks"]["has_diagnostic_report"] is True
         assert manifest["checks"]["has_trace"] is True
         assert manifest["checks"]["has_agent_report"] is False
+
+
+class TestDiagnosticRegression:
+    def test_diagnostic_regression_json(self, tmp_path):
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-m", "cli.main",
+                "diagnostic", "regression",
+                "--output-dir", str(tmp_path / "regression"),
+                "--json",
+            ],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+        payload = json.loads(completed.stdout)
+        assert payload["schema_version"] == "diagnostic_regression.v1"
+        assert payload["total_cases"] >= 1
+        assert payload["passed_cases"] >= 1
+        assert payload["failed_cases"] == 0
+        assert payload["summary_path"] is not None
+        assert Path(payload["summary_path"]).exists()
+
+        case = payload["cases"][0]
+        assert case["case_id"] == "simple_safe_sequence"
+        assert case["ok"] is True
+        assert case["episode_id"] is not None
+        assert case["context_path"] is not None
+        assert Path(case["context_path"]).exists()
+        assert case["deterministic_report_path"] is not None
+        assert Path(case["deterministic_report_path"]).exists()
+        assert case["trace_path"] is not None
+        assert Path(case["trace_path"]).exists()
+        assert case["evidence_manifest_path"] is not None
+        assert Path(case["evidence_manifest_path"]).exists()

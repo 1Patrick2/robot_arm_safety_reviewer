@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -203,4 +204,177 @@ def run_diagnostic_report(request: DiagnosticReportRequest) -> DiagnosticReportR
         deterministic_report_path=report_path,
         trace_path=trace_path,
         evidence_manifest_path=manifest_path,
+    )
+
+
+# ── diagnostic regression ────────────────────────────────────────────
+
+
+@dataclass(frozen=True)
+class DiagnosticRegressionCase:
+    case_id: str
+    sequence_path: Path
+    scene_path: Path
+
+
+@dataclass(frozen=True)
+class DiagnosticRegressionRequest:
+    cases: tuple[DiagnosticRegressionCase, ...]
+    output_dir: Path = Path("output_reports/diagnostics_regression")
+    backend_name: str = "mock"
+    provider: str = "fake"
+    run_agent: bool = False
+    max_steps: int = 10
+
+
+@dataclass(frozen=True)
+class DiagnosticRegressionCaseResult:
+    case_id: str
+    ok: bool
+    episode_id: str | None
+    diagnostic_output_dir: Path
+    context_path: Path | None
+    deterministic_report_path: Path | None
+    trace_path: Path | None
+    evidence_manifest_path: Path | None
+    agent_report_path: Path | None
+    safety_violations: tuple[str, ...]
+    errors: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "case_id": self.case_id,
+            "ok": self.ok,
+            "episode_id": self.episode_id,
+            "diagnostic_output_dir": str(self.diagnostic_output_dir),
+            "context_path": str(self.context_path) if self.context_path else None,
+            "deterministic_report_path": str(self.deterministic_report_path) if self.deterministic_report_path else None,
+            "trace_path": str(self.trace_path) if self.trace_path else None,
+            "evidence_manifest_path": str(self.evidence_manifest_path) if self.evidence_manifest_path else None,
+            "agent_report_path": str(self.agent_report_path) if self.agent_report_path else None,
+            "safety_violations": list(self.safety_violations),
+            "errors": list(self.errors),
+        }
+
+
+@dataclass(frozen=True)
+class DiagnosticRegressionResult:
+    total_cases: int
+    passed_cases: int
+    failed_cases: int
+    case_results: tuple[DiagnosticRegressionCaseResult, ...]
+    summary_path: Path
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": "diagnostic_regression.v1",
+            "total_cases": self.total_cases,
+            "passed_cases": self.passed_cases,
+            "failed_cases": self.failed_cases,
+            "summary_path": str(self.summary_path),
+            "cases": [r.to_dict() for r in self.case_results],
+        }
+
+    def to_app_result(self) -> AppResult:
+        return AppResult(
+            ok=self.failed_cases == 0,
+            mode="diagnostic_regression",
+            data=self.to_dict(),
+            artifacts=(ArtifactRef(kind="regression_summary", path=self.summary_path, description="Regression summary JSON"),),
+        )
+
+
+def run_diagnostic_regression(request: DiagnosticRegressionRequest) -> DiagnosticRegressionResult:
+    """Run a diagnostic regression over a set of fixed cases.
+
+    For each case: run sandbox -> metrics DB -> diagnostic run -> evidence manifest.
+    Aggregates results into a summary JSON.
+    """
+    from application.sandbox_service import SandboxRunRequest, run_sandbox
+
+    root_dir = Path(request.output_dir)
+    root_dir.mkdir(parents=True, exist_ok=True)
+
+    case_results: list[DiagnosticRegressionCaseResult] = []
+
+    for case in request.cases:
+        case_output = root_dir / case.case_id
+        case_output.mkdir(parents=True, exist_ok=True)
+        errors: list[str] = []
+
+        try:
+            # 1. Run sandbox with metrics-db
+            sandbox_result = run_sandbox(
+                SandboxRunRequest(
+                    sequence_path=case.sequence_path,
+                    scene_path=case.scene_path,
+                    backend_name=request.backend_name,
+                    output_root=case_output / "sandbox",
+                    metrics_db=case_output / "runtime_metrics.db",
+                )
+            )
+            episode_id = sandbox_result.sequence_runtime_result.episode_dir.name
+
+            # 2. Run full diagnostic pipeline
+            diag_result = run_diagnostic(
+                DiagnosticRunRequest(
+                    episode_id=episode_id,
+                    db_path=case_output / "runtime_metrics.db",
+                    output_dir=case_output / "diagnostics",
+                    provider=request.provider,
+                    max_steps=request.max_steps,
+                    run_agent=request.run_agent,
+                )
+            )
+
+            case_results.append(DiagnosticRegressionCaseResult(
+                case_id=case.case_id,
+                ok=True,
+                episode_id=episode_id,
+                diagnostic_output_dir=diag_result.deterministic_report_path.parent,
+                context_path=diag_result.context_path,
+                deterministic_report_path=diag_result.deterministic_report_path,
+                trace_path=diag_result.trace_path,
+                evidence_manifest_path=diag_result.evidence_manifest_path,
+                agent_report_path=diag_result.agent_report_path,
+                safety_violations=diag_result.safety_violations,
+                errors=(),
+            ))
+
+        except Exception as exc:
+            case_results.append(DiagnosticRegressionCaseResult(
+                case_id=case.case_id,
+                ok=False,
+                episode_id=None,
+                diagnostic_output_dir=case_output,
+                context_path=None,
+                deterministic_report_path=None,
+                trace_path=None,
+                evidence_manifest_path=None,
+                agent_report_path=None,
+                safety_violations=(),
+                errors=(str(exc),),
+            ))
+
+    total_cases = len(case_results)
+    passed_cases = sum(1 for r in case_results if r.ok)
+    failed_cases = total_cases - passed_cases
+
+    # Write summary JSON
+    summary = {
+        "schema_version": "diagnostic_regression.v1",
+        "total_cases": total_cases,
+        "passed_cases": passed_cases,
+        "failed_cases": failed_cases,
+        "cases": [r.to_dict() for r in case_results],
+    }
+    summary_path = root_dir / "regression_summary.json"
+    summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    return DiagnosticRegressionResult(
+        total_cases=total_cases,
+        passed_cases=passed_cases,
+        failed_cases=failed_cases,
+        case_results=tuple(case_results),
+        summary_path=summary_path,
     )
