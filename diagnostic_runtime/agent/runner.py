@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
 from .adapters.deepseek import run_deepseek_agent
 from .adapters.fake import run_fake_agent
 from ..guardrails.safety_check import check_agent_report
+from ..tools.context_tools import load_diagnostic_context
 
 
 def run_diagnostic_agent(
@@ -35,7 +35,7 @@ def run_diagnostic_agent(
     if not context_path.exists():
         raise FileNotFoundError(f"context not found: {context_path}")
 
-    context = json.loads(context_path.read_text(encoding="utf-8"))
+    context = load_diagnostic_context(context_path)
 
     if provider == "fake":
         report = run_fake_agent(context)

@@ -150,7 +150,7 @@ PolicyActionSequence / dataset sample
   -> EpisodeRecorder
   -> visual reports
   -> runtime metrics DB
-  -> diagnostic agent context package
+  -> diagnostic runtime framework (context / tools / report / agent / guardrails / trace)
 ```
 
 Main modules:

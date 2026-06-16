@@ -43,10 +43,10 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Metrics repository | `runtime_db/repository.py` | `RuntimeMetricsRepository` | Parameterised-SQL read/write for run and step records. |
 | Episode ingest | `runtime_db/episode_ingest.py` | `ingest_episode`, `build_run_record`, `build_step_records`, `build_artifact_records` | Extracts structured metrics from an episode directory and writes to DB. |
 | Metrics service | `application/metrics_service.py` | `metrics_ingest_episode`, `metrics_list_runs`, `metrics_show_run` | Application service wrapping runtime_db operations for CLI and agents. |
-| Agent context model | `diagnostic_runtime/context/models.py` | `AgentContext`, `AgentContextStep`, `AgentContextArtifact` | Defines deterministic diagnostic context data for review tools. |
-| Agent context builder | `diagnostic_runtime/context/builder.py` | `build_agent_context_from_db` | Builds a diagnostic context package from runtime metrics DB records. |
-| Agent context renderer | `diagnostic_runtime/context/render.py` | `write_agent_context_files` | Writes `diagnostic_context.json` and `diagnostic_context.md`. |
-| Agent context service | `application/agent_context_service.py` | `build_agent_context` | Application service wrapping context generation for CLI and future diagnostic tools. |
+| Diagnostic context model | `diagnostic_runtime/context/models.py` | `AgentContext`, `AgentContextStep`, `AgentContextArtifact` | Defines deterministic diagnostic context data for review tools. |
+| Diagnostic context builder | `diagnostic_runtime/context/builder.py` | `build_agent_context_from_db` | Builds a diagnostic context package from runtime metrics DB records. |
+| Diagnostic context renderer | `diagnostic_runtime/context/render.py` | `write_agent_context_files` | Writes `diagnostic_context.json` and `diagnostic_context.md`. |
+| Diagnostic context service | `application/agent_context_service.py` | `build_agent_context` | Application service wrapping context generation for CLI and future diagnostic tools. |
 | Diagnostics tools | `diagnostic_runtime/tools/context_tools.py` | `load_diagnostic_context`, `get_episode_summary`, `list_critical_steps`, `get_worst_step`, `get_artifact_index` | Read-only query layer over diagnostic_context.json. |
 | Diagnostics report | `diagnostic_runtime/report/deterministic.py` | `build_diagnostic_report` | Generates deterministic diagnostic_report.md from context. |
 | Diagnostic agent runner | `diagnostic_runtime/agent/runner.py` | `run_diagnostic_agent` | Runs a diagnostic-only agent with strict safety boundaries. |
