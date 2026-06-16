@@ -161,10 +161,17 @@ sim/                          backend abstraction, mock backend, PyBullet backen
 robot_runtime/                runtime actions, observations, devices, sequences, episode recorder/loader
 dataset_adapters/             mini_sequence and local LeRobot-style adapters
 runtime_db/                   SQLite schema, repository, and episode ingest
-agent_context/                diagnostic context models, builder, and renderers
+diagnostic_runtime/           diagnostic runtime framework
+  context/                      deterministic diagnostic context package
+  tools/                        read-only diagnostic context query layer
+  report/                       deterministic diagnostic report generation
+  agent/                        fake / DeepSeek diagnostic agent runner
+  guardrails/                   post-generation safety boundary checker
+  runtime/                      orchestration and trace for diagnostic workflow
 application/                  review, runtime, sequence, dataset, sandbox, metrics, and context services
 cli/                          unified command-line interface
 reports/                      safety reports and runtime visual artifacts
+```
 gateway/                      legacy safety gate and replayable execution logs
 robots/                       low-level mock RealMan-compatible adapter
 ```
