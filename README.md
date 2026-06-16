@@ -113,6 +113,7 @@ steps.jsonl
 episode_summary.md
 clearance_curve.png
 trajectory_overview.png
+trajectory_overview_data.json
 ```
 
 ### Query Runtime Metrics

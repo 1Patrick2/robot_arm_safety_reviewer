@@ -198,6 +198,12 @@ class TestDiagnosticRegression:
         assert case["evidence_manifest_path"] is not None
         assert Path(case["evidence_manifest_path"]).exists()
 
+        # Evidence manifest indexes trajectory_overview_data
+        manifest = json.loads(Path(case["evidence_manifest_path"]).read_text(encoding="utf-8"))
+        manifest_kinds = {a["kind"] for a in manifest["artifacts"]}
+        assert "trajectory_overview_data" in manifest_kinds
+        assert manifest["checks"]["has_structured_visual_data"] is True
+
     def test_diagnostic_regression_with_agent_json(self, tmp_path):
         completed = subprocess.run(
             [

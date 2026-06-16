@@ -121,6 +121,7 @@ def build_artifact_records(episode_dir: Path) -> list[dict[str, Any]]:
         ("episode_summary", "episode_summary.md", "Episode summary markdown"),
         ("clearance_curve", "clearance_curve.png", "Clearance curve PNG"),
         ("trajectory_overview", "trajectory_overview.png", "Trajectory overview PNG"),
+        ("trajectory_overview_data", "trajectory_overview_data.json", "Trajectory overview structured data JSON"),
     ]
     records: list[dict[str, Any]] = []
     for kind, filename, desc in candidates:

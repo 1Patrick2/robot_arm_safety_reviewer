@@ -64,7 +64,7 @@ class DiagnosticRunResult:
             ArtifactRef(kind="evidence_manifest", path=self.evidence_manifest_path, description="Evidence manifest JSON"),
         ])
         return AppResult(
-            ok=True,
+            ok=len(self.safety_violations) == 0,
             mode="diagnostic_run",
             data=self.to_dict(),
             artifacts=tuple(artifacts),
@@ -278,6 +278,9 @@ def run_diagnostic_regression(request: DiagnosticRegressionRequest) -> Diagnosti
     Aggregates results into a summary JSON.
     """
     from application.sandbox_service import SandboxRunRequest, run_sandbox
+
+    if not request.cases:
+        raise ValueError("diagnostic regression requires at least one case")
 
     root_dir = Path(request.output_dir)
     root_dir.mkdir(parents=True, exist_ok=True)

@@ -47,7 +47,6 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Diagnostic context builder | `diagnostic_runtime/context/builder.py` | `build_agent_context_from_db` | Builds a diagnostic context package from runtime metrics DB records. |
 | Diagnostic context renderer | `diagnostic_runtime/context/render.py` | `write_agent_context_files` | Writes `diagnostic_context.json` and `diagnostic_context.md`. |
 | Diagnostic context service | `application/agent_context_service.py` | `build_agent_context` | Application service wrapping context generation for CLI and future diagnostic tools. |
-| Diagnostic context service | `application/agent_context_service.py` | `build_agent_context` | Application service wrapping context generation for CLI and future diagnostic tools. |
 | Diagnostic service | `application/diagnostic_service.py` | `run_diagnostic` | Full diagnostic pipeline: build context → runtime → report → optional agent → manifest. |
 | Diagnostic service | `application/diagnostic_service.py` | `run_diagnostic_report` | Report-only path from existing context (reuses diagnostic runtime). |
 | Diagnostic service | `application/diagnostic_service.py` | `run_diagnostic_regression` | Batch pipeline over fixed cases: sandbox → metrics → diagnostic → manifest → summary. |
@@ -86,8 +85,8 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 Boundary rules:
 
 - CLI modules call application services and `cli.output`.
-- `application` may orchestrate `robot_runtime`, `robot_safety`, `sim`, `gateway`, `reports`, `runtime_db`, `agent_context`, and `dataset_adapters`.
-- `robot_runtime`, `robot_safety`, `sim`, `gateway`, `runtime_db`, `agent_context`, and `dataset_adapters` must not import `application`, `agent`, or `robot_tools`.
+- `application` may orchestrate `robot_runtime`, `robot_safety`, `sim`, `gateway`, `reports`, `runtime_db`, `diagnostic_runtime/context`, and `dataset_adapters`.
+- `robot_runtime`, `robot_safety`, `sim`, `gateway`, `runtime_db`, `diagnostic_runtime`, and `dataset_adapters` must not import `application`, `agent`, or `robot_tools`.
 - Future diagnostic agents should call tool wrappers that call application services; agents must not call robot device execution methods directly.
 
 Suggested reading order:

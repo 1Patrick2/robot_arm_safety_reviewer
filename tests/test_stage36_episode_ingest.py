@@ -99,7 +99,7 @@ class TestIngestEpisode:
 
         assert summary["episode_id"] is not None
         assert summary["total_steps"] == 2
-        assert summary["artifact_count"] == 3
+        assert summary["artifact_count"] == 4
 
         # verify via repository
         repo = RuntimeMetricsRepository(db_path)

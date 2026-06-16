@@ -8,7 +8,7 @@ Robot Action Safety Sandbox 是一个确定性的 3D 机械臂动作安全运行
 
 ## 当前状态
 
-当前阶段：**Stage 3.8 Diagnostic Runtime 进行中**。
+当前阶段：**Stage 3.12 Demo Flow & Documentation Hardening — 已完成**。
 
 已完成范围：
 
@@ -27,6 +27,10 @@ Robot Action Safety Sandbox 是一个确定性的 3D 机械臂动作安全运行
 - Stage 3.8C：确定性诊断报告（无需 LLM）。
 - Stage 3.8D：diagnostic agent runner 及安全边界检查。
 - Stage 3.8E：DeepSeek adapter（可选 smoke-only，不属于确定性安全决策路径）。
+- Stage 3.9：diagnostic runtime 集成 guardrail 和 trace。
+- Stage 3.10：evidence manifest 诊断输出证据清单。
+- Stage 3.11：diagnostic regression 批量验证。
+- Stage 3.12：demo flow 文档与项目说明完善。
 
 ## 安全边界
 
@@ -38,7 +42,6 @@ Robot Action Safety Sandbox 是一个确定性的 3D 机械臂动作安全运行
 
 暂不推进：
 
-- 完整诊断 CLI（`cli.main diagnostic report`, `cli.main diagnostic agent-run`）。
 - RealMan SDK / 硬件执行。
 - ROS2 / MoveIt。
 - VLA 或自主机器人控制 Agent。
@@ -104,6 +107,7 @@ steps.jsonl
 episode_summary.md
 clearance_curve.png
 trajectory_overview.png
+trajectory_overview_data.json
 ```
 
 ### 查询 runtime metrics
@@ -121,36 +125,50 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main metrics show-run ^
   --json
 ```
 
-### 构建诊断 Agent Context
+### 诊断命令
+
+一键运行完整诊断流水线：
 
 ```powershell
-D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main context build ^
-  --db output_reports\runtime_metrics\runtime_metrics.db ^
-  --episode-id episode_xxx ^
-  --output-dir output_reports\agent_context\episode_xxx ^
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic regression ^
+  --output-dir output_reports\diagnostics_regression ^
   --json
 ```
 
-生成的 context 证据：
+从 episode ID 运行诊断：
 
-```text
-diagnostic_context.json
-diagnostic_context.md
+```powershell
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic run ^
+  --episode-id <episode_id> ^
+  --db output_reports\runtime_metrics\runtime_metrics.db ^
+  --output-dir output_reports\diagnostics ^
+  --json
+```
+
+从已有 context 生成报告：
+
+```powershell
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic report ^
+  --context output_reports\diagnostics\<episode_id>\context\diagnostic_context.json ^
+  --output-dir output_reports\diagnostic_report ^
+  --json
 ```
 
 ## 架构概览
 
 ```text
 PolicyActionSequence / dataset sample
-  -> application service
-  -> SafetyRuntime.step()
-  -> deterministic safety review
-  -> approve: RobotDeviceAdapter.send_action()
-  -> manual_review / reject: block execution
+  -> sandbox run
+  -> deterministic SafetyRuntime review
   -> EpisodeRecorder
-  -> visual reports
+  -> visual artifacts
   -> runtime metrics DB
-  -> diagnostic runtime framework (context / tools / report / agent / guardrails / trace)
+  -> diagnostic context
+  -> diagnostic runtime
+  -> deterministic diagnostic report
+  -> optional diagnostic agent report
+  -> evidence_manifest.json
+  -> diagnostic regression summary
 ```
 
 主要模块：
