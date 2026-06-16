@@ -80,7 +80,11 @@ def build_evidence_manifest(
         add("diagnostic_runtime_trace", trace_path, "diagnostic_runtime.runtime")
 
     # -- compute checks ------------------------------------------------------
-    kinds = {a["kind"] for a in artifacts}
+    def _artifact_exists(kind: str) -> bool:
+        return any(a["kind"] == kind and a["exists"] for a in artifacts)
+
+    def _any_existing(kinds: set[str]) -> bool:
+        return any(a["kind"] in kinds and a["exists"] for a in artifacts)
 
     has_guardrail_violations = False
     if trace_path is not None:
@@ -90,16 +94,16 @@ def build_evidence_manifest(
                 trace_data = json.loads(tp.read_text(encoding="utf-8"))
                 if trace_data.get("has_violations"):
                     has_guardrail_violations = True
-            except Exception:
+            except (OSError, json.JSONDecodeError, AttributeError):
                 pass
 
     checks: dict[str, bool] = {
-        "has_visual_evidence": bool(kinds & {"episode_summary", "clearance_curve", "trajectory_overview"}),
-        "has_structured_visual_data": bool(kinds & {"trajectory_overview_data", "clearance_curve_data"}),
-        "has_diagnostic_context": "diagnostic_context_json" in kinds,
-        "has_diagnostic_report": "deterministic_report" in kinds,
-        "has_trace": "diagnostic_runtime_trace" in kinds,
-        "has_agent_report": "diagnostic_agent_report" in kinds,
+        "has_visual_evidence": _any_existing({"episode_summary", "clearance_curve", "trajectory_overview"}),
+        "has_structured_visual_data": _any_existing({"trajectory_overview_data", "clearance_curve_data"}),
+        "has_diagnostic_context": _artifact_exists("diagnostic_context_json"),
+        "has_diagnostic_report": _artifact_exists("deterministic_report"),
+        "has_trace": _artifact_exists("diagnostic_runtime_trace"),
+        "has_agent_report": _artifact_exists("diagnostic_agent_report"),
         "has_guardrail_violations": has_guardrail_violations,
     }
 

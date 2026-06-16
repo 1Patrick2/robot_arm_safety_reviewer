@@ -178,9 +178,16 @@ class TestDiagnosticRegression:
         assert payload["summary_path"] is not None
         assert Path(payload["summary_path"]).exists()
 
+        # Summary file content matches CLI output
+        summary = json.loads(Path(payload["summary_path"]).read_text(encoding="utf-8"))
+        assert summary["schema_version"] == payload["schema_version"]
+        assert summary["total_cases"] == payload["total_cases"]
+        assert summary["summary_path"] == payload["summary_path"]
+
         case = payload["cases"][0]
         assert case["case_id"] == "simple_safe_sequence"
         assert case["ok"] is True
+        assert case["errors"] == []
         assert case["episode_id"] is not None
         assert case["context_path"] is not None
         assert Path(case["context_path"]).exists()

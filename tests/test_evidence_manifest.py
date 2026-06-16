@@ -125,6 +125,40 @@ class TestBuildEvidenceManifest:
         assert "diagnostic_context_markdown" in kinds
 
 
+    def test_missing_report_path_sets_check_false(self, tmp_path):
+        ctx = tmp_path / "diagnostic_context.json"
+        ctx.write_text(json.dumps({
+            "episode_id": "ep_missing_report",
+            "artifacts": [],
+        }), encoding="utf-8")
+
+        missing_report = tmp_path / "nonexistent" / "diagnostic_report.md"
+        manifest = build_evidence_manifest(
+            context_path=ctx,
+            deterministic_report_path=missing_report,
+        )
+        rep_artifacts = [a for a in manifest["artifacts"] if a["kind"] == "deterministic_report"]
+        assert len(rep_artifacts) == 1
+        assert rep_artifacts[0]["exists"] is False
+        assert manifest["checks"]["has_diagnostic_report"] is False
+
+    def test_missing_visual_artifact_sets_visual_check_false(self, tmp_path):
+        missing_vis = tmp_path / "nonexistent_trajectory.png"
+        ctx = tmp_path / "diagnostic_context.json"
+        ctx.write_text(json.dumps({
+            "episode_id": "ep_missing_vis",
+            "artifacts": [
+                {"kind": "trajectory_overview", "path": str(missing_vis)},
+            ],
+        }), encoding="utf-8")
+
+        manifest = build_evidence_manifest(context_path=ctx)
+        vis_artifacts = [a for a in manifest["artifacts"] if a["kind"] == "trajectory_overview"]
+        assert len(vis_artifacts) == 1
+        assert vis_artifacts[0]["exists"] is False
+        assert manifest["checks"]["has_visual_evidence"] is False
+
+
 class TestWriteEvidenceManifest:
     def test_writes_json(self, tmp_path):
         manifest = {"schema_version": "evidence_manifest.v1", "episode_id": "ep_w"}

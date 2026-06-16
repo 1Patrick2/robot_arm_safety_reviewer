@@ -8,10 +8,6 @@ from typing import Any
 from .agent_context_service import build_agent_context, AgentContextBuildRequest
 from diagnostic_runtime.runtime.models import DiagnosticRuntimeRequest
 from diagnostic_runtime.runtime.runner import run_diagnostic_runtime
-from diagnostic_runtime.tools.context_tools import load_diagnostic_context
-from diagnostic_runtime.report.deterministic import build_diagnostic_report
-from diagnostic_runtime.runtime.trace import write_runtime_trace
-from diagnostic_runtime.runtime.models import DiagnosticRuntimeResult as _RuntimeResult
 from reports.evidence_manifest import build_evidence_manifest, write_evidence_manifest
 from .core import AppResult, ArtifactRef
 
@@ -171,38 +167,29 @@ def run_diagnostic_report(request: DiagnosticReportRequest) -> DiagnosticReportR
     output_dir = Path(request.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # 1. Load context
-    bundle = load_diagnostic_context(context_path)
-
-    # 2. Build deterministic report
-    report_md = build_diagnostic_report(bundle)
-    report_path = output_dir / "diagnostic_report.md"
-    report_path.write_text(report_md, encoding="utf-8")
-
-    # 3. Build result + trace
-    trace_path = output_dir / "diagnostic_runtime_trace.json"
-    runtime_result = _RuntimeResult(
-        context_path=context_path,
-        deterministic_report_path=report_path,
-        agent_report_path=None,
-        trace_path=trace_path,
-        safety_violations=(),
+    # Reuse the diagnostic runtime pipeline (load context → report → trace)
+    runtime_result = run_diagnostic_runtime(
+        DiagnosticRuntimeRequest(
+            context_path=context_path,
+            output_dir=output_dir,
+            provider="fake",
+            run_agent=False,
+        )
     )
-    write_runtime_trace(runtime_result)
 
-    # 4. Build evidence manifest
+    # Build evidence manifest
     manifest = build_evidence_manifest(
         context_path=context_path,
-        deterministic_report_path=report_path,
-        trace_path=trace_path,
+        deterministic_report_path=runtime_result.deterministic_report_path,
+        trace_path=runtime_result.trace_path,
     )
     manifest_path = output_dir / "evidence_manifest.json"
     write_evidence_manifest(manifest, manifest_path)
 
     return DiagnosticReportResult(
         context_path=context_path,
-        deterministic_report_path=report_path,
-        trace_path=trace_path,
+        deterministic_report_path=runtime_result.deterministic_report_path,
+        trace_path=runtime_result.trace_path,
         evidence_manifest_path=manifest_path,
     )
 
@@ -327,9 +314,32 @@ def run_diagnostic_regression(request: DiagnosticRegressionRequest) -> Diagnosti
                 )
             )
 
+            # Check artifact completeness
+            case_errors: list[str] = []
+            required_paths = {
+                "context_path": diag_result.context_path,
+                "deterministic_report_path": diag_result.deterministic_report_path,
+                "trace_path": diag_result.trace_path,
+                "evidence_manifest_path": diag_result.evidence_manifest_path,
+            }
+            for name, path in required_paths.items():
+                if path is None or not path.exists():
+                    case_errors.append(f"missing {name}: {path}")
+
+            if request.run_agent:
+                if diag_result.agent_report_path is None:
+                    case_errors.append("missing agent_report_path: None")
+                elif not diag_result.agent_report_path.exists():
+                    case_errors.append(f"missing agent_report_path: {diag_result.agent_report_path}")
+
+            if diag_result.safety_violations:
+                case_errors.append(f"safety violations: {list(diag_result.safety_violations)}")
+
+            ok = not case_errors
+
             case_results.append(DiagnosticRegressionCaseResult(
                 case_id=case.case_id,
-                ok=True,
+                ok=ok,
                 episode_id=episode_id,
                 diagnostic_output_dir=diag_result.deterministic_report_path.parent,
                 context_path=diag_result.context_path,
@@ -338,7 +348,7 @@ def run_diagnostic_regression(request: DiagnosticRegressionRequest) -> Diagnosti
                 evidence_manifest_path=diag_result.evidence_manifest_path,
                 agent_report_path=diag_result.agent_report_path,
                 safety_violations=diag_result.safety_violations,
-                errors=(),
+                errors=tuple(case_errors),
             ))
 
         except Exception as exc:
@@ -360,21 +370,15 @@ def run_diagnostic_regression(request: DiagnosticRegressionRequest) -> Diagnosti
     passed_cases = sum(1 for r in case_results if r.ok)
     failed_cases = total_cases - passed_cases
 
-    # Write summary JSON
-    summary = {
-        "schema_version": "diagnostic_regression.v1",
-        "total_cases": total_cases,
-        "passed_cases": passed_cases,
-        "failed_cases": failed_cases,
-        "cases": [r.to_dict() for r in case_results],
-    }
-    summary_path = root_dir / "regression_summary.json"
-    summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
-
-    return DiagnosticRegressionResult(
+    # Write summary JSON from result.to_dict() to stay consistent with CLI output
+    result = DiagnosticRegressionResult(
         total_cases=total_cases,
         passed_cases=passed_cases,
         failed_cases=failed_cases,
         case_results=tuple(case_results),
-        summary_path=summary_path,
+        summary_path=root_dir / "regression_summary.json",
     )
+    result.summary_path.write_text(
+        json.dumps(result.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+    return result
