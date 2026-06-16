@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
+from typing import Any
 
 from robot_runtime.episode_loader import load_episode
 from robot_safety.kinematics import forward_kinematics_6dof
@@ -83,6 +85,54 @@ def write_clearance_curve(episode_dir: Path, output_dir: Path | None = None) -> 
     fig.savefig(plot_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return plot_path
+
+
+def write_trajectory_evidence_data(
+    episode_dir: Path,
+    steps: list[dict[str, Any]],
+    *,
+    robot_model_source: str = "default_mock_fallback",
+    scene_path: Path | None = None,
+) -> Path:
+    """Write trajectory_overview_data.json alongside the PNG.
+
+    This structured data enables deterministic testing of FK correctness
+    without relying on pixel-level image comparison.
+    """
+    ep_dir = Path(episode_dir)
+    robot = _default_robot()
+    meta_path = ep_dir / "metadata.json"
+    meta = {}
+    if meta_path.exists():
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+
+    step_records: list[dict[str, Any]] = []
+    for idx, step in enumerate(steps):
+        action = step.get("proposed_action", {})
+        tj = action.get("target_joints")
+        if not tj:
+            continue
+        fk = forward_kinematics_6dof(robot, tj)
+        step_records.append({
+            "step_index": step.get("step_index") or (idx + 1),
+            "decision": step.get("safety_result", {}).get("decision"),
+            "target_joints": list(tj),
+            "fk_points": [list(p) for p in fk],
+            "end_effector": list(fk[-1]),
+        })
+
+    payload: dict[str, Any] = {
+        "episode_id": meta.get("episode_id", ep_dir.name),
+        "scene_path": meta.get("scene_path"),
+        "robot_model_source": robot_model_source,
+        "joint_names": ["j1", "j2", "j3", "j4", "j5", "j6"],
+        "joint_units": "rad",
+        "steps": step_records,
+    }
+
+    data_path = ep_dir / "trajectory_overview_data.json"
+    data_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    return data_path
 
 
 def write_trajectory_overview(episode_dir: Path, output_dir: Path | None = None) -> Path:
@@ -170,4 +220,8 @@ def write_trajectory_overview(episode_dir: Path, output_dir: Path | None = None)
     plot_path = target_dir / "trajectory_overview.png"
     fig.savefig(plot_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
+
+    # Write structured evidence data alongside the PNG
+    write_trajectory_evidence_data(episode_dir, steps)
+
     return plot_path
