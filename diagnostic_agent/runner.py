@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from .deepseek_adapter import run_deepseek_agent
 from .fake_adapter import run_fake_agent
 
 
