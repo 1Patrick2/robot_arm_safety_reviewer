@@ -72,7 +72,7 @@ class TestDeepSeekProviderBranch:
         context_path.write_text(json.dumps(SAMPLE_CONTEXT), encoding="utf-8")
         output_dir = tmp_path / "ds_output"
 
-        with patch("diagnostic_agent.runner.run_deepseek_agent") as mock_fn:
+        with patch("diagnostic_runtime.agent.runner.run_deepseek_agent") as mock_fn:
             mock_fn.return_value = "# Mock DeepSeek Report\n\nEvidence check."
             result = run_diagnostic_agent(
                 context_path=context_path,
