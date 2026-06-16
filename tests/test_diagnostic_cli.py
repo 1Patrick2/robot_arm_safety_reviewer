@@ -48,9 +48,15 @@ class TestDiagnosticCli:
         payload = json.loads(completed.stdout)
         assert payload.get("episode_id") == ep_id
         assert payload.get("total_steps") == 2
+        assert payload.get("context_path") is not None
+        assert Path(payload["context_path"]).exists()
         assert payload.get("deterministic_report_path") is not None
         assert Path(payload["deterministic_report_path"]).exists()
         assert payload.get("trace_path") is not None
+
+        # Output is under episode sub-directory
+        ep_dir = output_dir / ep_id
+        assert ep_dir.exists()
 
     def test_diagnostic_run_with_agent(self, tmp_path):
         db_path, ep_id = _sandbox_and_ingest(tmp_path)
@@ -75,6 +81,46 @@ class TestDiagnosticCli:
 
         payload = json.loads(completed.stdout)
         assert payload.get("episode_id") == ep_id
+        assert payload.get("context_path") is not None
         assert payload.get("agent_report_path") is not None
         assert Path(payload["agent_report_path"]).exists()
         assert payload.get("safety_violations") == []
+
+    def test_diagnostic_report_json(self, tmp_path):
+        """diagnostic report should generate report + trace from existing context, no agent."""
+        # First build a context via the run path
+        db_path, ep_id = _sandbox_and_ingest(tmp_path)
+        run_out = tmp_path / "run_out"
+        run_completed = subprocess.run(
+            [sys.executable, "-m", "cli.main", "diagnostic", "run",
+             "--episode-id", ep_id, "--db", str(db_path),
+             "--output-dir", str(run_out), "--json"],
+            cwd=ROOT, check=True, capture_output=True, text=True,
+        )
+        run_payload = json.loads(run_completed.stdout)
+        context_path = run_payload["context_path"]
+
+        # Now call diagnostic report on that context
+        report_out = tmp_path / "report_out"
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-m", "cli.main",
+                "diagnostic", "report",
+                "--context", context_path,
+                "--output-dir", str(report_out),
+                "--json",
+            ],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+        payload = json.loads(completed.stdout)
+        assert "context_path" in payload
+        assert payload.get("deterministic_report_path") is not None
+        assert Path(payload["deterministic_report_path"]).exists()
+        assert payload.get("trace_path") is not None
+        # No agent report for report-only command
+        assert "agent_report_path" not in payload or payload["agent_report_path"] is None

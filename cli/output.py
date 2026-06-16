@@ -5,7 +5,7 @@ from typing import Any
 
 from application.agent_context_service import AgentContextBuildResult
 from application.dataset_service import DatasetListResult, DatasetExportSequenceResult
-from application.diagnostic_service import DiagnosticRunResult
+from application.diagnostic_service import DiagnosticRunResult, DiagnosticReportResult
 from application.metrics_service import (
     MetricsIngestResult,
     MetricsListRunsResult,
@@ -181,9 +181,21 @@ def print_diagnostic_run_result(result: DiagnosticRunResult, *, as_json: bool) -
     print(f"Episode ID: {d.get('episode_id', '?')}")
     print(f"Total Steps: {d.get('total_steps', '?')}")
     print(f"Critical Steps: {d.get('critical_step_count', '?')}")
+    print(f"Context: {d.get('context_path', 'N/A')}")
     print(f"Deterministic Report: {d.get('deterministic_report_path', 'N/A')}")
     if d.get("agent_report_path"):
         print(f"Agent Report: {d['agent_report_path']}")
     print(f"Trace: {d.get('trace_path', 'N/A')}")
     if d.get("safety_violations"):
         print(f"Safety Violations: {d['safety_violations']}")
+
+
+def print_diagnostic_report_result(result: DiagnosticReportResult, *, as_json: bool) -> None:
+    if as_json:
+        print_json(result.to_dict())
+        return
+
+    d = result.to_dict()
+    print(f"Context: {d.get('context_path', 'N/A')}")
+    print(f"Deterministic Report: {d.get('deterministic_report_path', 'N/A')}")
+    print(f"Trace: {d.get('trace_path', 'N/A')}")
