@@ -58,6 +58,16 @@ class TestDiagnosticCli:
         ep_dir = output_dir / ep_id
         assert ep_dir.exists()
 
+        # Evidence manifest
+        assert payload.get("evidence_manifest_path") is not None
+        manifest_path = Path(payload["evidence_manifest_path"])
+        assert manifest_path.exists()
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert manifest["episode_id"] == ep_id
+        assert manifest["checks"]["has_diagnostic_context"] is True
+        assert manifest["checks"]["has_diagnostic_report"] is True
+        assert manifest["checks"]["has_trace"] is True
+
     def test_diagnostic_run_with_agent(self, tmp_path):
         db_path, ep_id = _sandbox_and_ingest(tmp_path)
         output_dir = tmp_path / "diag_agent"
@@ -85,6 +95,15 @@ class TestDiagnosticCli:
         assert payload.get("agent_report_path") is not None
         assert Path(payload["agent_report_path"]).exists()
         assert payload.get("safety_violations") == []
+
+        # Evidence manifest: agent report included
+        assert payload.get("evidence_manifest_path") is not None
+        manifest_path = Path(payload["evidence_manifest_path"])
+        assert manifest_path.exists()
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert manifest["checks"]["has_agent_report"] is True
+        manifest_kinds = {a["kind"] for a in manifest["artifacts"]}
+        assert "diagnostic_agent_report" in manifest_kinds
 
     def test_diagnostic_report_json(self, tmp_path):
         """diagnostic report should generate report + trace from existing context, no agent."""
@@ -124,3 +143,12 @@ class TestDiagnosticCli:
         assert payload.get("trace_path") is not None
         # No agent report for report-only command
         assert "agent_report_path" not in payload or payload["agent_report_path"] is None
+
+        # Evidence manifest: report and trace present, no agent
+        assert payload.get("evidence_manifest_path") is not None
+        manifest_path = Path(payload["evidence_manifest_path"])
+        assert manifest_path.exists()
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert manifest["checks"]["has_diagnostic_report"] is True
+        assert manifest["checks"]["has_trace"] is True
+        assert manifest["checks"]["has_agent_report"] is False

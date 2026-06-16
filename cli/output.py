@@ -186,6 +186,8 @@ def print_diagnostic_run_result(result: DiagnosticRunResult, *, as_json: bool) -
     if d.get("agent_report_path"):
         print(f"Agent Report: {d['agent_report_path']}")
     print(f"Trace: {d.get('trace_path', 'N/A')}")
+    if d.get("evidence_manifest_path"):
+        print(f"Evidence Manifest: {d['evidence_manifest_path']}")
     if d.get("safety_violations"):
         print(f"Safety Violations: {d['safety_violations']}")
 
@@ -199,3 +201,5 @@ def print_diagnostic_report_result(result: DiagnosticReportResult, *, as_json: b
     print(f"Context: {d.get('context_path', 'N/A')}")
     print(f"Deterministic Report: {d.get('deterministic_report_path', 'N/A')}")
     print(f"Trace: {d.get('trace_path', 'N/A')}")
+    if d.get("evidence_manifest_path"):
+        print(f"Evidence Manifest: {d['evidence_manifest_path']}")

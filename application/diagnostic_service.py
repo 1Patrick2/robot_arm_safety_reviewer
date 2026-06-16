@@ -11,6 +11,7 @@ from diagnostic_runtime.tools.context_tools import load_diagnostic_context
 from diagnostic_runtime.report.deterministic import build_diagnostic_report
 from diagnostic_runtime.runtime.trace import write_runtime_trace
 from diagnostic_runtime.runtime.models import DiagnosticRuntimeResult as _RuntimeResult
+from reports.evidence_manifest import build_evidence_manifest, write_evidence_manifest
 from .core import AppResult, ArtifactRef
 
 DEFAULT_DB = Path("output_reports/runtime_metrics/runtime_metrics.db")
@@ -37,6 +38,7 @@ class DiagnosticRunResult:
     agent_report_path: Path | None
     trace_path: Path
     safety_violations: tuple[str, ...]
+    evidence_manifest_path: Path
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -47,6 +49,7 @@ class DiagnosticRunResult:
             "deterministic_report_path": str(self.deterministic_report_path),
             "agent_report_path": str(self.agent_report_path) if self.agent_report_path else None,
             "trace_path": str(self.trace_path),
+            "evidence_manifest_path": str(self.evidence_manifest_path),
             "safety_violations": list(self.safety_violations),
         }
 
@@ -59,9 +62,10 @@ class DiagnosticRunResult:
             artifacts.append(
                 ArtifactRef(kind="agent_report", path=self.agent_report_path, description="Diagnostic agent report")
             )
-        artifacts.append(
-            ArtifactRef(kind="diagnostic_trace", path=self.trace_path, description="Diagnostic runtime trace")
-        )
+        artifacts.extend([
+            ArtifactRef(kind="diagnostic_trace", path=self.trace_path, description="Diagnostic runtime trace"),
+            ArtifactRef(kind="evidence_manifest", path=self.evidence_manifest_path, description="Evidence manifest JSON"),
+        ])
         return AppResult(
             ok=True,
             mode="diagnostic_run",
@@ -98,6 +102,16 @@ def run_diagnostic(request: DiagnosticRunRequest) -> DiagnosticRunResult:
     )
     runtime_result = run_diagnostic_runtime(runtime_request)
 
+    # 3. Build evidence manifest
+    manifest = build_evidence_manifest(
+        context_path=context_path,
+        deterministic_report_path=runtime_result.deterministic_report_path,
+        agent_report_path=runtime_result.agent_report_path,
+        trace_path=runtime_result.trace_path,
+    )
+    manifest_path = episode_dir / "evidence_manifest.json"
+    write_evidence_manifest(manifest, manifest_path)
+
     return DiagnosticRunResult(
         context_path=context_path,
         context=context.to_dict(),
@@ -105,6 +119,7 @@ def run_diagnostic(request: DiagnosticRunRequest) -> DiagnosticRunResult:
         agent_report_path=runtime_result.agent_report_path,
         trace_path=runtime_result.trace_path,
         safety_violations=runtime_result.safety_violations,
+        evidence_manifest_path=manifest_path,
     )
 
 
@@ -122,12 +137,14 @@ class DiagnosticReportResult:
     context_path: Path
     deterministic_report_path: Path
     trace_path: Path
+    evidence_manifest_path: Path
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "context_path": str(self.context_path),
             "deterministic_report_path": str(self.deterministic_report_path),
             "trace_path": str(self.trace_path),
+            "evidence_manifest_path": str(self.evidence_manifest_path),
         }
 
     def to_app_result(self) -> AppResult:
@@ -138,12 +155,13 @@ class DiagnosticReportResult:
             artifacts=(
                 ArtifactRef(kind="deterministic_report", path=self.deterministic_report_path, description="Deterministic diagnostic report"),
                 ArtifactRef(kind="diagnostic_trace", path=self.trace_path, description="Diagnostic runtime trace"),
+                ArtifactRef(kind="evidence_manifest", path=self.evidence_manifest_path, description="Evidence manifest JSON"),
             ),
         )
 
 
 def run_diagnostic_report(request: DiagnosticReportRequest) -> DiagnosticReportResult:
-    """Generate a deterministic diagnostic report and trace from an existing context file.
+    """Generate a deterministic diagnostic report and trace + manifest from an existing context file.
     Does not query the metrics DB or run an agent."""
     context_path = Path(request.context_path)
     if not context_path.exists():
@@ -171,8 +189,18 @@ def run_diagnostic_report(request: DiagnosticReportRequest) -> DiagnosticReportR
     )
     write_runtime_trace(runtime_result)
 
+    # 4. Build evidence manifest
+    manifest = build_evidence_manifest(
+        context_path=context_path,
+        deterministic_report_path=report_path,
+        trace_path=trace_path,
+    )
+    manifest_path = output_dir / "evidence_manifest.json"
+    write_evidence_manifest(manifest, manifest_path)
+
     return DiagnosticReportResult(
         context_path=context_path,
         deterministic_report_path=report_path,
         trace_path=trace_path,
+        evidence_manifest_path=manifest_path,
     )

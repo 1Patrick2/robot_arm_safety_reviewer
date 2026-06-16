@@ -1,0 +1,136 @@
+import json
+from pathlib import Path
+
+import pytest
+
+from reports.evidence_manifest import build_evidence_manifest, write_evidence_manifest
+
+
+class TestBuildEvidenceManifest:
+    def test_from_minimal_context(self, tmp_path):
+        ctx = tmp_path / "diagnostic_context.json"
+        ctx.write_text(json.dumps({
+            "episode_id": "ep_test",
+            "sequence_id": "seq_test",
+            "backend": "mock",
+            "device": "mock_realman",
+            "run_mode": "sequence_runtime",
+            "total_steps": 2,
+            "approved_steps": 2,
+            "executed_steps": 2,
+            "blocked_steps": 0,
+            "rejected_steps": 0,
+            "manual_review_steps": 0,
+            "min_clearance": 0.5,
+            "worst_sequence_step_index": 1,
+            "backend_worst_step": 3,
+            "closest_robot_link": "link_2",
+            "closest_obstacle": "obs_1",
+            "artifacts": [],
+        }), encoding="utf-8")
+
+        manifest = build_evidence_manifest(context_path=ctx)
+
+        assert manifest["schema_version"] == "evidence_manifest.v1"
+        assert manifest["episode_id"] == "ep_test"
+        assert manifest["summary"]["total_steps"] == 2
+        assert manifest["checks"]["has_diagnostic_context"] is True
+
+    def test_existing_artifact_file(self, tmp_path):
+        existing = tmp_path / "trajectory_overview.png"
+        existing.write_text("fake-png", encoding="utf-8")
+
+        ctx = tmp_path / "diagnostic_context.json"
+        ctx.write_text(json.dumps({
+            "episode_id": "ep_art",
+            "artifacts": [
+                {"kind": "trajectory_overview", "path": str(existing)},
+            ],
+        }), encoding="utf-8")
+
+        manifest = build_evidence_manifest(context_path=ctx)
+        art_paths = [(a["kind"], a["exists"]) for a in manifest["artifacts"]]
+        assert ("trajectory_overview", True) in art_paths
+        assert manifest["checks"]["has_visual_evidence"] is True
+
+    def test_missing_artifact_does_not_crash(self, tmp_path):
+        missing = tmp_path / "nonexistent.png"
+
+        ctx = tmp_path / "diagnostic_context.json"
+        ctx.write_text(json.dumps({
+            "episode_id": "ep_miss",
+            "artifacts": [
+                {"kind": "trajectory_overview", "path": str(missing)},
+            ],
+        }), encoding="utf-8")
+
+        manifest = build_evidence_manifest(context_path=ctx)
+        art = [a for a in manifest["artifacts"] if a["kind"] == "trajectory_overview"][0]
+        assert art["exists"] is False
+
+    def test_with_all_reports(self, tmp_path):
+        ctx = tmp_path / "diagnostic_context.json"
+        ctx.write_text(json.dumps({
+            "episode_id": "ep_full",
+            "artifacts": [],
+        }), encoding="utf-8")
+
+        report = tmp_path / "diagnostic_report.md"
+        report.write_text("# Report", encoding="utf-8")
+
+        trace = tmp_path / "diagnostic_runtime_trace.json"
+        trace.write_text(json.dumps({"has_violations": True}), encoding="utf-8")
+
+        agent_dir = tmp_path / "agent"
+        agent_dir.mkdir()
+        agent_report = agent_dir / "diagnostic_agent_report.md"
+        agent_report.write_text("# Agent", encoding="utf-8")
+
+        manifest = build_evidence_manifest(
+            context_path=ctx,
+            deterministic_report_path=report,
+            agent_report_path=agent_report,
+            trace_path=trace,
+        )
+
+        checks = manifest["checks"]
+        assert checks["has_diagnostic_report"] is True
+        assert checks["has_trace"] is True
+        assert checks["has_agent_report"] is True
+        assert checks["has_guardrail_violations"] is True
+
+    def test_non_dict_json_raises(self, tmp_path):
+        ctx = tmp_path / "bad_context.json"
+        ctx.write_text(json.dumps([1, 2, 3]), encoding="utf-8")
+
+        with pytest.raises(ValueError, match="must be a JSON object"):
+            build_evidence_manifest(context_path=ctx)
+
+    def test_missing_context_file_raises(self, tmp_path):
+        with pytest.raises(FileNotFoundError):
+            build_evidence_manifest(context_path=tmp_path / "nonexistent.json")
+
+    def test_context_markdown_included(self, tmp_path):
+        ctx = tmp_path / "diagnostic_context.json"
+        ctx.write_text(json.dumps({
+            "episode_id": "ep_md",
+            "artifacts": [],
+        }), encoding="utf-8")
+
+        ctx_md = tmp_path / "diagnostic_context.md"
+        ctx_md.write_text("# Context", encoding="utf-8")
+
+        manifest = build_evidence_manifest(context_path=ctx)
+        kinds = {a["kind"] for a in manifest["artifacts"]}
+        assert "diagnostic_context_markdown" in kinds
+
+
+class TestWriteEvidenceManifest:
+    def test_writes_json(self, tmp_path):
+        manifest = {"schema_version": "evidence_manifest.v1", "episode_id": "ep_w"}
+        out = tmp_path / "nested" / "manifest.json"
+        result = write_evidence_manifest(manifest, out)
+        assert result == out
+        assert out.exists()
+        loaded = json.loads(out.read_text(encoding="utf-8"))
+        assert loaded["episode_id"] == "ep_w"
