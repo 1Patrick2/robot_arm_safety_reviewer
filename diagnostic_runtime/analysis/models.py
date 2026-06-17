@@ -36,8 +36,9 @@ class DiagnosticAnalysis:
         case_id: The case or sequence identifier being analysed.
         episode_id: The episode identifier for the runtime run.
         analysis_mode: ``"fake"`` (deterministic) or future provider name.
-        deterministic_outcome: A flat dict of the actual safety outcome
-            (same fields as ``build_actual_summary()``).
+        deterministic_outcome: Selected fields from the deterministic safety
+            outcome, such as ``final_status``, step counts, and
+            ``min_clearance``.
         risk_summary: A single-sentence summary of the safety risk.
         root_cause_hypotheses: Zero or more evidence-supported hypotheses.
         evidence_used: Artifact kinds that were read during analysis.

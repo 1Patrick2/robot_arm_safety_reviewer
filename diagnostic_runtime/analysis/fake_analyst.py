@@ -47,23 +47,24 @@ def run_fake_diagnostic_analyst(
 
     # --- root_cause_hypotheses ---
     hypotheses: list[RootCauseHypothesis] = []
+    refs = list(build_basic_evidence_refs(manifest, summary))
+    if not refs:
+        refs = ["summary"]
+
     closest_obs = summary.get("closest_obstacle")
     min_clear = summary.get("min_clearance")
     if closest_obs is not None and min_clear is not None:
-        refs = [f"summary.{k}" for k in ("min_clearance", "closest_obstacle")]
-        if summary.get("closest_robot_link") is not None:
-            refs.append("summary.closest_robot_link")
-        refs.append("evidence_groups.geometry")
+        confidence = "medium" if "evidence_groups.geometry" in refs else "low"
         hypotheses.append(RootCauseHypothesis(
             hypothesis=f"The minimum clearance is associated with obstacle {closest_obs}.",
             evidence_refs=tuple(refs),
-            confidence="medium",
+            confidence=confidence,
         ))
     else:
         hypotheses.append(RootCauseHypothesis(
             hypothesis="No geometry-specific root cause can be identified "
                        "from the available evidence.",
-            evidence_refs=("evidence_groups.geometry",),
+            evidence_refs=tuple(refs),
             confidence="low",
         ))
 

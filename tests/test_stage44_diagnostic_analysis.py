@@ -1,8 +1,3 @@
-import json
-from pathlib import Path
-
-import pytest
-
 from diagnostic_runtime.analysis.models import DiagnosticAnalysis, RootCauseHypothesis
 from diagnostic_runtime.analysis.fake_analyst import run_fake_diagnostic_analyst
 from diagnostic_runtime.analysis.evidence_refs import (
@@ -177,3 +172,23 @@ class TestFakeDiagnosticAnalyst:
         manifest = {"evidence_groups": {}}
         analysis = run_fake_diagnostic_analyst(context=context, manifest=manifest)
         assert analysis.prohibited_actions_detected == ()
+
+    def test_fake_analyst_does_not_reference_unavailable_geometry_group(self):
+        context = {
+            "episode_id": "ep1",
+            "sequence_id": "case_geom_unavailable",
+            "min_clearance": 0.05,
+            "closest_obstacle": "sphere",
+            "closest_robot_link": "link_2",
+        }
+        manifest = {
+            "evidence_groups": {
+                "geometry": {"available": False},
+                "safety": {"available": True},
+            }
+        }
+        analysis = run_fake_diagnostic_analyst(context=context, manifest=manifest)
+        refs = [ref for h in analysis.root_cause_hypotheses for ref in h.evidence_refs]
+        assert "evidence_groups.geometry" not in refs
+        assert any("Geometry evidence is unavailable" in u for u in analysis.uncertainties)
+        assert all(h.evidence_refs for h in analysis.root_cause_hypotheses)
