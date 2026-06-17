@@ -14,6 +14,14 @@
       "trajectory_overview",
       "trajectory_overview_data",
       "evidence_manifest"
+    ],
+    "required_evidence_groups": [
+      "runtime",
+      "safety",
+      "geometry",
+      "visual",
+      "structured_visual",
+      "diagnostic"
     ]
   }
 }

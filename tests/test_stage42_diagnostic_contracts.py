@@ -221,6 +221,49 @@ class TestValidateExpectedContract:
         assert passed is False
         assert len(errors) >= 2
 
+    def test_required_evidence_groups_pass(self):
+        manifest = {
+            "evidence_groups": {
+                "runtime": {"available": True},
+                "safety": {"available": True},
+                "geometry": {"available": True},
+            }
+        }
+        actual = {"total_steps": 1}
+        expected = {"required_evidence_groups": ["runtime", "safety", "geometry"]}
+        passed, errors = validate_expected_contract(expected=expected, actual=actual, manifest=manifest)
+        assert passed is True
+        assert errors == ()
+
+    def test_required_evidence_groups_unavailable_fails(self):
+        manifest = {
+            "evidence_groups": {
+                "runtime": {"available": True},
+                "geometry": {"available": False},
+            }
+        }
+        actual = {"total_steps": 1}
+        expected = {"required_evidence_groups": ["runtime", "geometry"]}
+        passed, errors = validate_expected_contract(expected=expected, actual=actual, manifest=manifest)
+        assert passed is False
+        assert any("geometry" in e for e in errors)
+        assert any("required evidence group" in e for e in errors)
+
+    def test_required_evidence_groups_missing_manifest_groups_fails(self):
+        manifest: dict = {}
+        actual = {"total_steps": 1}
+        expected = {"required_evidence_groups": ["runtime"]}
+        passed, errors = validate_expected_contract(expected=expected, actual=actual, manifest=manifest)
+        assert passed is False
+        assert any("evidence_groups" in e for e in errors)
+
+    def test_required_evidence_groups_wrong_type_fails(self):
+        actual = {"total_steps": 1}
+        expected = {"required_evidence_groups": "runtime"}
+        passed, errors = validate_expected_contract(expected=expected, actual=actual, manifest={"evidence_groups": {}})
+        assert passed is False
+        assert any("required_evidence_groups" in e for e in errors)
+
     def test_evidence_manifest_in_required_artifacts_passes(self):
         """evidence_manifest is a special kind that always counts as existing."""
         manifest = {

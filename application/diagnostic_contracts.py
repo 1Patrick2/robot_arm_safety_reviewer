@@ -186,4 +186,33 @@ def validate_expected_contract(
                     f"required artifact '{kind}' not found or does not exist in manifest"
                 )
 
+    # required_evidence_groups
+    required_groups = expected.get("required_evidence_groups")
+    if required_groups is not None:
+        if not isinstance(required_groups, (list, tuple)):
+            errors.append(
+                f"required_evidence_groups must be a list, got {type(required_groups).__name__}"
+            )
+        elif manifest is None:
+            errors.append(
+                "required_evidence_groups requires manifest, but manifest is None"
+            )
+        elif not isinstance(manifest.get("evidence_groups"), dict):
+            errors.append(
+                "required_evidence_groups requires manifest.evidence_groups"
+            )
+        else:
+            manifest_groups = manifest["evidence_groups"]
+            for i, group_name in enumerate(required_groups):
+                if not isinstance(group_name, str):
+                    errors.append(
+                        f"required_evidence_groups[{i}] must be a string, got {type(group_name).__name__}"
+                    )
+                    continue
+                group = manifest_groups.get(group_name)
+                if group is None or not group.get("available"):
+                    errors.append(
+                        f"required evidence group '{group_name}' is missing or unavailable"
+                    )
+
     return (not errors, tuple(errors))

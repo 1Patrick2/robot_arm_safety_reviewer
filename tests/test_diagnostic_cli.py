@@ -381,6 +381,7 @@ class TestDiagnosticRegression:
             assert case["evidence_complete"] is True
             assert case["contract_passed"] is True
             assert case["expected"] is not None
+            assert "required_evidence_groups" in case["expected"]
             assert case["actual"] is not None
             assert case["errors"] == []
             assert case["evidence_manifest_path"] is not None
