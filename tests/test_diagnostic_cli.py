@@ -382,6 +382,10 @@ class TestDiagnosticRegression:
             assert case["contract_passed"] is True
             assert case["expected"] is not None
             assert "required_evidence_groups" in case["expected"]
+            assert "required_actual_fields" in case["expected"]
+            assert "expected_closest_obstacle" in case["expected"]
+            assert "min_clearance_lte" in case["expected"]
+            assert case["actual"].get("closest_obstacle") == case["expected"]["expected_closest_obstacle"]
             assert case["actual"] is not None
             assert case["errors"] == []
             assert case["evidence_manifest_path"] is not None

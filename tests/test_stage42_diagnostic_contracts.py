@@ -278,3 +278,59 @@ class TestValidateExpectedContract:
         passed, errors = validate_expected_contract(expected=expected, actual=actual, manifest=manifest)
         assert passed is True
         assert errors == ()
+
+    def test_required_actual_fields_pass(self):
+        actual = {"min_clearance": 0.08, "closest_obstacle": "sphere_near"}
+        expected = {"required_actual_fields": ["min_clearance", "closest_obstacle"]}
+        passed, errors = validate_expected_contract(expected=expected, actual=actual)
+        assert passed is True
+        assert errors == ()
+
+    def test_required_actual_fields_missing_or_none_fails(self):
+        actual = {"min_clearance": None}
+        expected = {"required_actual_fields": ["min_clearance", "closest_obstacle"]}
+        passed, errors = validate_expected_contract(expected=expected, actual=actual)
+        assert passed is False
+        assert any("required actual field" in e for e in errors)
+
+    def test_required_actual_fields_wrong_type_fails(self):
+        actual = {"min_clearance": 0.08}
+        expected = {"required_actual_fields": "min_clearance"}
+        passed, errors = validate_expected_contract(expected=expected, actual=actual)
+        assert passed is False
+        assert any("required_actual_fields" in e for e in errors)
+
+    def test_expected_closest_obstacle_pass(self):
+        actual = {"closest_obstacle": "sphere_near"}
+        expected = {"expected_closest_obstacle": "sphere_near"}
+        passed, errors = validate_expected_contract(expected=expected, actual=actual)
+        assert passed is True
+        assert errors == ()
+
+    def test_expected_closest_obstacle_fail(self):
+        actual = {"closest_obstacle": "sphere_mid"}
+        expected = {"expected_closest_obstacle": "sphere_near"}
+        passed, errors = validate_expected_contract(expected=expected, actual=actual)
+        assert passed is False
+        assert any("closest_obstacle" in e for e in errors)
+
+    def test_min_clearance_lte_gte_pass(self):
+        actual = {"min_clearance": 0.08}
+        expected = {"min_clearance_lte": 0.10, "min_clearance_gte": 0.01}
+        passed, errors = validate_expected_contract(expected=expected, actual=actual)
+        assert passed is True
+        assert errors == ()
+
+    def test_min_clearance_lte_fails(self):
+        actual = {"min_clearance": 0.12}
+        expected = {"min_clearance_lte": 0.10}
+        passed, errors = validate_expected_contract(expected=expected, actual=actual)
+        assert passed is False
+        assert any("min_clearance" in e for e in errors)
+
+    def test_min_clearance_gte_fails(self):
+        actual = {"min_clearance": -0.2}
+        expected = {"min_clearance_gte": -0.1}
+        passed, errors = validate_expected_contract(expected=expected, actual=actual)
+        assert passed is False
+        assert any("min_clearance" in e for e in errors)

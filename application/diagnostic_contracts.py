@@ -215,4 +215,52 @@ def validate_expected_contract(
                         f"required evidence group '{group_name}' is missing or unavailable"
                     )
 
+    # required_actual_fields
+    req_actual = expected.get("required_actual_fields")
+    if req_actual is not None:
+        if not isinstance(req_actual, (list, tuple)):
+            errors.append(
+                f"required_actual_fields must be a list, got {type(req_actual).__name__}"
+            )
+        else:
+            for field_name in req_actual:
+                if not isinstance(field_name, str):
+                    errors.append(
+                        f"required_actual_fields element must be a string, got {type(field_name).__name__}"
+                    )
+                    continue
+                if field_name not in actual or actual[field_name] is None:
+                    errors.append(
+                        f"required actual field '{field_name}' is missing or None"
+                    )
+
+    # expected_closest_obstacle
+    exp_obs = expected.get("expected_closest_obstacle")
+    if exp_obs is not None:
+        act_obs = actual.get("closest_obstacle")
+        if act_obs != exp_obs:
+            errors.append(
+                f"closest_obstacle: expected '{exp_obs}', got '{act_obs}'"
+            )
+
+    # min_clearance_lte / min_clearance_gte
+    act_min = actual.get("min_clearance")
+    lte = expected.get("min_clearance_lte")
+    if lte is not None:
+        if act_min is None or not isinstance(act_min, (int, float)):
+            errors.append("min_clearance is missing or not a number")
+        elif not isinstance(lte, (int, float)):
+            errors.append(f"min_clearance_lte must be a number, got {type(lte).__name__}")
+        elif act_min > lte:
+            errors.append(f"min_clearance {act_min} > min_clearance_lte {lte}")
+
+    gte = expected.get("min_clearance_gte")
+    if gte is not None:
+        if act_min is None or not isinstance(act_min, (int, float)):
+            errors.append("min_clearance is missing or not a number")
+        elif not isinstance(gte, (int, float)):
+            errors.append(f"min_clearance_gte must be a number, got {type(gte).__name__}")
+        elif act_min < gte:
+            errors.append(f"min_clearance {act_min} < min_clearance_gte {gte}")
+
     return (not errors, tuple(errors))

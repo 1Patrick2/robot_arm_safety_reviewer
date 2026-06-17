@@ -22,6 +22,14 @@
       "visual",
       "structured_visual",
       "diagnostic"
-    ]
+    ],
+    "required_actual_fields": [
+      "min_clearance",
+      "closest_obstacle",
+      "closest_robot_link",
+      "worst_sequence_step_index"
+    ],
+    "expected_closest_obstacle": "sphere_near",
+    "min_clearance_lte": 0.10
   }
 }
