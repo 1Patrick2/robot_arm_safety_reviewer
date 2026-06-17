@@ -123,6 +123,11 @@ def build_evidence_manifest(
         "closest_obstacle": context.get("closest_obstacle"),
     }
 
+    # -- evidence groups ----------------------------------------------------
+    evidence_groups = _build_evidence_groups(
+        summary=summary, artifacts=artifacts, checks=checks,
+    )
+
     return {
         "schema_version": "evidence_manifest.v1",
         "episode_id": episode_id,
@@ -134,6 +139,117 @@ def build_evidence_manifest(
         "artifacts": artifacts,
         "checks": checks,
         "trace_valid": trace_valid,
+        "evidence_groups": evidence_groups,
+    }
+
+
+def _existing_artifact_kinds(artifacts: list[dict[str, Any]]) -> set[str]:
+    """Return the set of artifact kinds that exist on disk."""
+    return {a["kind"] for a in artifacts if a.get("exists")}
+
+
+def _build_evidence_groups(
+    *,
+    summary: dict[str, Any],
+    artifacts: list[dict[str, Any]],
+    checks: dict[str, bool],
+) -> dict[str, Any]:
+    """Build the ``evidence_groups`` section of an evidence manifest.
+
+    Each group describes a logical perspective on the diagnostic evidence:
+    - *available*: whether the key evidence for this group is present.
+    - *summary_fields*: fields from the ``summary`` section that belong to this group.
+    - *artifact_kinds*: artifact kinds that belong to this group.
+    - *evidence_refs*: dot-path references for programmatic access.
+    """
+    existing = _existing_artifact_kinds(artifacts)
+
+    has_diag_ctx = checks.get("has_diagnostic_context", False)
+    has_report = checks.get("has_diagnostic_report", False)
+    has_trace = checks.get("has_trace", False)
+    has_visual = checks.get("has_visual_evidence", False)
+    has_struct_visual = checks.get("has_structured_visual_data", False)
+    has_agent = checks.get("has_agent_report", False)
+
+    # geometry available: at least one geometry summary field non-None,
+    # or structured_visual_data exists
+    geometry_fields = ["min_clearance", "worst_sequence_step_index",
+                       "backend_worst_step", "closest_robot_link", "closest_obstacle"]
+    has_geometry = any(summary.get(f) is not None for f in geometry_fields) or has_struct_visual
+
+    def _group(
+        available: bool,
+        summary_fields: list[str],
+        artifact_kinds: list[str],
+        evidence_refs: list[str],
+    ) -> dict[str, Any]:
+        return {
+            "available": available,
+            "summary_fields": summary_fields,
+            "artifact_kinds": artifact_kinds,
+            "evidence_refs": evidence_refs,
+        }
+
+    return {
+        "runtime": _group(
+            available="diagnostic_context_json" in existing,
+            summary_fields=["total_steps", "executed_steps", "blocked_steps"],
+            artifact_kinds=["diagnostic_context_json"],
+            evidence_refs=[
+                "summary.total_steps", "summary.executed_steps",
+                "summary.blocked_steps", "artifacts.diagnostic_context_json",
+            ],
+        ),
+        "safety": _group(
+            available=has_diag_ctx and has_report and has_trace,
+            summary_fields=["approved_steps", "rejected_steps", "manual_review_steps"],
+            artifact_kinds=["diagnostic_context_json", "deterministic_report", "diagnostic_runtime_trace"],
+            evidence_refs=[
+                "summary.approved_steps", "summary.rejected_steps",
+                "summary.manual_review_steps", "artifacts.deterministic_report",
+                "artifacts.diagnostic_runtime_trace",
+            ],
+        ),
+        "geometry": _group(
+            available=has_geometry,
+            summary_fields=geometry_fields,
+            artifact_kinds=["diagnostic_context_json", "trajectory_overview_data"],
+            evidence_refs=[
+                "summary.min_clearance", "summary.worst_sequence_step_index",
+                "summary.backend_worst_step", "summary.closest_robot_link",
+                "summary.closest_obstacle", "artifacts.trajectory_overview_data",
+            ],
+        ),
+        "visual": _group(
+            available=has_visual,
+            summary_fields=[],
+            artifact_kinds=["clearance_curve", "trajectory_overview"],
+            evidence_refs=["artifacts.clearance_curve", "artifacts.trajectory_overview"],
+        ),
+        "structured_visual": _group(
+            available=has_struct_visual,
+            summary_fields=[],
+            artifact_kinds=["trajectory_overview_data"],
+            evidence_refs=["artifacts.trajectory_overview_data"],
+        ),
+        "diagnostic": _group(
+            available=has_diag_ctx or has_report or has_trace,
+            summary_fields=[],
+            artifact_kinds=[
+                "diagnostic_context_json", "diagnostic_context_markdown",
+                "deterministic_report", "diagnostic_runtime_trace",
+            ],
+            evidence_refs=[
+                "artifacts.diagnostic_context_json", "artifacts.diagnostic_context_markdown",
+                "artifacts.deterministic_report", "artifacts.diagnostic_runtime_trace",
+            ],
+        ),
+        "agent": _group(
+            available=has_agent,
+            summary_fields=[],
+            artifact_kinds=["diagnostic_agent_report"],
+            evidence_refs=["artifacts.diagnostic_agent_report"],
+        ),
     }
 
 

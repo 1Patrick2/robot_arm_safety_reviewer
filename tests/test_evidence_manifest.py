@@ -192,8 +192,83 @@ class TestBuildEvidenceManifest:
         assert manifest["trace_valid"] is False
         assert manifest["checks"]["has_guardrail_violations"] is False
 
+    def test_manifest_contains_evidence_groups(self, tmp_path):
+        ctx = tmp_path / "diagnostic_context.json"
+        ctx.write_text(json.dumps({
+            "episode_id": "ep_groups",
+            "total_steps": 2,
+            "approved_steps": 2,
+            "executed_steps": 2,
+            "blocked_steps": 0,
+            "rejected_steps": 0,
+            "manual_review_steps": 0,
+            "artifacts": [],
+        }), encoding="utf-8")
 
-class TestWriteEvidenceManifest:
+        report = tmp_path / "diagnostic_report.md"
+        report.write_text("# R", encoding="utf-8")
+        trace = tmp_path / "diagnostic_runtime_trace.json"
+        trace.write_text("{}", encoding="utf-8")
+
+        manifest = build_evidence_manifest(
+            context_path=ctx,
+            deterministic_report_path=report,
+            trace_path=trace,
+        )
+        groups = manifest.get("evidence_groups")
+        assert groups is not None
+        expected_groups = {"runtime", "safety", "geometry", "visual", "structured_visual", "diagnostic", "agent"}
+        assert set(groups.keys()) == expected_groups
+        for gname in expected_groups:
+            g = groups[gname]
+            assert "available" in g
+            assert "summary_fields" in g
+            assert "artifact_kinds" in g
+            assert "evidence_refs" in g
+
+    def test_structured_visual_group_available_when_data_exists(self, tmp_path):
+        traj_data = tmp_path / "trajectory_overview_data.json"
+        traj_data.write_text("{}", encoding="utf-8")
+
+        ctx = tmp_path / "diagnostic_context.json"
+        ctx.write_text(json.dumps({
+            "episode_id": "ep_struct_vis",
+            "artifacts": [
+                {"kind": "trajectory_overview_data", "path": str(traj_data)},
+            ],
+        }), encoding="utf-8")
+
+        manifest = build_evidence_manifest(context_path=ctx)
+        assert manifest["evidence_groups"]["structured_visual"]["available"] is True
+
+    def test_agent_group_unavailable_without_agent_report(self, tmp_path):
+        ctx = tmp_path / "diagnostic_context.json"
+        ctx.write_text(json.dumps({
+            "episode_id": "ep_no_agent",
+            "artifacts": [],
+        }), encoding="utf-8")
+
+        manifest = build_evidence_manifest(context_path=ctx)
+        assert manifest["evidence_groups"]["agent"]["available"] is False
+
+    def test_agent_group_available_with_agent_report(self, tmp_path):
+        ctx = tmp_path / "diagnostic_context.json"
+        ctx.write_text(json.dumps({
+            "episode_id": "ep_agent",
+            "artifacts": [],
+        }), encoding="utf-8")
+
+        agent_dir = tmp_path / "agent"
+        agent_dir.mkdir()
+        agent_report = agent_dir / "diagnostic_agent_report.md"
+        agent_report.write_text("# Agent", encoding="utf-8")
+
+        manifest = build_evidence_manifest(
+            context_path=ctx,
+            agent_report_path=agent_report,
+        )
+        assert manifest["checks"]["has_agent_report"] is True
+        assert manifest["evidence_groups"]["agent"]["available"] is True
     def test_writes_json(self, tmp_path):
         manifest = {"schema_version": "evidence_manifest.v1", "episode_id": "ep_w"}
         out = tmp_path / "nested" / "manifest.json"
