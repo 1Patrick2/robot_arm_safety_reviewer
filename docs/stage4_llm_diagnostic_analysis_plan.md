@@ -31,9 +31,11 @@ Stage 4 evolves the project from a deterministic diagnostic pipeline into an evi
 - LLM analysis is advisory and diagnostic-only.
 ```
 
-These boundaries are enforced by architecture: the diagnostic runtime has no access to `RobotDeviceAdapter`, `SafetyRuntime`, or any execution path.
+These boundaries must remain enforced by architecture: diagnostic components should not access `RobotDeviceAdapter`, `SafetyRuntime`, or any execution path.
 
 ## 4. External Project Lessons
+
+*Note: these projects are used as conceptual references only; Stage 4 does not attempt to reproduce their full benchmark scale or robot-control assumptions.*
 
 - **SafeAgentBench** (arXiv: 2412.13178): hazard-oriented benchmark design — safety evaluation must cover near-threshold and ambiguous cases, not just obvious collisions or task success rates.
 - **PARTNR** (arXiv: 2411.00081): complex embodied tasks need spatial/temporal constraint handling and simulation-in-the-loop validation for task generation.
@@ -140,7 +142,7 @@ contract_passed:   actual safety outcome matches expected contract.
   "root_cause_hypotheses": [
     {
       "hypothesis": "Minimum clearance occurs between link_3 and obstacle obs_1.",
-      "supporting_evidence": [
+      "evidence_refs": [
         "diagnostic_context.summary.min_clearance",
         "diagnostic_context.summary.closest_robot_link",
         "diagnostic_context.summary.closest_obstacle",
@@ -156,14 +158,14 @@ contract_passed:   actual safety outcome matches expected contract.
 ```
 
 **Guardrails:**
-- Output schema enforced at application layer — model cannot produce free-form text.
+- Planned enforcement: the application layer should validate LLM output against a structured schema and reject free-form or schema-invalid responses.
 - Each finding must include `evidence_refs` to specific evidence fields.
 - `uncertainties` is required — analyst must state what it does not know.
-- Post-generation check (extending `check_agent_report`) validates no prohibited patterns.
+- Planned: extend `check_agent_report` to validate that no prohibited patterns appear in the output.
 
 ## 10. Multi-Agent Diagnostic Roadmap
 
-Planned extension (not implemented in Stage 4.2).
+Multi-agent analysis is a late Stage 4 extension, planned after the single-agent diagnostic analyst has been validated.
 
 | Role | Responsibility | Input Evidence Group |
 |---|---|---|
@@ -177,9 +179,10 @@ All agents are diagnostic-only.
 
 ## 11. Implementation Roadmap
 
+**Stage 4.1:** Planning and Architecture Boundary. Define Stage 4 scope, non-goals, Level-2 scenario taxonomy, evidence group schema, and LLM diagnostic analyst boundary. (This document.)
 **Stage 4.2:** Level-2 Scenarios + Contracts. Create scene files and action sequences; define expected contract JSONs; update regression runner.
 **Stage 4.3:** Evidence Groups + Expected-vs-Actual. Implement evidence groups in manifest; extend regression to three-level pass/fail; add contract validation and CLI output.
-**Stage 4.4:** LLM Diagnostic Analyst. Implement analyst with structured JSON output; wire evidence groups; add guardrails; implement provider adapter (fake + one real). Optional: multi-agent orchestration.
+**Stage 4.4:** LLM Diagnostic Analyst. Implement analyst with structured JSON output; wire evidence groups; add guardrails; implement provider adapter (fake + one real). Multi-agent orchestration is deferred until after the single-agent analyst is validated.
 
 ## 12. Acceptance Criteria
 
