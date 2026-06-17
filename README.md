@@ -14,7 +14,8 @@ The project started as `RobotArmSafetyReviewer`. It is still a safety reviewer, 
 
 ## Current Status
 
-Current stage: **Stage 4.2 Level-2 Scenarios + Expected Contracts — complete**. Stage 4.3 (evidence groups & expected-vs-actual hardening) is planned next.
+Current stage: **Stage 4.3 Evidence Groups + Stronger Expected-vs-Actual Contracts — complete**.
+Stage 4.4 LLM Diagnostic Analyst is planned next.
 
 Completed scope:
 
@@ -40,6 +41,9 @@ Completed scope:
 - Stage 4.2A: expected contract scaffold (`load_expected_contract`, `build_actual_summary`, `validate_expected_contract`).
 - Stage 4.2B: Level-2 safety scenarios with expected contracts.
 - Stage 4.2C: regression `--case-set` CLI (`smoke` / `level2` / `all`).
+- Stage 4.3A: `evidence_groups` in `evidence_manifest.json` (runtime, safety, geometry, visual, structured_visual, diagnostic, agent).
+- Stage 4.3B: `required_evidence_groups` in `expected_contract.v1`.
+- Stage 4.3C: `required_actual_fields`, `expected_closest_obstacle`, `min_clearance_lte` / `min_clearance_gte`.
 
 ## Safety Boundary
 
@@ -158,7 +162,7 @@ Level-2 scenarios:
 - **midpoint_collision_sequence**: trajectory-level collision, reject expected.
 - **mixed_decision_sequence**: approve + manual_review + reject in one sequence.
 
-Each level2 case validates `pipeline_passed`, `evidence_complete`, and `contract_passed` in the regression summary.
+Each level2 case validates `pipeline_passed`, `evidence_complete`, `contract_passed`, required evidence groups, required actual fields, closest obstacle match, and min_clearance thresholds in the regression summary.
 
 ### Run Diagnostic Pipeline from an Episode
 

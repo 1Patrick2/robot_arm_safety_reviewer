@@ -269,6 +269,30 @@ class TestBuildEvidenceManifest:
         )
         assert manifest["checks"]["has_agent_report"] is True
         assert manifest["evidence_groups"]["agent"]["available"] is True
+
+    def test_safety_group_refs_include_context_report_trace(self, tmp_path):
+        ctx = tmp_path / "diagnostic_context.json"
+        ctx.write_text(json.dumps({
+            "episode_id": "ep_safety_refs",
+            "artifacts": [],
+        }), encoding="utf-8")
+        report = tmp_path / "diagnostic_report.md"
+        report.write_text("# R", encoding="utf-8")
+        trace = tmp_path / "diagnostic_runtime_trace.json"
+        trace.write_text("{}", encoding="utf-8")
+
+        manifest = build_evidence_manifest(
+            context_path=ctx,
+            deterministic_report_path=report,
+            trace_path=trace,
+        )
+        refs = manifest["evidence_groups"]["safety"]["evidence_refs"]
+        assert "artifacts.diagnostic_context_json" in refs
+        assert "artifacts.deterministic_report" in refs
+        assert "artifacts.diagnostic_runtime_trace" in refs
+
+
+class TestWriteEvidenceManifest:
     def test_writes_json(self, tmp_path):
         manifest = {"schema_version": "evidence_manifest.v1", "episode_id": "ep_w"}
         out = tmp_path / "nested" / "manifest.json"

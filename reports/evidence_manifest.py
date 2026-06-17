@@ -206,7 +206,8 @@ def _build_evidence_groups(
             artifact_kinds=["diagnostic_context_json", "deterministic_report", "diagnostic_runtime_trace"],
             evidence_refs=[
                 "summary.approved_steps", "summary.rejected_steps",
-                "summary.manual_review_steps", "artifacts.deterministic_report",
+                "summary.manual_review_steps", "artifacts.diagnostic_context_json",
+                "artifacts.deterministic_report",
                 "artifacts.diagnostic_runtime_trace",
             ],
         ),

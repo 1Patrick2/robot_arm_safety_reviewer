@@ -1,8 +1,8 @@
 # Project Current Status
 
-Robot Action Safety Sandbox current status: **Stage 4.2-C completed; Stage 4.2-D documentation sync in progress.**
-
-Next stage: **Stage 4.3 evidence groups and expected-vs-actual regression hardening.**
+Robot Action Safety Sandbox current status: **Stage 4.3-C completed**.
+Current task: **Stage 4.3-D documentation sync and contract polish**.
+Next stage: **Stage 4.4 LLM Diagnostic Analyst**.
 
 ## Completed Scope
 
@@ -27,6 +27,9 @@ Next stage: **Stage 4.3 evidence groups and expected-vs-actual regression harden
 - Stage 4.2A Expected Contract Scaffold: `ExpectedContract` dataclass, `load_expected_contract()`, `build_actual_summary()`, `validate_expected_contract()`.
 - Stage 4.2B Level-2 Safety Scenarios: 3 Level-2 cases (`near_threshold_clearance_sequence`, `midpoint_collision_sequence`, `mixed_decision_sequence`) with `expected_contract.json`.
 - Stage 4.2C Case-set CLI Integration: `diagnostic regression` supports `--case-set {smoke,level2,all}`.
+- Stage 4.3A Evidence Groups: `evidence_manifest.json` includes `evidence_groups` for runtime/safety/geometry/visual/structured_visual/diagnostic/agent.
+- Stage 4.3B Evidence Group Contracts: `expected_contract.v1` supports `required_evidence_groups`.
+- Stage 4.3C Stronger Expected-vs-Actual Checks: `expected_contract.v1` supports `required_actual_fields`, `expected_closest_obstacle`, `min_clearance_lte`, and `min_clearance_gte`.
 
 ## Current Focus
 

@@ -109,7 +109,7 @@ def validate_expected_contract(
         expected: The ``expected`` dict from an ``ExpectedContract``.
         actual: The dict returned by :func:`build_actual_summary`.
         manifest: Optional dict of an ``evidence_manifest.json`` (used to
-            check ``required_artifacts``).
+            check ``required_artifacts`` and ``required_evidence_groups``).
 
     Returns:
         A tuple ``(passed, errors)`` where *passed* is ``True`` when all
@@ -123,7 +123,15 @@ def validate_expected_contract(
         - ``min_rejected_steps``: ``actual.rejected_steps >= expected``.
         - ``expected_final_status``: ``actual.final_status == expected``.
         - ``required_artifacts``: each kind must appear in the manifest
-          with ``exists=True`` (only checked when *manifest* is provided).
+          with ``exists=True``.
+        - ``required_evidence_groups``: each group must exist and
+          ``available`` must be ``True``.
+        - ``required_actual_fields``: each field must exist in *actual*
+          and not be ``None``.
+        - ``expected_closest_obstacle``: ``actual.closest_obstacle``
+          must match this string.
+        - ``min_clearance_lte``: ``actual.min_clearance <= threshold``.
+        - ``min_clearance_gte``: ``actual.min_clearance >= threshold``.
     """
     errors: list[str] = []
 
@@ -172,19 +180,31 @@ def validate_expected_contract(
                 f"final_status: expected '{exp_final}', got '{act_final}'"
             )
 
-    # required_artifacts (only checked when manifest is provided)
+    # required_artifacts
     exp_artifacts = expected.get("required_artifacts")
-    if exp_artifacts is not None and manifest is not None:
-        manifest_artifacts = manifest.get("artifacts", [])
-        # The manifest does not self-reference, so treat "evidence_manifest" as
-        # implicitly present when a manifest was successfully loaded.
-        artifact_kinds = {a["kind"] for a in manifest_artifacts if a.get("exists")}
-        artifact_kinds.add("evidence_manifest")
-        for kind in exp_artifacts:
-            if kind not in artifact_kinds:
-                errors.append(
-                    f"required artifact '{kind}' not found or does not exist in manifest"
-                )
+    if exp_artifacts is not None:
+        if not isinstance(exp_artifacts, (list, tuple)):
+            errors.append(
+                f"required_artifacts must be a list, got {type(exp_artifacts).__name__}"
+            )
+        elif manifest is None:
+            errors.append("required_artifacts requires manifest, but manifest is None")
+        else:
+            manifest_artifacts = manifest.get("artifacts", [])
+            # The manifest does not self-reference, so treat "evidence_manifest" as
+            # implicitly present when a manifest was successfully loaded.
+            artifact_kinds = {a["kind"] for a in manifest_artifacts if a.get("exists")}
+            artifact_kinds.add("evidence_manifest")
+            for kind in exp_artifacts:
+                if not isinstance(kind, str):
+                    errors.append(
+                        f"required_artifacts element must be a string, got {type(kind).__name__}"
+                    )
+                    continue
+                if kind not in artifact_kinds:
+                    errors.append(
+                        f"required artifact '{kind}' not found or does not exist in manifest"
+                    )
 
     # required_evidence_groups
     required_groups = expected.get("required_evidence_groups")

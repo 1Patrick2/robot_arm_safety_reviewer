@@ -53,8 +53,8 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Expected contract | `application/diagnostic_contracts.py` | `ExpectedContract` | Data class for loading `expected_contract.v1` files. |
 | Expected contract | `application/diagnostic_contracts.py` | `load_expected_contract` | Loads and validates an `expected_contract.v1` JSON file. |
 | Expected contract | `application/diagnostic_contracts.py` | `build_actual_summary` | Extracts actual safety-outcome summary (total_steps, approved, rejected, final_status, etc.) from a diagnostic context dict. |
-| Expected contract | `application/diagnostic_contracts.py` | `validate_expected_contract` | Compares actual outcomes against expected contract; supports step counts, final_status, and required_artifacts checks. |
-| Evidence manifest | `reports/evidence_manifest.py` | `build_evidence_manifest` | Builds `evidence_manifest.json` — unified evidence index with artifact existence checks. |
+| Expected contract | `application/diagnostic_contracts.py` | `validate_expected_contract` | Compares actual outcomes against expected_contract.v1, including step counts, final status, required artifacts, required evidence groups, required actual fields, closest obstacle, and min_clearance thresholds. |
+| Evidence manifest | `reports/evidence_manifest.py` | `build_evidence_manifest` | Builds `evidence_manifest.json` — unified evidence index with artifact existence checks. Now emits `evidence_groups` for runtime/safety/geometry/visual/structured_visual/diagnostic/agent. |
 | Evidence manifest | `reports/evidence_manifest.py` | `write_evidence_manifest` | Writes manifest dict to JSON file. |
 | CLI diagnostic commands | `cli/commands/diagnostic.py` | `register_diagnostic_commands` | Registers `diagnostic run`, `diagnostic report`, `diagnostic regression` with `--case-set {smoke,level2,all}`. |
 | Level-2 scenarios | `bench/level2_safety_scenarios/` | `scene.json`, `sequence.json`, `expected_contract.json` per case | Level-2 safety scenario fixtures for Stage 4.2 regression with expected contracts. |

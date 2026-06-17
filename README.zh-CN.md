@@ -8,7 +8,7 @@ Robot Action Safety Sandbox 是一个确定性的 3D 机械臂动作安全运行
 
 ## 当前状态
 
-当前阶段：**Stage 4.2 Level-2 场景与 Expected Contracts — 已完成**。下一阶段为 Stage 4.3（结构化 evidence groups 与 expected-vs-actual regression 强化）。
+当前阶段：**Stage 4.3 结构化证据分组与 expected-vs-actual 强化校验已完成**。下一阶段：Stage 4.4 LLM Diagnostic Analyst。
 
 已完成范围：
 
@@ -34,6 +34,9 @@ Robot Action Safety Sandbox 是一个确定性的 3D 机械臂动作安全运行
 - Stage 4.2A：expected contract scaffold（load_expected_contract、build_actual_summary、validate_expected_contract）。
 - Stage 4.2B：Level-2 复杂安全场景（near_threshold_clearance、midpoint_collision、mixed_decision）。
 - Stage 4.2C：diagnostic regression --case-set CLI（smoke / level2 / all）。
+- Stage 4.3A：evidence_manifest.json 支持 evidence_groups。
+- Stage 4.3B：expected_contract.v1 支持 required_evidence_groups。
+- Stage 4.3C：expected_contract.v1 支持 required_actual_fields、expected_closest_obstacle、min_clearance_lte/gte。
 
 ## 安全边界
 

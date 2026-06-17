@@ -235,8 +235,14 @@ case-set selection (smoke / level2 / all)
   -> runtime metrics DB
   -> diagnostic context
   -> deterministic report
-  -> evidence manifest
+  -> evidence_manifest.json
+       -> evidence_groups
   -> expected-vs-actual contract validation
+       -> required_artifacts
+       -> required_evidence_groups
+       -> required_actual_fields
+       -> expected_closest_obstacle
+       -> min_clearance thresholds
   -> regression_summary.json
 ```
 
@@ -402,4 +408,4 @@ Not implemented:
 - ROS2 / MoveIt integration;
 - LLM safety decision making.
 
-Stage 4.2-C is the current completed scope. Level-2 scenarios with expected contracts are integrated into the diagnostic regression pipeline. Next planned stage is Stage 4.3 (evidence groups in manifest + strengthened expected-vs-actual validation).
+Stage 4.3-C is the current completed scope. Evidence groups and stronger expected-vs-actual contracts are integrated into the diagnostic regression pipeline. LLM Diagnostic Analyst is planned for Stage 4.4 and is not yet implemented.

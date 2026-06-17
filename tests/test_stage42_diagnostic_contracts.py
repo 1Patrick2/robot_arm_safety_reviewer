@@ -279,6 +279,28 @@ class TestValidateExpectedContract:
         assert passed is True
         assert errors == ()
 
+    def test_required_artifacts_without_manifest_fails(self):
+        actual = {"total_steps": 1}
+        expected = {"required_artifacts": ["diagnostic_context_json"]}
+        passed, errors = validate_expected_contract(expected=expected, actual=actual, manifest=None)
+        assert passed is False
+        assert any("required_artifacts" in e for e in errors)
+
+    def test_required_artifacts_wrong_type_fails(self):
+        actual = {"total_steps": 1}
+        expected = {"required_artifacts": "diagnostic_context_json"}
+        passed, errors = validate_expected_contract(expected=expected, actual=actual, manifest={"artifacts": []})
+        assert passed is False
+        assert any("required_artifacts" in e for e in errors)
+
+    def test_required_artifacts_non_string_element_fails(self):
+        actual = {"total_steps": 1}
+        expected = {"required_artifacts": ["diagnostic_context_json", 123]}
+        manifest = {"artifacts": [{"kind": "diagnostic_context_json", "exists": True}]}
+        passed, errors = validate_expected_contract(expected=expected, actual=actual, manifest=manifest)
+        assert passed is False
+        assert any("required_artifacts" in e for e in errors)
+
     def test_required_actual_fields_pass(self):
         actual = {"min_clearance": 0.08, "closest_obstacle": "sphere_near"}
         expected = {"required_actual_fields": ["min_clearance", "closest_obstacle"]}

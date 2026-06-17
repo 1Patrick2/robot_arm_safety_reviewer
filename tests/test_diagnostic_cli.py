@@ -385,8 +385,8 @@ class TestDiagnosticRegression:
             assert "required_actual_fields" in case["expected"]
             assert "expected_closest_obstacle" in case["expected"]
             assert "min_clearance_lte" in case["expected"]
-            assert case["actual"].get("closest_obstacle") == case["expected"]["expected_closest_obstacle"]
             assert case["actual"] is not None
+            assert case["actual"].get("closest_obstacle") == case["expected"]["expected_closest_obstacle"]
             assert case["errors"] == []
             assert case["evidence_manifest_path"] is not None
             assert Path(case["evidence_manifest_path"]).exists()
