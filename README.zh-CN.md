@@ -8,7 +8,7 @@ Robot Action Safety Sandbox 是一个确定性的 3D 机械臂动作安全运行
 
 ## 当前状态
 
-当前阶段：**Stage 3.12 Demo Flow & Documentation Hardening — 已完成**。
+当前阶段：**Stage 4.2 Level-2 场景与 Expected Contracts — 已完成**。下一阶段为 Stage 4.3（结构化 evidence groups 与 expected-vs-actual regression 强化）。
 
 已完成范围：
 
@@ -31,6 +31,9 @@ Robot Action Safety Sandbox 是一个确定性的 3D 机械臂动作安全运行
 - Stage 3.10：evidence manifest 诊断输出证据清单。
 - Stage 3.11：diagnostic regression 批量验证。
 - Stage 3.12：demo flow 文档与项目说明完善。
+- Stage 4.2A：expected contract scaffold（load_expected_contract、build_actual_summary、validate_expected_contract）。
+- Stage 4.2B：Level-2 复杂安全场景（near_threshold_clearance、midpoint_collision、mixed_decision）。
+- Stage 4.2C：diagnostic regression --case-set CLI（smoke / level2 / all）。
 
 ## 安全边界
 
@@ -127,15 +130,27 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main metrics show-run ^
 
 ### 诊断命令
 
-一键运行完整诊断流水线：
+诊断回归支持三种 case set：
 
 ```powershell
-D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic regression ^
-  --output-dir output_reports\diagnostics_regression ^
-  --json
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic regression --case-set smoke --json
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic regression --case-set level2 --json
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic regression --case-set all --json
 ```
 
-从 episode ID 运行诊断：
+Case set 含义：
+
+| 集合 | 内容 |
+|---|---|
+| `smoke`（默认） | `simple_safe_sequence` — 管道冒烟测试 |
+| `level2` | 3 个 Level-2 复杂安全场景，带 expected contract |
+| `all` | smoke + level2 |
+
+Level-2 场景：
+
+- **near_threshold_clearance_sequence**：近阈值安全距离，预期 manual_review。
+- **midpoint_collision_sequence**：轨迹中段碰撞，预期 reject。
+- **mixed_decision_sequence**：同一序列中同时出现 approve / manual_review / reject。
 
 ```powershell
 D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic run ^

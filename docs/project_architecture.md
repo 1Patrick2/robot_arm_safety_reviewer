@@ -205,6 +205,7 @@ application/
   |- metrics_service.py        metrics_ingest_episode(), metrics_list_runs(), metrics_show_run()
   |- agent_context_service.py  build_agent_context()
   |- diagnostic_service.py     run_diagnostic(), run_diagnostic_report(), run_diagnostic_regression()
+  |- diagnostic_contracts.py   load_expected_contract(), build_actual_summary(), validate_expected_contract()
   |- runtime_service.py        run_runtime_task()
   |- sequence_runtime_service.py run_sequence_runtime()
   |- review_service.py         review_command()
@@ -226,6 +227,18 @@ robot_runtime/
 ### Diagnostic Runtime Layer
 
 Read-only diagnostic analysis built on top of runtime evidence. Does not modify safety decisions.
+
+```text
+case-set selection (smoke / level2 / all)
+  -> sequence.json + scene.json + expected_contract.json
+  -> sandbox runtime
+  -> runtime metrics DB
+  -> diagnostic context
+  -> deterministic report
+  -> evidence manifest
+  -> expected-vs-actual contract validation
+  -> regression_summary.json
+```
 
 ```text
 diagnostic_runtime/
@@ -374,6 +387,9 @@ Implemented:
 - Stage 3.10 Evidence Manifest: unified evidence index with existence checks, artifact summaries, regression validation.
 - Stage 3.11 Diagnostic Regression: batch pipeline sandbox → metrics → diagnostic run → manifest → summary.
 - Stage 3.12 Demo Flow & Documentation: README command chain, architecture layers, output artifact reference.
+- Stage 4.2A Expected Contract Scaffold: contract data types, loader, actual-summary, validation.
+- Stage 4.2B Level-2 Safety Scenarios: 3 Level-2 cases with expected contracts.
+- Stage 4.2C Case-set CLI: `diagnostic regression --case-set {smoke,level2,all}`.
 
 Not implemented:
 
@@ -386,4 +402,4 @@ Not implemented:
 - ROS2 / MoveIt integration;
 - LLM safety decision making.
 
-Stage 3.12 Demo Flow & Documentation is the current completed scope. The diagnostic runtime pipeline has been fully integrated: from sandbox execution through metrics DB, diagnostic context, deterministic report, optional agent report with guardrails, evidence manifest, and regression summary.
+Stage 4.2-C is the current completed scope. Level-2 scenarios with expected contracts are integrated into the diagnostic regression pipeline. Next planned stage is Stage 4.3 (evidence groups in manifest + strengthened expected-vs-actual validation).

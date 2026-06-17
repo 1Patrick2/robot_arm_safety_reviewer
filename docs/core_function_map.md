@@ -49,10 +49,15 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Diagnostic context service | `application/agent_context_service.py` | `build_agent_context` | Application service wrapping context generation for CLI and future diagnostic tools. |
 | Diagnostic service | `application/diagnostic_service.py` | `run_diagnostic` | Full diagnostic pipeline: build context → runtime → report → optional agent → manifest. |
 | Diagnostic service | `application/diagnostic_service.py` | `run_diagnostic_report` | Report-only path from existing context (reuses diagnostic runtime). |
-| Diagnostic service | `application/diagnostic_service.py` | `run_diagnostic_regression` | Batch pipeline over fixed cases: sandbox → metrics → diagnostic → manifest → summary. |
+| Diagnostic service | `application/diagnostic_service.py` | `run_diagnostic_regression` | Batch pipeline over fixed cases: sandbox → metrics → diagnostic → manifest → summary. Supports `--case-set {smoke,level2,all}`. |
+| Expected contract | `application/diagnostic_contracts.py` | `ExpectedContract` | Data class for loading `expected_contract.v1` files. |
+| Expected contract | `application/diagnostic_contracts.py` | `load_expected_contract` | Loads and validates an `expected_contract.v1` JSON file. |
+| Expected contract | `application/diagnostic_contracts.py` | `build_actual_summary` | Extracts actual safety-outcome summary (total_steps, approved, rejected, final_status, etc.) from a diagnostic context dict. |
+| Expected contract | `application/diagnostic_contracts.py` | `validate_expected_contract` | Compares actual outcomes against expected contract; supports step counts, final_status, and required_artifacts checks. |
 | Evidence manifest | `reports/evidence_manifest.py` | `build_evidence_manifest` | Builds `evidence_manifest.json` — unified evidence index with artifact existence checks. |
 | Evidence manifest | `reports/evidence_manifest.py` | `write_evidence_manifest` | Writes manifest dict to JSON file. |
-| CLI diagnostic commands | `cli/commands/diagnostic.py` | `register_diagnostic_commands` | Registers `diagnostic run`, `diagnostic report`, `diagnostic regression`. |
+| CLI diagnostic commands | `cli/commands/diagnostic.py` | `register_diagnostic_commands` | Registers `diagnostic run`, `diagnostic report`, `diagnostic regression` with `--case-set {smoke,level2,all}`. |
+| Level-2 scenarios | `bench/level2_safety_scenarios/` | `scene.json`, `sequence.json`, `expected_contract.json` per case | Level-2 safety scenario fixtures for Stage 4.2 regression with expected contracts. |
 | Diagnostics tools | `diagnostic_runtime/tools/context_tools.py` | `load_diagnostic_context`, `get_episode_summary`, `list_critical_steps`, `get_worst_step`, `get_artifact_index` | Read-only query layer over diagnostic_context.json. |
 | Diagnostics report | `diagnostic_runtime/report/deterministic.py` | `build_diagnostic_report` | Generates deterministic diagnostic_report.md from context. |
 | Diagnostic agent runner | `diagnostic_runtime/agent/runner.py` | `run_diagnostic_agent` | Runs a diagnostic-only agent with strict safety boundaries. |

@@ -14,7 +14,7 @@ The project started as `RobotArmSafetyReviewer`. It is still a safety reviewer, 
 
 ## Current Status
 
-Current stage: **Stage 3.12 Demo Flow & Documentation Hardening — complete**.
+Current stage: **Stage 4.2 Level-2 Scenarios + Expected Contracts — complete**. Stage 4.3 (evidence groups & expected-vs-actual hardening) is planned next.
 
 Completed scope:
 
@@ -37,6 +37,9 @@ Completed scope:
 - Stage 3.10: evidence manifest for diagnostic outputs.
 - Stage 3.11: diagnostic regression for batch verification.
 - Stage 3.12: demo flow documentation and project hardening.
+- Stage 4.2A: expected contract scaffold (`load_expected_contract`, `build_actual_summary`, `validate_expected_contract`).
+- Stage 4.2B: Level-2 safety scenarios with expected contracts.
+- Stage 4.2C: regression `--case-set` CLI (`smoke` / `level2` / `all`).
 
 ## Safety Boundary
 
@@ -131,16 +134,31 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main metrics show-run ^
   --json
 ```
 
-### Quick Demo — Full Pipeline in One Command
+### Diagnostic Regression with Case Sets
+
+The `diagnostic regression` command supports three case sets via `--case-set`:
 
 ```powershell
-D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic regression ^
-  --output-dir output_reports\diagnostics_regression ^
-  --json
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic regression --case-set smoke --json
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic regression --case-set level2 --json
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic regression --case-set all --json
 ```
 
-This runs one regression case through the full pipeline:
-sandbox → metrics DB → diagnostic context → deterministic report → trace → evidence manifest → summary.
+Case set contents:
+
+| Set | Cases |
+|---|---|
+| `smoke` (default) | `simple_safe_sequence` — pipeline smoke test |
+| `level2` | 3 Level-2 scenarios with expected contracts |
+| `all` | smoke + level2 |
+
+Level-2 scenarios:
+
+- **near_threshold_clearance_sequence**: near-threshold clearance, manual_review expected.
+- **midpoint_collision_sequence**: trajectory-level collision, reject expected.
+- **mixed_decision_sequence**: approve + manual_review + reject in one sequence.
+
+Each level2 case validates `pipeline_passed`, `evidence_complete`, and `contract_passed` in the regression summary.
 
 ### Run Diagnostic Pipeline from an Episode
 
@@ -158,15 +176,6 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic run ^
 D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic report ^
   --context output_reports\diagnostics\<episode_id>\context\diagnostic_context.json ^
   --output-dir output_reports\diagnostic_report ^
-  --json
-```
-
-### Run Diagnostic Regression
-
-```powershell
-D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic regression ^
-  --output-dir output_reports\diagnostics_regression ^
-  --run-agent ^
   --json
 ```
 
@@ -212,8 +221,8 @@ PolicyActionSequence / dataset sample
   -> diagnostic context
   -> diagnostic runtime
   -> deterministic diagnostic report
-  -> optional diagnostic agent report
   -> evidence_manifest.json
+  -> expected-vs-actual contract validation
   -> diagnostic regression summary
 ```
 
