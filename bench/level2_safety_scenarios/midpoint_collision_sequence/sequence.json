@@ -1,0 +1,27 @@
+{
+  "sequence_id": "midpoint_collision_001",
+  "source": "mini_fixture",
+  "initial_joints": [0, 0, 0, 0, 0, 0],
+  "language_instruction": "sequence where midpoint of trajectory collides with obstacle, not just endpoint",
+  "metadata": {
+    "expected_use": "stage42_level2_midpoint_collision"
+  },
+  "actions": [
+    {
+      "action_type": "joint_target",
+      "values": [0.2, 0.1, 0, 0, 0, 0],
+      "timestamp": 0.0,
+      "metadata": {
+        "step_name": "small_safe_move"
+      }
+    },
+    {
+      "action_type": "joint_target",
+      "values": [0.8, 0.6, 0.4, 0, 0, 0],
+      "timestamp": 1.0,
+      "metadata": {
+        "step_name": "move_through_midpoint_collision"
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "expected_contract.v1",
+  "case_id": "midpoint_collision_sequence",
+  "expected": {
+    "total_steps": 2,
+    "min_rejected_steps": 1,
+    "expected_final_status": "reject",
+    "required_artifacts": [
+      "diagnostic_context_json",
+      "deterministic_report",
+      "diagnostic_runtime_trace",
+      "trajectory_overview",
+      "trajectory_overview_data",
+      "evidence_manifest"
+    ]
+  }
+}

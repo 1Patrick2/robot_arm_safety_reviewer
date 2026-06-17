@@ -1,0 +1,35 @@
+{
+  "sequence_id": "mixed_decision_001",
+  "source": "mini_fixture",
+  "initial_joints": [0, 0, 0, 0, 0, 0],
+  "language_instruction": "multi-step sequence with approve, manual_review, and reject outcomes",
+  "metadata": {
+    "expected_use": "stage42_level2_mixed_decision"
+  },
+  "actions": [
+    {
+      "action_type": "joint_target",
+      "values": [0.05, 0.02, 0, 0, 0, 0],
+      "timestamp": 0.0,
+      "metadata": {
+        "step_name": "small_safe_move"
+      }
+    },
+    {
+      "action_type": "joint_target",
+      "values": [0.4, 0.2, 0.1, 0, 0, 0],
+      "timestamp": 1.0,
+      "metadata": {
+        "step_name": "approach_near_obstacle"
+      }
+    },
+    {
+      "action_type": "joint_target",
+      "values": [0.8, 0.6, 0.4, 0, 0, 0],
+      "timestamp": 2.0,
+      "metadata": {
+        "step_name": "move_into_collision"
+      }
+    }
+  ]
+}

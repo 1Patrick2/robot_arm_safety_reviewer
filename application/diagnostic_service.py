@@ -214,6 +214,7 @@ class DiagnosticRegressionRequest:
     provider: str = "fake"
     run_agent: bool = False
     max_steps: int = 10
+    stop_on_block: bool = True
 
 
 @dataclass(frozen=True)
@@ -312,6 +313,7 @@ def run_diagnostic_regression(request: DiagnosticRegressionRequest) -> Diagnosti
                     backend_name=request.backend_name,
                     output_root=case_output / "sandbox",
                     metrics_db=case_output / "runtime_metrics.db",
+                    stop_on_block=request.stop_on_block,
                 )
             )
             episode_id = sandbox_result.sequence_runtime_result.episode_dir.name
