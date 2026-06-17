@@ -33,7 +33,7 @@ Next stage: **Stage 4.4 LLM Diagnostic Analyst**.
 
 ## Current Focus
 
-- Stage 4.2 is functionally complete: expected contracts are validated end-to-end across 3 Level-2 scenarios.
+- Stage 4.3 is functionally complete: Level-2 regression now validates evidence groups and stronger expected-vs-actual contract fields.
 - Priority: correctness > interpretability > completeness > LLM integration.
 - Keep docs synchronized with the codebase.
 - Keep generated artifacts out of git.
@@ -43,7 +43,7 @@ Next stage: **Stage 4.4 LLM Diagnostic Analyst**.
 The primary regression command:
 
 ```powershell
-python -m cli.main diagnostic regression --case-set all --output-dir output_reports/stage42_all --json
+python -m cli.main diagnostic regression --case-set all --output-dir output_reports/stage43_all --json
 ```
 
 Regression case sets:
