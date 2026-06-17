@@ -270,6 +270,7 @@ class TestDiagnosticRegression:
                     "diagnostic_context_json",
                     "deterministic_report",
                     "diagnostic_runtime_trace",
+                    "evidence_manifest",
                 ],
             },
         }), encoding="utf-8")
@@ -303,3 +304,43 @@ class TestDiagnosticRegression:
         assert case.actual["final_status"] == "approve"
         assert case.actual["total_steps"] == 2
         assert case.errors == ()
+
+    def test_diagnostic_regression_contract_case_id_mismatch(self, tmp_path):
+        """When contract case_id differs from the regression case, the case must fail."""
+        from application.diagnostic_service import (
+            DiagnosticRegressionCase,
+            DiagnosticRegressionRequest,
+            run_diagnostic_regression,
+        )
+
+        contract_dir = tmp_path / "contracts"
+        contract_dir.mkdir(parents=True, exist_ok=True)
+        contract_path = contract_dir / "mismatched.json"
+        contract_path.write_text(json.dumps({
+            "schema_version": "expected_contract.v1",
+            "case_id": "different_case",
+            "expected": {
+                "total_steps": 2,
+                "min_approved_steps": 2,
+                "expected_final_status": "approve",
+            },
+        }), encoding="utf-8")
+
+        result = run_diagnostic_regression(
+            DiagnosticRegressionRequest(
+                cases=(
+                    DiagnosticRegressionCase(
+                        case_id="simple_safe_sequence",
+                        sequence_path=SAMPLES / "simple_safe_sequence.json",
+                        scene_path=BENCH / "simple_joint_move_001" / "scene.json",
+                        expected_contract_path=contract_path,
+                    ),
+                ),
+                output_dir=tmp_path / "regression_mismatch",
+            )
+        )
+
+        case = result.case_results[0]
+        assert case.ok is False
+        assert case.contract_passed is False
+        assert any("case_id mismatch" in e for e in case.errors)

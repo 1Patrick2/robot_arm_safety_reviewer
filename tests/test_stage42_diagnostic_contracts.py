@@ -220,3 +220,18 @@ class TestValidateExpectedContract:
         passed, errors = validate_expected_contract(expected=expected, actual=actual)
         assert passed is False
         assert len(errors) >= 2
+
+    def test_evidence_manifest_in_required_artifacts_passes(self):
+        """evidence_manifest is a special kind that always counts as existing."""
+        manifest = {
+            "artifacts": [
+                {"kind": "diagnostic_context_json", "exists": True},
+            ]
+        }
+        actual = {"total_steps": 1}
+        expected = {
+            "required_artifacts": ["diagnostic_context_json", "evidence_manifest"],
+        }
+        passed, errors = validate_expected_contract(expected=expected, actual=actual, manifest=manifest)
+        assert passed is True
+        assert errors == ()

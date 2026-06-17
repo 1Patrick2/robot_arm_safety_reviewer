@@ -176,7 +176,10 @@ def validate_expected_contract(
     exp_artifacts = expected.get("required_artifacts")
     if exp_artifacts is not None and manifest is not None:
         manifest_artifacts = manifest.get("artifacts", [])
+        # The manifest does not self-reference, so treat "evidence_manifest" as
+        # implicitly present when a manifest was successfully loaded.
         artifact_kinds = {a["kind"] for a in manifest_artifacts if a.get("exists")}
+        artifact_kinds.add("evidence_manifest")
         for kind in exp_artifacts:
             if kind not in artifact_kinds:
                 errors.append(

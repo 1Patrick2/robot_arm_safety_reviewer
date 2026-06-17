@@ -363,18 +363,27 @@ def run_diagnostic_regression(request: DiagnosticRegressionRequest) -> Diagnosti
                 actual = build_actual_summary(diag_result.context)
                 if case.expected_contract_path is not None and case.expected_contract_path.exists():
                     contract = load_expected_contract(case.expected_contract_path)
-                    expected = contract.expected
-                    cp, contract_errors = validate_expected_contract(
-                        expected=contract.expected,
-                        actual=actual,
-                        manifest=manifest,
-                    )
-                    contract_passed = cp
-                    case_errors.extend(contract_errors)
+                    # Verify case_id matches
+                    if contract.case_id != case.case_id:
+                        contract_passed = False
+                        case_errors.append(
+                            f"expected_contract case_id mismatch: expected {case.case_id}, "
+                            f"got {contract.case_id}"
+                        )
+                    else:
+                        expected = contract.expected
+                        cp, contract_errors = validate_expected_contract(
+                            expected=contract.expected,
+                            actual=actual,
+                            manifest=manifest,
+                        )
+                        contract_passed = cp
+                        case_errors.extend(contract_errors)
                 elif case.expected_contract_path is not None:
+                    contract_passed = False
                     case_errors.append(f"expected_contract not found: {case.expected_contract_path}")
 
-            ok = pipeline_passed and evidence_complete and (contract_passed is not False)
+            ok = pipeline_passed and evidence_complete and not case_errors and (contract_passed is not False)
 
             case_results.append(DiagnosticRegressionCaseResult(
                 case_id=case.case_id,
