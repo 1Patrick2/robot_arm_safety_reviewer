@@ -9,6 +9,7 @@ from .agent_context_service import build_agent_context, AgentContextBuildRequest
 from diagnostic_runtime.runtime.models import DiagnosticRuntimeRequest
 from diagnostic_runtime.runtime.runner import run_diagnostic_runtime
 from reports.evidence_manifest import build_evidence_manifest, write_evidence_manifest
+from .diagnostic_contracts import build_actual_summary, load_expected_contract, validate_expected_contract
 from .core import AppResult, ArtifactRef
 
 DEFAULT_DB = Path("output_reports/runtime_metrics/runtime_metrics.db")
@@ -202,6 +203,7 @@ class DiagnosticRegressionCase:
     case_id: str
     sequence_path: Path
     scene_path: Path
+    expected_contract_path: Path | None = None
 
 
 @dataclass(frozen=True)
@@ -227,6 +229,11 @@ class DiagnosticRegressionCaseResult:
     agent_report_path: Path | None
     safety_violations: tuple[str, ...]
     errors: tuple[str, ...]
+    pipeline_passed: bool = True
+    evidence_complete: bool = True
+    contract_passed: bool | None = None
+    expected: dict[str, Any] | None = None
+    actual: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -241,6 +248,11 @@ class DiagnosticRegressionCaseResult:
             "agent_report_path": str(self.agent_report_path) if self.agent_report_path else None,
             "safety_violations": list(self.safety_violations),
             "errors": list(self.errors),
+            "pipeline_passed": self.pipeline_passed,
+            "evidence_complete": self.evidence_complete,
+            "contract_passed": self.contract_passed,
+            "expected": self.expected,
+            "actual": self.actual,
         }
 
 
@@ -337,7 +349,32 @@ def run_diagnostic_regression(request: DiagnosticRegressionRequest) -> Diagnosti
             if diag_result.safety_violations:
                 case_errors.append(f"safety violations: {list(diag_result.safety_violations)}")
 
-            ok = not case_errors
+            pipeline_passed = True
+            evidence_complete = not case_errors
+            contract_passed: bool | None = None
+            expected: dict[str, Any] | None = None
+            actual: dict[str, Any] | None = None
+
+            # Build actual summary and validate expected contract if one exists
+            if pipeline_passed and diag_result.evidence_manifest_path.exists():
+                manifest = json.loads(
+                    diag_result.evidence_manifest_path.read_text(encoding="utf-8")
+                )
+                actual = build_actual_summary(diag_result.context)
+                if case.expected_contract_path is not None and case.expected_contract_path.exists():
+                    contract = load_expected_contract(case.expected_contract_path)
+                    expected = contract.expected
+                    cp, contract_errors = validate_expected_contract(
+                        expected=contract.expected,
+                        actual=actual,
+                        manifest=manifest,
+                    )
+                    contract_passed = cp
+                    case_errors.extend(contract_errors)
+                elif case.expected_contract_path is not None:
+                    case_errors.append(f"expected_contract not found: {case.expected_contract_path}")
+
+            ok = pipeline_passed and evidence_complete and (contract_passed is not False)
 
             case_results.append(DiagnosticRegressionCaseResult(
                 case_id=case.case_id,
@@ -351,6 +388,11 @@ def run_diagnostic_regression(request: DiagnosticRegressionRequest) -> Diagnosti
                 agent_report_path=diag_result.agent_report_path,
                 safety_violations=diag_result.safety_violations,
                 errors=tuple(case_errors),
+                pipeline_passed=pipeline_passed,
+                evidence_complete=evidence_complete,
+                contract_passed=contract_passed,
+                expected=expected,
+                actual=actual,
             ))
 
         except Exception as exc:
@@ -366,6 +408,11 @@ def run_diagnostic_regression(request: DiagnosticRegressionRequest) -> Diagnosti
                 agent_report_path=None,
                 safety_violations=(),
                 errors=(str(exc),),
+                pipeline_passed=False,
+                evidence_complete=False,
+                contract_passed=None,
+                expected=None,
+                actual=None,
             ))
 
     total_cases = len(case_results)

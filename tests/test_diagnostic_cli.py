@@ -188,6 +188,11 @@ class TestDiagnosticRegression:
         assert case["case_id"] == "simple_safe_sequence"
         assert case["ok"] is True
         assert case["errors"] == []
+        assert case["pipeline_passed"] is True
+        assert case["evidence_complete"] is True
+        assert case["contract_passed"] is None
+        assert case["expected"] is None
+        assert case["actual"] is not None
         assert case["episode_id"] is not None
         assert case["context_path"] is not None
         assert Path(case["context_path"]).exists()
@@ -229,6 +234,9 @@ class TestDiagnosticRegression:
         case = payload["cases"][0]
         assert case["ok"] is True
         assert case["errors"] == []
+        assert case["pipeline_passed"] is True
+        assert case["evidence_complete"] is True
+        assert case["contract_passed"] is None
         assert case["agent_report_path"] is not None
         assert Path(case["agent_report_path"]).exists()
         assert case["evidence_manifest_path"] is not None
@@ -236,3 +244,62 @@ class TestDiagnosticRegression:
 
         manifest = json.loads(Path(case["evidence_manifest_path"]).read_text(encoding="utf-8"))
         assert manifest["checks"]["has_agent_report"] is True
+
+    def test_diagnostic_regression_with_expected_contract(self, tmp_path):
+        """Regression with an expected contract should produce pipeline/evidence/contract fields."""
+        from application.diagnostic_service import (
+            DiagnosticRegressionCase,
+            DiagnosticRegressionRequest,
+            run_diagnostic_regression,
+        )
+
+        # Create a temporary expected_contract.json for the simple_safe_sequence
+        contract_dir = tmp_path / "contracts"
+        contract_dir.mkdir(parents=True, exist_ok=True)
+        contract_path = contract_dir / "simple_safe_expected.json"
+        contract_path.write_text(json.dumps({
+            "schema_version": "expected_contract.v1",
+            "case_id": "simple_safe_sequence",
+            "expected": {
+                "total_steps": 2,
+                "min_approved_steps": 2,
+                "min_manual_review_steps": 0,
+                "min_rejected_steps": 0,
+                "expected_final_status": "approve",
+                "required_artifacts": [
+                    "diagnostic_context_json",
+                    "deterministic_report",
+                    "diagnostic_runtime_trace",
+                ],
+            },
+        }), encoding="utf-8")
+
+        result = run_diagnostic_regression(
+            DiagnosticRegressionRequest(
+                cases=(
+                    DiagnosticRegressionCase(
+                        case_id="simple_safe_sequence",
+                        sequence_path=SAMPLES / "simple_safe_sequence.json",
+                        scene_path=BENCH / "simple_joint_move_001" / "scene.json",
+                        expected_contract_path=contract_path,
+                    ),
+                ),
+                output_dir=tmp_path / "regression_contract",
+            )
+        )
+
+        assert result.total_cases == 1
+        assert result.passed_cases == 1
+        assert result.failed_cases == 0
+
+        case = result.case_results[0]
+        assert case.ok is True
+        assert case.pipeline_passed is True
+        assert case.evidence_complete is True
+        assert case.contract_passed is True
+        assert case.expected is not None
+        assert case.expected["expected_final_status"] == "approve"
+        assert case.actual is not None
+        assert case.actual["final_status"] == "approve"
+        assert case.actual["total_steps"] == 2
+        assert case.errors == ()

@@ -220,7 +220,11 @@ def print_diagnostic_regression_result(result: DiagnosticRegressionResult, *, as
     for case in d.get("cases", []):
         status = "PASS" if case.get("ok") else "FAIL"
         ep = case.get("episode_id") or ""
+        extra = ""
+        cp = case.get("contract_passed")
+        if cp is not None:
+            extra = f" pipeline={case.get('pipeline_passed')} evidence={case.get('evidence_complete')} contract={cp}"
         if case.get("errors"):
-            print(f"  - {case['case_id']}: {status} errors={case['errors']}")
+            print(f"  - {case['case_id']}: {status} errors={case['errors']}{extra}")
         else:
-            print(f"  - {case['case_id']}: {status} episode={ep}")
+            print(f"  - {case['case_id']}: {status} episode={ep}{extra}")
