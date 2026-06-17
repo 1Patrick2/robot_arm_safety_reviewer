@@ -344,3 +344,90 @@ class TestDiagnosticRegression:
         assert case.ok is False
         assert case.contract_passed is False
         assert any("case_id mismatch" in e for e in case.errors)
+
+    def test_diagnostic_regression_case_set_level2_json(self, tmp_path):
+        """--case-set level2 runs 3 Level-2 cases, all contract_passed."""
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-m", "cli.main",
+                "diagnostic", "regression",
+                "--case-set", "level2",
+                "--output-dir", str(tmp_path / "reg_level2"),
+                "--json",
+            ],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+        payload = json.loads(completed.stdout)
+        assert payload["schema_version"] == "diagnostic_regression.v1"
+        assert payload["total_cases"] == 3
+        assert payload["passed_cases"] == 3
+        assert payload["failed_cases"] == 0
+
+        case_ids = {c["case_id"] for c in payload["cases"]}
+        assert case_ids == {
+            "near_threshold_clearance_sequence",
+            "midpoint_collision_sequence",
+            "mixed_decision_sequence",
+        }
+
+        for case in payload["cases"]:
+            assert case["ok"] is True
+            assert case["pipeline_passed"] is True
+            assert case["evidence_complete"] is True
+            assert case["contract_passed"] is True
+            assert case["expected"] is not None
+            assert case["actual"] is not None
+            assert case["errors"] == []
+            assert case["evidence_manifest_path"] is not None
+            assert Path(case["evidence_manifest_path"]).exists()
+
+    def test_diagnostic_regression_case_set_all_json(self, tmp_path):
+        """--case-set all runs smoke + level2 (4 cases), all pass."""
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-m", "cli.main",
+                "diagnostic", "regression",
+                "--case-set", "all",
+                "--output-dir", str(tmp_path / "reg_all"),
+                "--json",
+            ],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+        payload = json.loads(completed.stdout)
+        assert payload["schema_version"] == "diagnostic_regression.v1"
+        assert payload["total_cases"] == 4
+        assert payload["passed_cases"] == 4
+        assert payload["failed_cases"] == 0
+
+        case_ids = {c["case_id"] for c in payload["cases"]}
+        assert case_ids == {
+            "simple_safe_sequence",
+            "near_threshold_clearance_sequence",
+            "midpoint_collision_sequence",
+            "mixed_decision_sequence",
+        }
+
+        for case in payload["cases"]:
+            assert case["ok"] is True
+            assert case["pipeline_passed"] is True
+            assert case["evidence_complete"] is True
+            assert case["errors"] == []
+
+            if case["case_id"] == "simple_safe_sequence":
+                assert case["contract_passed"] is None
+                assert case["expected"] is None
+            else:
+                assert case["contract_passed"] is True
+                assert case["expected"] is not None
+
+            assert case["actual"] is not None

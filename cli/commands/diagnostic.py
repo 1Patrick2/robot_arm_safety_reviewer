@@ -16,6 +16,7 @@ from cli.output import print_diagnostic_run_result, print_diagnostic_report_resu
 
 SAMPLES = Path(__file__).resolve().parents[2] / "samples" / "policy_sequences"
 BENCH = Path(__file__).resolve().parents[2] / "bench" / "sim_robot_arm"
+LEVEL2 = Path(__file__).resolve().parents[2] / "bench" / "level2_safety_scenarios"
 
 DEFAULT_REGRESSION_CASES = (
     DiagnosticRegressionCase(
@@ -24,6 +25,34 @@ DEFAULT_REGRESSION_CASES = (
         scene_path=BENCH / "simple_joint_move_001" / "scene.json",
     ),
 )
+
+_LEVEL2_CASE_IDS = (
+    "near_threshold_clearance_sequence",
+    "midpoint_collision_sequence",
+    "mixed_decision_sequence",
+)
+
+
+def _build_regression_cases(case_set: str) -> tuple[DiagnosticRegressionCase, ...]:
+    """Build the case tuple for a given ``--case-set`` value."""
+    if case_set == "smoke":
+        return DEFAULT_REGRESSION_CASES
+
+    level2_cases = tuple(
+        DiagnosticRegressionCase(
+            case_id=cid,
+            sequence_path=LEVEL2 / cid / "sequence.json",
+            scene_path=LEVEL2 / cid / "scene.json",
+            expected_contract_path=LEVEL2 / cid / "expected_contract.json",
+        )
+        for cid in _LEVEL2_CASE_IDS
+    )
+
+    if case_set == "level2":
+        return level2_cases
+
+    # case_set == "all"
+    return DEFAULT_REGRESSION_CASES + level2_cases
 
 
 def register_diagnostic_commands(subparsers) -> None:
@@ -50,6 +79,7 @@ def register_diagnostic_commands(subparsers) -> None:
 
     # diagnostic regression
     regression_parser = diag_subparsers.add_parser("regression", help="Run diagnostic regression on fixed sample cases")
+    regression_parser.add_argument("--case-set", choices=("smoke", "level2", "all"), default="smoke", help="Regression case set to run: smoke, level2, or all.")
     regression_parser.add_argument("--output-dir", default="output_reports/diagnostics_regression", help="Root directory for regression output")
     regression_parser.add_argument("--backend", default="mock", choices=("mock", "pybullet"))
     regression_parser.add_argument("--provider", default="fake", choices=("fake", "deepseek"))
@@ -84,14 +114,16 @@ def handle_diagnostic_report(args: argparse.Namespace) -> None:
 
 
 def handle_diagnostic_regression(args: argparse.Namespace) -> None:
+    case_set = args.case_set
     result = run_diagnostic_regression(
         DiagnosticRegressionRequest(
-            cases=DEFAULT_REGRESSION_CASES,
+            cases=_build_regression_cases(case_set),
             output_dir=Path(args.output_dir),
             backend_name=args.backend,
             provider=args.provider,
             run_agent=args.run_agent,
             max_steps=args.max_steps,
+            stop_on_block=case_set not in {"level2", "all"},
         )
     )
     print_diagnostic_regression_result(result, as_json=args.json)
