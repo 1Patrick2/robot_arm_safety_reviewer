@@ -15,6 +15,7 @@ from application.review_service import ReviewCommandResult
 from application.runtime_service import RuntimeTaskResult
 from application.sandbox_service import SandboxRunResult
 from application.sequence_runtime_service import SequenceRuntimeResult
+from application.core import AppResult
 
 
 def print_json(payload: dict[str, Any]) -> None:
@@ -228,3 +229,16 @@ def print_diagnostic_regression_result(result: DiagnosticRegressionResult, *, as
             print(f"  - {case['case_id']}: {status} errors={case['errors']}{extra}")
         else:
             print(f"  - {case['case_id']}: {status} episode={ep}{extra}")
+
+
+def print_app_result(result: AppResult, *, as_json: bool) -> None:
+    """Print an ``AppResult`` as JSON or structured text."""
+    if as_json:
+        print_json(result.to_dict())
+        return
+
+    d = result.to_dict()
+    print(f"Mode: {d.get('mode', '?')}")
+    print(f"OK: {d.get('ok', '?')}")
+    for art in d.get("artifacts", []):
+        print(f"  Artifact ({art.get('kind', '?')}): {art.get('path', '?')}")

@@ -12,7 +12,8 @@ from application.diagnostic_service import (
     run_diagnostic_report,
     run_diagnostic_regression,
 )
-from cli.output import print_diagnostic_run_result, print_diagnostic_report_result, print_diagnostic_regression_result
+from application.diagnostic_analysis_service import DiagnosticAnalysisRequest, run_diagnostic_analysis
+from cli.output import print_diagnostic_run_result, print_diagnostic_report_result, print_diagnostic_regression_result, print_app_result
 
 SAMPLES = Path(__file__).resolve().parents[2] / "samples" / "policy_sequences"
 BENCH = Path(__file__).resolve().parents[2] / "bench" / "sim_robot_arm"
@@ -88,6 +89,16 @@ def register_diagnostic_commands(subparsers) -> None:
     regression_parser.add_argument("--json", action="store_true")
     regression_parser.set_defaults(handler=handle_diagnostic_regression)
 
+    # diagnostic analyze
+    analyze_parser = diag_subparsers.add_parser("analyze", help="Run diagnostic analysis on an episode using evidence context and manifest")
+    analyze_parser.add_argument("--context", required=True, help="Path to diagnostic_context.json")
+    analyze_parser.add_argument("--manifest", required=True, help="Path to evidence_manifest.json")
+    analyze_parser.add_argument("--report", help="Path to deterministic diagnostic report (optional)")
+    analyze_parser.add_argument("--output-dir", default="output_reports/diagnostic_analysis", help="Output directory for the analysis JSON")
+    analyze_parser.add_argument("--provider", default="fake", choices=("fake",), help="Analysis provider (only fake supported)")
+    analyze_parser.add_argument("--json", action="store_true")
+    analyze_parser.set_defaults(handler=handle_diagnostic_analyze)
+
 
 def handle_diagnostic_run(args: argparse.Namespace) -> None:
     result = run_diagnostic(
@@ -127,3 +138,16 @@ def handle_diagnostic_regression(args: argparse.Namespace) -> None:
         )
     )
     print_diagnostic_regression_result(result, as_json=args.json)
+
+
+def handle_diagnostic_analyze(args: argparse.Namespace) -> None:
+    result = run_diagnostic_analysis(
+        DiagnosticAnalysisRequest(
+            context_path=Path(args.context),
+            evidence_manifest_path=Path(args.manifest),
+            deterministic_report_path=Path(args.report) if args.report else None,
+            output_dir=Path(args.output_dir),
+            provider=args.provider,
+        )
+    )
+    print_app_result(result.to_app_result(), as_json=args.json)

@@ -436,3 +436,49 @@ class TestDiagnosticRegression:
                 assert case["expected"] is not None
 
             assert case["actual"] is not None
+
+    def test_diagnostic_analyze_json(self, tmp_path):
+        """diagnostic analyze produces llm_diagnostic_analysis.json."""
+        ctx = tmp_path / "diagnostic_context.json"
+        ctx.write_text(json.dumps({
+            "episode_id": "ep_cli",
+            "sequence_id": "cli_test",
+            "total_steps": 2,
+            "approved_steps": 2,
+            "manual_review_steps": 0,
+            "rejected_steps": 0,
+            "min_clearance": 0.15,
+        }), encoding="utf-8")
+
+        manifest_path = tmp_path / "evidence_manifest.json"
+        manifest_path.write_text(json.dumps({
+            "artifacts": [{"kind": "diagnostic_context_json", "exists": True}],
+            "evidence_groups": {},
+        }), encoding="utf-8")
+
+        output_dir = tmp_path / "cli_analysis"
+        completed = subprocess.run(
+            [
+                sys.executable, "-m", "cli.main",
+                "diagnostic", "analyze",
+                "--context", str(ctx),
+                "--manifest", str(manifest_path),
+                "--output-dir", str(output_dir),
+                "--provider", "fake",
+                "--json",
+            ],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+        payload = json.loads(completed.stdout)
+        assert payload["ok"] is True
+        assert payload["mode"] == "diagnostic_analysis"
+        assert payload["data"]["schema_version"] == "diagnostic_analysis_result.v1"
+        assert Path(payload["data"]["analysis_path"]).exists()
+
+        analysis = json.loads(Path(payload["data"]["analysis_path"]).read_text(encoding="utf-8"))
+        assert analysis["schema_version"] == "llm_diagnostic_analysis.v1"
+        assert analysis["analysis_mode"] == "fake"
