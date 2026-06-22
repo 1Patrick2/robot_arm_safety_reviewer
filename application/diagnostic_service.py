@@ -8,7 +8,7 @@ from typing import Any
 from .agent_context_service import build_agent_context, AgentContextBuildRequest
 from diagnostic_runtime.runtime.models import DiagnosticRuntimeRequest
 from diagnostic_runtime.runtime.runner import run_diagnostic_runtime
-from reports.evidence_manifest import build_evidence_manifest, write_evidence_manifest
+from diagnostics.evidence.manifest import build_evidence_manifest, write_evidence_manifest
 from .diagnostic_contracts import build_actual_summary, load_expected_contract, validate_expected_contract
 from .core import AppResult, ArtifactRef
 
