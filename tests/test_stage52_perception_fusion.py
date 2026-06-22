@@ -1,10 +1,7 @@
 import pytest
 
 from perception.models import SafetyObservation
-from perception.fusion import (
-    PerceptionSafetyFusionResult,
-    fuse_safety_with_perception,
-)
+from perception.fusion import fuse_safety_with_perception
 
 
 class TestFuseSafetyWithPerception:
@@ -164,3 +161,72 @@ class TestFuseSafetyWithPerception:
         assert isinstance(d["triggered_observations"], list)
         assert isinstance(d["evidence_refs"], list)
         assert d["triggered_observations"][0]["kind"] == "human_in_danger_zone"
+
+    def test_manual_review_with_warning_zone_stays_manual_review(self):
+        obs = SafetyObservation(
+            kind="human_in_warning_zone",
+            object_id="person_1",
+            severity="medium",
+            frame_id="f1",
+            evidence_refs=("perception.frames[0].detections[0].zone",),
+        )
+        result = fuse_safety_with_perception(
+            original_decision="manual_review",
+            original_risk_level="medium",
+            observations=(obs,),
+        )
+        assert result.fused_decision == "manual_review"
+        assert result.fused_risk_level == "medium"
+        assert result.triggered_observations == (obs,)
+
+    def test_unknown_object_detected_escalates_to_manual_review(self):
+        obs = SafetyObservation(
+            kind="unknown_object_detected",
+            object_id="unk_1",
+            severity="high",
+            frame_id="f1",
+            evidence_refs=("perception.frames[0].detections[0].zone",),
+        )
+        result = fuse_safety_with_perception(
+            original_decision="approve",
+            original_risk_level="low",
+            observations=(obs,),
+        )
+        assert result.fused_decision == "manual_review"
+        assert result.fused_risk_level == "medium"
+        assert result.triggered_observations == (obs,)
+
+    def test_close_object_detected_escalates_to_manual_review(self):
+        obs = SafetyObservation(
+            kind="close_object_detected",
+            object_id="obs_1",
+            severity="medium",
+            frame_id="f1",
+            evidence_refs=("perception.frames[0].detections[0].distance_m",),
+        )
+        result = fuse_safety_with_perception(
+            original_decision="approve",
+            original_risk_level="low",
+            observations=(obs,),
+        )
+        assert result.fused_decision == "manual_review"
+        assert result.fused_risk_level == "medium"
+        assert result.triggered_observations == (obs,)
+
+    def test_non_triggering_observation_does_not_enter_triggered(self):
+        """Observations that are present but do not change the decision must not
+        appear in triggered_observations."""
+        obs = SafetyObservation(
+            kind="object_in_warning_zone",
+            object_id="box_1",
+            severity="medium",
+            frame_id="f1",
+            evidence_refs=("perception.frames[0].detections[0].zone",),
+        )
+        # original is reject -> no observation can change it
+        result = fuse_safety_with_perception(
+            original_decision="reject",
+            observations=(obs,),
+        )
+        assert result.fused_decision == "reject"
+        assert result.triggered_observations == ()
