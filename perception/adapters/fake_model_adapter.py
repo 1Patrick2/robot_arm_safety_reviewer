@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -37,9 +38,8 @@ class FakePerceptionModelAdapter:
             A ``PerceptionResult`` conforming to ``perception_result.v1``.
         """
         if self._result is not None:
-            # Propagate request identifiers into the preset result
             if request.sequence_id is not None:
-                object.__setattr__(self._result, "sequence_id", request.sequence_id)
+                return replace(self._result, sequence_id=request.sequence_id)
             return self._result
 
         detections = self._detections or ()

@@ -2,7 +2,7 @@
 
 Current functional status:
 
-- Completed through Stage 5.3-A.
+- Completed through Stage 5.4-A.
 
 Current architecture refactor status:
 
@@ -61,6 +61,7 @@ Paused:
 - Stage 5.2 Perception Safety Fusion: deterministic fusion rules for perception observations and trajectory results.
 - Stage 5.2-polish: focused fusion edge-case coverage.
 - Stage 5.3-A Perception-Aware Regression Fixtures: perception-aware scenarios and focused tests.
+- Stage 5.4-A Perception Model Adapter Protocol: `PerceptionInferenceRequest`, `PerceptionModelAdapter` Protocol, `FakePerceptionModelAdapter`.
 - Stage R1-B1 through R1-B6 Robot Domain Migration: `robot_safety/`, `robot_runtime/`, `robots/` migrated to `robot/safety/`, `robot/runtime/`, `robot/backends/`, `robot/adapters/`. Legacy packages and shims removed after R1-B6. All internal imports now use `robot.*` paths.
 
 ## Current Focus

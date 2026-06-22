@@ -14,7 +14,9 @@ Safety decisions are made by deterministic runtime logic, not by an LLM or agent
 
 ## Current Stage
 
-Completed through Stage 5.3-A.
+Completed through Stage 5.4-A.
+
+Current architecture work: R1-C diagnostics migration stabilized, R1-B6 robot domain migration completed.
 
 Current architecture work: Stage R1 Project Architecture Refactor completed.
 
@@ -37,7 +39,8 @@ Current recommended task:
 Paused feature work:
 
 - Stage 5.3-B Perception-Aware Regression Summary Integration is paused until R1-C validation passes.
-- Model adapter / ONNX / RKNN work is out of scope until R1-C is stable.
+- Stage 5.4-A Perception Model Adapter Protocol: `PerceptionInferenceRequest`, `PerceptionModelAdapter` Protocol, `FakePerceptionModelAdapter`.
+- Stage 5.4-B Optional ONNX Adapter Skeleton may be planned next. Real camera, RKNN, and hard runtime dependencies remain out of scope.
 
 ## Completed Capabilities
 

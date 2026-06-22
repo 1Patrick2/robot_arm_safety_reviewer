@@ -17,8 +17,8 @@ The project started as `RobotArmSafetyReviewer`. It is still a safety reviewer, 
 
 ## Current Status
 
-Current stage: **Stage 5.3-A: Perception-Aware Regression Fixtures — complete**. R1-C diagnostics migration is under validation.
-Next major stage: **Perception Model Adapter Protocol (Stage 5.4-A)** once R1-C passes.
+Current stage: **Stage 5.4-A Perception Model Adapter Protocol — complete**.
+Next possible stage: **Stage 5.4-B Optional ONNX Adapter Skeleton**.
 
 Completed scope:
 
@@ -55,6 +55,7 @@ Completed scope:
 - Stage 5.2: perception safety fusion (`PerceptionSafetyFusionResult`).
 - Stage 5.2-polish: fusion edge-case coverage.
 - Stage 5.3A: perception-aware regression fixtures and focused tests.
+- Stage 5.4A: perception model adapter protocol (`PerceptionInferenceRequest`, `PerceptionModelAdapter`, `FakePerceptionModelAdapter`).
 
 ## Safety Boundary
 

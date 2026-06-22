@@ -119,3 +119,18 @@ class TestFakePerceptionModelAdapter:
         # Preset result takes precedence; sequence_id from request overrides
         assert result.sequence_id == "request_seq"
         assert len(result.frames) == 0  # preset result has no frames
+
+    def test_preset_result_is_not_mutated_by_infer(self):
+        """The original preset_result must remain unchanged after infer()."""
+        preset_result = PerceptionResult(
+            schema_version="perception_result.v1",
+            sequence_id="preset_seq",
+        )
+        adapter = FakePerceptionModelAdapter(result=preset_result)
+        result = adapter.infer(PerceptionInferenceRequest(
+            input_path=Path("mock"),
+            sequence_id="request_seq",
+        ))
+        assert result.sequence_id == "request_seq"
+        # Original must not be mutated
+        assert preset_result.sequence_id == "preset_seq"
