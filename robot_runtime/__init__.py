@@ -1,8 +1,10 @@
-"""LeRobot-compatible safety runtime primitives."""
+"""Compatibility package for robot runtime primitives.
 
-from .action_sequence import PolicyActionSequence
-from .policy_action import PolicyAction, policy_action_to_robot_action
-from .types import RobotAction, RobotObservation, RuntimeStepResult
+New code should import from ``robot.runtime``. This package remains as a
+temporary shim while existing imports migrate.
+"""
+
+from robot.runtime import PolicyAction, PolicyActionSequence, RobotAction, RobotObservation, RuntimeStepResult, policy_action_to_robot_action
 
 __all__ = [
     "PolicyAction",
