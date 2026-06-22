@@ -10,7 +10,7 @@ from robot_runtime.policy_action import policy_action_to_robot_action
 from robot_runtime.safety_runtime import SafetyRuntime
 from robot_runtime.scene_provider import StaticSceneProvider
 from robot_runtime.types import RobotAction, RobotObservation, RuntimeStepResult
-from sim.backend_factory import create_backend
+from robot.backends.backend_factory import create_backend
 
 from .core import AppResult, ArtifactRef
 

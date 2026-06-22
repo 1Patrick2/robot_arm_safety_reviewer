@@ -9,7 +9,7 @@ from typing import Any
 from .models import JointCommand, SafetyResult, Scene, Violation
 from .safety_rules import check_trajectory_joint_limits, classify_risk_level, make_decision
 from .trajectory import compute_max_joint_delta, interpolate_joint_trajectory
-from sim.mock_backend import MockGeometryBackend
+from robot.backends.mock_backend import MockGeometryBackend
 
 
 @dataclass(frozen=True)

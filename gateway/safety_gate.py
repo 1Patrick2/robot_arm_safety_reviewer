@@ -10,7 +10,7 @@ from robot_safety.evaluator import evaluate_joint_command_with_metadata
 from robot_safety.models import JointCommand, SafetyResult, Scene, Violation
 from robots.base import RobotAdapter
 from robots.mock_realman_6dof import MockRealMan6DoFAdapter
-from sim.backend_factory import create_backend
+from robot.backends.backend_factory import create_backend
 
 from .execution_logger import build_execution_log, write_execution_log
 
