@@ -11,6 +11,7 @@ def build_evidence_manifest(
     deterministic_report_path: Path | None = None,
     agent_report_path: Path | None = None,
     trace_path: Path | None = None,
+    perception_record_path: Path | None = None,
 ) -> dict[str, Any]:
     """Build a structured evidence manifest for a diagnostic run.
 
@@ -22,6 +23,9 @@ def build_evidence_manifest(
         deterministic_report_path: Path to the deterministic diagnostic report.
         agent_report_path: Path to the agent-generated report (optional).
         trace_path: Path to the diagnostic runtime trace JSON (optional).
+        perception_record_path: Path to a perception inference record JSON
+            (optional). If provided and valid, adds ``perception_inference_record``
+            artifact and populates ``evidence_groups["perception"]``.
 
     Returns:
         A dict conforming to ``evidence_manifest.v1`` schema.
@@ -79,6 +83,19 @@ def build_evidence_manifest(
     if trace_path is not None:
         add("diagnostic_runtime_trace", trace_path, "diagnostic_runtime.runtime")
 
+    # 7. perception inference record
+    perception_record_data: dict[str, Any] | None = None
+    perception_record_valid = False
+    if perception_record_path is not None:
+        prp = Path(perception_record_path)
+        if prp.exists():
+            add("perception_inference_record", prp, "perception.inference_runner")
+            try:
+                perception_record_data = json.loads(prp.read_text(encoding="utf-8"))
+                perception_record_valid = True
+            except (OSError, json.JSONDecodeError):
+                pass
+
     # -- compute checks ------------------------------------------------------
     def _artifact_exists(kind: str) -> bool:
         return any(a["kind"] == kind and a["exists"] for a in artifacts)
@@ -106,6 +123,8 @@ def build_evidence_manifest(
         "has_trace": _artifact_exists("diagnostic_runtime_trace"),
         "has_agent_report": _artifact_exists("diagnostic_agent_report"),
         "has_guardrail_violations": has_guardrail_violations,
+        "has_perception_evidence": _artifact_exists("perception_inference_record"),
+        "perception_record_valid": perception_record_valid,
     }
 
     # -- summary -------------------------------------------------------------
@@ -123,9 +142,25 @@ def build_evidence_manifest(
         "closest_obstacle": context.get("closest_obstacle"),
     }
 
+    # -- perception summary fields -------------------------------------------
+    if perception_record_data is not None and perception_record_valid:
+        summary["perception_adapter"] = perception_record_data.get("adapter_name")
+        summary["perception_adapter_kind"] = perception_record_data.get("adapter_kind")
+        summary["perception_input_path"] = perception_record_data.get("input_path")
+        summary["perception_input_exists"] = perception_record_data.get("input_exists")
+        summary["perception_latency_ms"] = perception_record_data.get("latency_ms")
+        observations = perception_record_data.get("safety_observations", [])
+        triggered = (perception_record_data.get("fusion_result") or {}).get("triggered_observations", [])
+        summary["perception_observation_count"] = len(observations)
+        summary["perception_triggered_observation_count"] = len(triggered)
+        summary["perception_original_decision"] = (perception_record_data.get("fusion_result") or {}).get("original_decision")
+        summary["perception_fused_decision"] = (perception_record_data.get("fusion_result") or {}).get("fused_decision")
+        summary["perception_fused_risk_level"] = (perception_record_data.get("fusion_result") or {}).get("fused_risk_level")
+
     # -- evidence groups ----------------------------------------------------
     evidence_groups = _build_evidence_groups(
         summary=summary, artifacts=artifacts, checks=checks,
+        perception_record_valid=perception_record_valid,
     )
 
     return {
@@ -153,6 +188,7 @@ def _build_evidence_groups(
     summary: dict[str, Any],
     artifacts: list[dict[str, Any]],
     checks: dict[str, bool],
+    perception_record_valid: bool = False,
 ) -> dict[str, Any]:
     """Build the ``evidence_groups`` section of an evidence manifest.
 
@@ -250,6 +286,25 @@ def _build_evidence_groups(
             summary_fields=[],
             artifact_kinds=["diagnostic_agent_report"],
             evidence_refs=["artifacts.diagnostic_agent_report"],
+        ),
+        "perception": _group(
+            available=perception_record_valid,
+            summary_fields=[
+                "perception_adapter",
+                "perception_adapter_kind",
+                "perception_latency_ms",
+                "perception_observation_count",
+                "perception_triggered_observation_count",
+                "perception_fused_decision",
+                "perception_fused_risk_level",
+            ],
+            artifact_kinds=["perception_inference_record"],
+            evidence_refs=[
+                "artifacts.perception_inference_record",
+                "summary.perception_adapter",
+                "summary.perception_fused_decision",
+                "summary.perception_observation_count",
+            ],
         ),
     }
 

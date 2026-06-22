@@ -217,7 +217,7 @@ class TestBuildEvidenceManifest:
         )
         groups = manifest.get("evidence_groups")
         assert groups is not None
-        expected_groups = {"runtime", "safety", "geometry", "visual", "structured_visual", "diagnostic", "agent"}
+        expected_groups = {"runtime", "safety", "geometry", "visual", "structured_visual", "diagnostic", "agent", "perception"}
         assert set(groups.keys()) == expected_groups
         for gname in expected_groups:
             g = groups[gname]
