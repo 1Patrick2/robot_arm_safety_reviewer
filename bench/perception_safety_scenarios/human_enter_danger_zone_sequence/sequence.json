@@ -1,0 +1,27 @@
+{
+  "sequence_id": "simple_safe_sequence_001",
+  "source": "mini_fixture",
+  "initial_joints": [0, 0, 0, 0, 0, 0],
+  "language_instruction": "move through two small safe joint targets",
+  "metadata": {
+    "expected_use": "stage53_perception"
+  },
+  "actions": [
+    {
+      "action_type": "joint_target",
+      "values": [0.1, 0.1, 0, 0, 0, 0],
+      "timestamp": 0.0,
+      "metadata": {
+        "step_name": "safe_move_1"
+      }
+    },
+    {
+      "action_type": "delta_joint",
+      "values": [0.05, 0, 0, 0, 0, 0],
+      "timestamp": 1.0,
+      "metadata": {
+        "step_name": "safe_move_2"
+      }
+    }
+  ]
+}

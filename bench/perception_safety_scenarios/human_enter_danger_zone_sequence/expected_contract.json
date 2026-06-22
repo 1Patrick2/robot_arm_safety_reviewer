@@ -1,0 +1,15 @@
+{
+  "schema_version": "perception_expected_contract.v1",
+  "case_id": "human_enter_danger_zone_sequence",
+  "expected_original_decision": "approve",
+  "expected_fused_decision": "reject",
+  "expected_fused_risk_level": "high",
+  "required_observation_kinds": [
+    "human_in_danger_zone",
+    "close_object_detected"
+  ],
+  "required_evidence_refs": [
+    "perception.frames[0].detections[0].zone",
+    "perception.frames[0].detections[0].distance_m"
+  ]
+}

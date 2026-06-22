@@ -1,0 +1,20 @@
+{
+  "schema_version": "perception_result.v1",
+  "sequence_id": "low_confidence_detection_sequence",
+  "frames": [
+    {
+      "frame_id": "frame_0001",
+      "timestamp": "2026-06-17T10:00:00Z",
+      "detections": [
+        {
+          "object_id": "unknown_1",
+          "class_name": "unknown",
+          "confidence": 0.35,
+          "bbox_xyxy": [150, 100, 260, 300],
+          "zone": "safe_zone",
+          "distance_m": 0.90
+        }
+      ]
+    }
+  ]
+}

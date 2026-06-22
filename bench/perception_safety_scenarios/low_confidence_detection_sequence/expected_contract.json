@@ -1,0 +1,17 @@
+{
+  "schema_version": "perception_expected_contract.v1",
+  "case_id": "low_confidence_detection_sequence",
+  "expected_original_decision": "approve",
+  "expected_fused_decision": "manual_review",
+  "expected_fused_risk_level": "medium",
+  "required_observation_kinds": [
+    "low_confidence_detection"
+  ],
+  "forbidden_observation_kinds": [
+    "unknown_object_detected",
+    "close_object_detected"
+  ],
+  "required_evidence_refs": [
+    "perception.frames[0].detections[0].confidence"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": "perception_result.v1",
+  "sequence_id": "human_enter_danger_zone_sequence",
+  "frames": [
+    {
+      "frame_id": "frame_0001",
+      "timestamp": "2026-06-17T10:00:00Z",
+      "detections": [
+        {
+          "object_id": "person_1",
+          "class_name": "person",
+          "confidence": 0.95,
+          "bbox_xyxy": [110, 70, 310, 430],
+          "zone": "danger_zone",
+          "distance_m": 0.35
+        }
+      ]
+    }
+  ]
+}

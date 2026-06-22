@@ -1,0 +1,13 @@
+{
+  "schema_version": "perception_expected_contract.v1",
+  "case_id": "human_near_workspace_sequence",
+  "expected_original_decision": "approve",
+  "expected_fused_decision": "manual_review",
+  "expected_fused_risk_level": "medium",
+  "required_observation_kinds": [
+    "human_in_warning_zone"
+  ],
+  "required_evidence_refs": [
+    "perception.frames[0].detections[0].zone"
+  ]
+}
