@@ -8,7 +8,6 @@ from perception.models import (
     PerceptionDetection,
     PerceptionFrame,
     PerceptionResult,
-    SafetyObservation,
 )
 from perception.loader import load_perception_result
 from perception.fake_adapter import build_safety_observations
@@ -290,3 +289,44 @@ class TestBuildSafetyObservations:
         assert obs
         for o in obs:
             assert o.evidence_refs, f"Observation {o.kind} missing evidence_refs"
+
+    def test_unknown_object_in_safe_zone_does_not_generate_observation(self):
+        perception = PerceptionResult(
+            frames=(
+                PerceptionFrame(
+                    frame_id="f1",
+                    detections=(
+                        PerceptionDetection(
+                            object_id="unk_safe",
+                            class_name="unknown",
+                            confidence=0.8,
+                            zone="safe_zone",
+                        ),
+                    ),
+                ),
+            ),
+        )
+        obs = build_safety_observations(perception)
+        assert "unknown_object_detected" not in {o.kind for o in obs}
+
+    def test_distance_equal_to_threshold_does_not_generate_close_observation(self):
+        perception = PerceptionResult(
+            frames=(
+                PerceptionFrame(
+                    frame_id="f1",
+                    detections=(
+                        PerceptionDetection(
+                            object_id="obs_1",
+                            class_name="obstacle",
+                            confidence=0.9,
+                            distance_m=0.5,
+                        ),
+                    ),
+                ),
+            ),
+        )
+        obs = build_safety_observations(
+            perception,
+            close_distance_threshold_m=0.5,
+        )
+        assert "close_object_detected" not in {o.kind for o in obs}

@@ -22,7 +22,7 @@ def build_safety_observations(
         perception: A validated ``PerceptionResult``.
         low_confidence_threshold: Detections below this confidence produce
             ``low_confidence_detection`` observations (default 0.5).
-        close_distance_threshold_m: Detections at or below this distance
+        close_distance_threshold_m: Detections below this distance
             produce ``close_object_detected`` observations (default 0.5).
 
     Returns:
@@ -72,7 +72,7 @@ def build_safety_observations(
                         evidence_refs=(*det_refs, f"perception.frames[{fi}].detections[{di}].zone"),
                     ))
 
-            if det.zone is not None and det.class_name == "unknown":
+            if det.class_name == "unknown" and det.zone in {"warning_zone", "danger_zone"}:
                 severity = "high" if det.zone == "danger_zone" else "medium"
                 observations.append(_obs(
                     kind="unknown_object_detected",
