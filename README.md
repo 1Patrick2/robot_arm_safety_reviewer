@@ -2,20 +2,24 @@
 
 [Chinese README](README.zh-CN.md)
 
-Robot Action Safety Sandbox is a deterministic robot action safety evaluation and diagnostic framework.
+Robot Action Safety Sandbox is a deterministic robot action safety evaluation and diagnostic evidence framework.
 
-It evaluates policy action sequences through a deterministic safety runtime, records runtime evidence, builds diagnostic context, generates reports, and optionally runs diagnostic-only LLM analysis.
+It evaluates robot action sequences, records safety evidence, validates expected-vs-actual contracts, and provides optional diagnostic analysis output.
 
-**LLM / diagnostic agent is optional and diagnostic-only.**
+The next major direction is perception-aware safety fusion, where structured perception results can be converted into safety constraints and combined with robot trajectory evidence.
+
+**It is not primarily an Agent project.**
+**LLM / diagnostic analysis is optional and diagnostic-only.**
 **Safety decisions are made by the deterministic safety runtime.**
-**Agent output must not approve, reject, modify, or execute robot actions.**
+**LLM / diagnostic analysis output must not approve, reject, modify, or execute robot actions.**
 
 The project started as `RobotArmSafetyReviewer`. It is still a safety reviewer, not a motion planner. It must not silently modify trajectories, generate obstacle-avoiding paths, or let an LLM decide robot safety.
 
 ## Current Status
 
-Current stage: **Stage 4.3 Evidence Groups + Stronger Expected-vs-Actual Contracts — complete**.
-Stage 4.4 LLM Diagnostic Analyst is planned next.
+Current stage: **Stage 4.4-B Diagnostic Analysis Service + CLI — complete**.
+Current documentation task: **Stage 4.4-D project repositioning and README / main prompt sync**.
+Next major stage: **Stage 5.1 Perception Result Schema + Fake Perception Adapter**.
 
 Completed scope:
 
@@ -44,13 +48,16 @@ Completed scope:
 - Stage 4.3A: `evidence_groups` in `evidence_manifest.json` (runtime, safety, geometry, visual, structured_visual, diagnostic, agent).
 - Stage 4.3B: `required_evidence_groups` in `expected_contract.v1`.
 - Stage 4.3C: `required_actual_fields`, `expected_closest_obstacle`, `min_clearance_lte` / `min_clearance_gte`.
+- Stage 4.4A: Diagnostic analysis schema and deterministic fake analyst.
+- Stage 4.4A-polish: evidence_refs consistency cleanup for fake diagnostic analysis.
+- Stage 4.4B: diagnostic analysis application service and `diagnostic analyze` CLI.
 
 ## Safety Boundary
 
 - Safety decisions are deterministic: `approve`, `manual_review`, or `reject`.
 - Only `approve` reaches `RobotDeviceAdapter.send_action()`.
 - `manual_review` and `reject` are blocked and recorded.
-- Agent context output is diagnostic evidence only. It must not approve, reject, modify, or execute robot actions.
+- Agent context and diagnostic analysis output are diagnostic evidence only. They must not approve, reject, modify, or execute robot actions.
 - The mock backend and PyBullet backend are diagnostic simulation tools, not certified hardware validation.
 
 Deferred:
@@ -59,6 +66,7 @@ Deferred:
 - ROS2 / MoveIt.
 - VLA or autonomous robot-control agent.
 - Large remote dataset integration.
+- Real edge deployment, ONNX, RKNN, or camera integration.
 
 ## Quick Start
 
@@ -183,6 +191,20 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic report ^
   --json
 ```
 
+### Analyze Existing Diagnostic Evidence
+
+```powershell
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic analyze ^
+  --context output_reports\diagnostics\<episode_id>\context\diagnostic_context.json ^
+  --manifest output_reports\diagnostics\<episode_id>\evidence_manifest.json ^
+  --report output_reports\diagnostics\<episode_id>\diagnostic_report.md ^
+  --output-dir output_reports\diagnostic_analysis ^
+  --provider fake ^
+  --json
+```
+
+This command produces `llm_diagnostic_analysis.json` using the deterministic fake analyst. It does not affect safety decisions.
+
 ## Output Artifacts
 
 Each stage produces specific evidence files:
@@ -197,6 +219,7 @@ Each stage produces specific evidence files:
 | Diagnostic agent (optional) | `diagnostic_agent_report.md` |
 | Evidence manifest | `evidence_manifest.json` — unified evidence index for one diagnostic run. Records all artifacts, existence checks, and summary metrics. |
 | Regression summary | `regression_summary.json` — aggregate results across multiple regression cases. |
+| Diagnostic analysis | `llm_diagnostic_analysis.json` — optional structured diagnostic analysis generated from existing evidence. |
 
 ## What This Project Is Not
 
@@ -206,12 +229,15 @@ This project is NOT:
 - a motion planner replacement
 - a RAG chatbot
 - a VLA training system
-- a real hardware integration layer
 - a robot control agent
+- a generic Agent framework
+- an Edge AI deployment demo yet
 
 It IS:
-- a safety evaluation and diagnostic runtime framework for robot action sequences
+- a safety evaluation and diagnostic evidence framework for robot action sequences
 ```
+
+It can later integrate perception models or edge inference, but the current project does not require real edge deployment.
 
 ## Architecture
 
@@ -223,11 +249,21 @@ PolicyActionSequence / dataset sample
   -> visual artifacts
   -> runtime metrics DB
   -> diagnostic context
-  -> diagnostic runtime
   -> deterministic diagnostic report
   -> evidence_manifest.json
   -> expected-vs-actual contract validation
   -> diagnostic regression summary
+  -> optional diagnostic analysis
+```
+
+Planned future direction:
+
+```text
+Planned Stage 5: Perception-Aware Safety Fusion
+  -> perception_result.json
+  -> perception-to-safety constraints
+  -> trajectory + perception risk fusion
+  -> perception-aware regression cases
 ```
 
 Main modules:

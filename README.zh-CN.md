@@ -2,13 +2,19 @@
 
 [English README](README.md)
 
-Robot Action Safety Sandbox 是一个确定性的 3D 机械臂动作安全运行沙箱。它会在执行前检查候选关节空间动作，记录可回放的 episode 证据，存储运行指标，并生成可供诊断审查使用的上下文包。
+Robot Action Safety Sandbox 是一个机器人动作安全评测与诊断证据系统，用于对机械臂动作序列进行确定性安全评估、运行证据记录、诊断上下文构建、回归验证和可选诊断分析。
+
+后续主线不是继续扩展泛 Agent，而是引入感知结果 schema，将人体/障碍物等感知结果转换为动态安全约束，与机械臂轨迹安全评估进行融合。
 
 项目最初叫 `RobotArmSafetyReviewer`。它仍然是 safety reviewer，不是 motion planner。它不会静默修改轨迹，不会自动绕障，也不会让 LLM 决定机械臂动作是否安全。
 
+本项目不是泛 Agent 项目，而是机器人动作安全评测与诊断证据系统。LLM / diagnostic analysis 只是可选诊断解释层，用于解释已有确定性证据，不参与安全裁决，不控制机器人，不修改动作。
+
 ## 当前状态
 
-当前阶段：**Stage 4.3 结构化证据分组与 expected-vs-actual 强化校验已完成**。下一阶段：Stage 4.4 LLM Diagnostic Analyst。
+当前阶段：**Stage 4.4-B Diagnostic Analysis Service + CLI 已完成**。
+当前文档任务：**Stage 4.4-D 项目定位重构与 README / main_prompt 同步**。
+下一阶段：**Stage 5.1 感知结果 Schema 与 Fake Perception Adapter**。
 
 已完成范围：
 
@@ -37,13 +43,16 @@ Robot Action Safety Sandbox 是一个确定性的 3D 机械臂动作安全运行
 - Stage 4.3A：evidence_manifest.json 支持 evidence_groups。
 - Stage 4.3B：expected_contract.v1 支持 required_evidence_groups。
 - Stage 4.3C：expected_contract.v1 支持 required_actual_fields、expected_closest_obstacle、min_clearance_lte/gte。
+- Stage 4.4A：诊断分析 schema 与 deterministic fake analyst。
+- Stage 4.4A-polish：fake analyst 的 evidence_refs 一致性修复。
+- Stage 4.4B：diagnostic analysis application service 与 `diagnostic analyze` CLI。
 
 ## 安全边界
 
 - 安全判定必须是确定性的：`approve`、`manual_review` 或 `reject`。
 - 只有 `approve` 会进入 `RobotDeviceAdapter.send_action()`。
 - `manual_review` 和 `reject` 会被阻断并记录。
-- Agent context 只是诊断证据，不能 approve、reject、修改或执行机器人动作。
+- Agent context 和 diagnostic analysis 只是诊断证据，不能 approve、reject、修改或执行机器人动作。
 - mock backend 和 PyBullet backend 都是诊断仿真工具，不是硬件安全认证。
 
 暂不推进：
@@ -52,6 +61,7 @@ Robot Action Safety Sandbox 是一个确定性的 3D 机械臂动作安全运行
 - ROS2 / MoveIt。
 - VLA 或自主机器人控制 Agent。
 - 大规模远程数据集接入。
+- 真实边缘部署、ONNX、RKNN 或摄像头接入。
 
 ## 快速开始
 
@@ -172,6 +182,24 @@ D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic report ^
   --json
 ```
 
+基于已有诊断证据生成可选诊断分析：
+
+```powershell
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m cli.main diagnostic analyze ^
+  --context output_reports\diagnostics\<episode_id>\context\diagnostic_context.json ^
+  --manifest output_reports\diagnostics\<episode_id>\evidence_manifest.json ^
+  --report output_reports\diagnostics\<episode_id>\diagnostic_report.md ^
+  --output-dir output_reports\diagnostic_analysis ^
+  --provider fake ^
+  --json
+```
+
+该命令使用 deterministic fake analyst 生成 `llm_diagnostic_analysis.json`，不会影响安全决策。
+
+## 下一阶段方向
+
+后续主线将转向 Perception-Aware Safety Fusion：定义感知结果 schema，将人体/障碍物检测结果转换为动态安全约束，与机械臂轨迹安全评估结果进行融合。
+
 ## 架构概览
 
 ```text
@@ -182,11 +210,21 @@ PolicyActionSequence / dataset sample
   -> visual artifacts
   -> runtime metrics DB
   -> diagnostic context
-  -> diagnostic runtime
   -> deterministic diagnostic report
-  -> optional diagnostic agent report
   -> evidence_manifest.json
+  -> expected-vs-actual contract validation
   -> diagnostic regression summary
+  -> optional diagnostic analysis
+```
+
+规划中的 Stage 5：
+
+```text
+Planned Stage 5: Perception-Aware Safety Fusion
+  -> perception_result.json
+  -> perception-to-safety constraints
+  -> trajectory + perception risk fusion
+  -> perception-aware regression cases
 ```
 
 主要模块：

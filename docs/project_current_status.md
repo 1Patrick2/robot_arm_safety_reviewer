@@ -1,8 +1,8 @@
 # Project Current Status
 
-Robot Action Safety Sandbox current status: **Stage 4.3-C completed**.
-Current task: **Stage 4.3-D documentation sync and contract polish**.
-Next stage: **Stage 4.4 LLM Diagnostic Analyst**.
+Robot Action Safety Sandbox current status: **Stage 4.4-B completed**.
+Current task: **Stage 4.4-D project repositioning and documentation sync**.
+Next major stage: **Stage 5.1 Perception Result Schema + Fake Perception Adapter**.
 
 ## Completed Scope
 
@@ -30,12 +30,15 @@ Next stage: **Stage 4.4 LLM Diagnostic Analyst**.
 - Stage 4.3A Evidence Groups: `evidence_manifest.json` includes `evidence_groups` for runtime/safety/geometry/visual/structured_visual/diagnostic/agent.
 - Stage 4.3B Evidence Group Contracts: `expected_contract.v1` supports `required_evidence_groups`.
 - Stage 4.3C Stronger Expected-vs-Actual Checks: `expected_contract.v1` supports `required_actual_fields`, `expected_closest_obstacle`, `min_clearance_lte`, and `min_clearance_gte`.
+- Stage 4.4A Diagnostic Analysis Schema: `DiagnosticAnalysis` / `RootCauseHypothesis` and deterministic fake analyst.
+- Stage 4.4A-polish: fake analyst evidence_refs consistency cleanup.
+- Stage 4.4B Diagnostic Analysis Service + CLI: `diagnostic analyze` writes `llm_diagnostic_analysis.json`.
 
 ## Current Focus
 
-- Stage 4.3 is functionally complete: Level-2 regression now validates evidence groups and stronger expected-vs-actual contract fields.
-- Priority: correctness > interpretability > completeness > LLM integration.
-- Keep docs synchronized with the codebase.
+- Reposition the project away from generic Agent development.
+- Keep LLM/diagnostic analysis as an optional evidence explanation layer.
+- Prepare Stage 5 perception-aware safety fusion.
 - Keep generated artifacts out of git.
 
 ## Current Operating Standard
@@ -43,7 +46,7 @@ Next stage: **Stage 4.4 LLM Diagnostic Analyst**.
 The primary regression command:
 
 ```powershell
-python -m cli.main diagnostic regression --case-set all --output-dir output_reports/stage43_all --json
+python -m cli.main diagnostic regression --case-set all --output-dir output_reports/stage44_all --json
 ```
 
 Regression case sets:
@@ -95,3 +98,6 @@ Level-2 cases each produce `pipeline_passed`, `evidence_complete`, and `contract
 - Visual sandbox artifacts are static reports and PNGs generated from episode logs.
 - Runtime metrics are audit data; they must not change safety decisions.
 - Agent context packages are deterministic diagnostic evidence; they must not approve, reject, modify, or execute robot actions.
+- LLM diagnostic analysis is optional and does not affect safety decisions.
+- The project does not currently require edge deployment, ONNX, RKNN, or a real camera.
+- Stage 5 may introduce structured perception results, but not necessarily edge deployment.

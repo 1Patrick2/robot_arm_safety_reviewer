@@ -2,11 +2,13 @@
 
 ## 1. Project Positioning
 
-Robot Action Safety Sandbox is a deterministic robot action safety evaluation and diagnostic framework.
+Robot Action Safety Sandbox is a deterministic robot action safety evaluation and diagnostic evidence framework.
 
 It is not a path planner, a MoveIt replacement, a RealMan digital twin, or an LLM-controlled robot policy. Its job is narrower and safer: given a structured scene and a proposed action sequence, it reviews whether each action should be approved, rejected, or sent to manual review — then packages the evidence for diagnostic analysis.
 
 The core project value is turning "is this robot-arm action safe?" into a deterministic, replayable, benchmarkable, and reportable engineering workflow.
+
+The current strategic direction is perception-aware safety fusion. Stage 5 is expected to start from structured perception results and fake adapters, not real edge deployment, ONNX, RKNN, or camera integration.
 
 ## 2. Inputs And Outputs
 
@@ -205,6 +207,7 @@ application/
   |- metrics_service.py        metrics_ingest_episode(), metrics_list_runs(), metrics_show_run()
   |- agent_context_service.py  build_agent_context()
   |- diagnostic_service.py     run_diagnostic(), run_diagnostic_report(), run_diagnostic_regression()
+  |- diagnostic_analysis_service.py run_diagnostic_analysis()
   |- diagnostic_contracts.py   load_expected_contract(), build_actual_summary(), validate_expected_contract()
   |- runtime_service.py        run_runtime_task()
   |- sequence_runtime_service.py run_sequence_runtime()
@@ -244,6 +247,25 @@ case-set selection (smoke / level2 / all)
        -> expected_closest_obstacle
        -> min_clearance thresholds
   -> regression_summary.json
+  -> optional diagnostic analysis
+       -> context + manifest + optional report
+       -> fake diagnostic analyst
+       -> llm_diagnostic_analysis.json
+```
+
+This optional analysis layer is diagnostic-only. It does not update SafetyRuntime decisions, does not modify trajectories, and does not execute robot actions.
+
+Planned future architecture:
+
+```text
+Planned Stage 5: Perception-Aware Safety Fusion
+
+perception_result.json
+  -> perception schema validation
+  -> perception-to-safety constraint adapter
+  -> fusion with robot trajectory evidence
+  -> perception-aware risk decision
+  -> regression and evidence manifest
 ```
 
 ```text
@@ -251,7 +273,8 @@ diagnostic_runtime/
   |- context/                  context models, metrics DB builder, JSON/Markdown renderer
   |- tools/                    read-only query helpers (load_context, get_summary, list_critical_steps)
   |- report/                   deterministic report generator (LLM-free)
-  |- agent/                    optional agent runner with fake / DeepSeek adapters
+  |- analysis/                 optional structured diagnostic analysis schema and fake analyst
+  |- agent/                    optional legacy diagnostic agent runner with fake / DeepSeek adapters
   |- guardrails/               post-generation safety boundary checks
   |- runtime/                  unified orchestration and runtime trace output
 ```
@@ -275,7 +298,7 @@ CLI -> application service -> runtime / diagnostic runtime -> reports
 
 - CLI modules call application services and `cli.output`.
 - Application services orchestrate runtime, diagnostic runtime, and report layers.
-- Diagnostic agent reads diagnostic context and writes a report — it never approves, rejects, modifies, or executes robot actions.
+- Diagnostic analysis reads diagnostic evidence and writes an explanatory artifact — it never approves, rejects, modifies, or executes robot actions.
 - Lower layers must not import `application` or `agent` packages.
 
 ## 6. Application Boundary Rules
@@ -396,6 +419,12 @@ Implemented:
 - Stage 4.2A Expected Contract Scaffold: contract data types, loader, actual-summary, validation.
 - Stage 4.2B Level-2 Safety Scenarios: 3 Level-2 cases with expected contracts.
 - Stage 4.2C Case-set CLI: `diagnostic regression --case-set {smoke,level2,all}`.
+- Stage 4.3A Evidence Groups in `evidence_manifest.json`.
+- Stage 4.3B Required evidence groups in `expected_contract.v1`.
+- Stage 4.3C Stronger expected-vs-actual checks.
+- Stage 4.4A Diagnostic analysis schema and deterministic fake analyst.
+- Stage 4.4A-polish fake analyst evidence_refs consistency cleanup.
+- Stage 4.4B Diagnostic analysis service and `diagnostic analyze` CLI.
 
 Not implemented:
 
@@ -406,6 +435,8 @@ Not implemented:
 - velocity/acceleration safety;
 - RealMan SDK execution;
 - ROS2 / MoveIt integration;
-- LLM safety decision making.
+- LLM safety decision making;
+- real edge deployment, ONNX, RKNN, or camera integration;
+- perception-aware safety fusion implementation.
 
-Stage 4.3-C is the current completed scope. Evidence groups and stronger expected-vs-actual contracts are integrated into the diagnostic regression pipeline. LLM Diagnostic Analyst is planned for Stage 4.4 and is not yet implemented.
+Stage 4.4-B is the current completed scope. Optional diagnostic analysis is available as an evidence explanation layer through the fake analyst and `diagnostic analyze` CLI. The next major direction is Stage 5.1 Perception Result Schema + Fake Perception Adapter.
