@@ -42,7 +42,7 @@ class TestBuildAgentContextFromDb:
         assert ctx.approved_steps == 2
         assert ctx.executed_steps == 2
         assert ctx.min_clearance is not None
-        assert len(ctx.artifacts) == 3
+        assert len(ctx.artifacts) == 4
         assert len(ctx.critical_steps) > 0
 
     def test_context_includes_limitations(self, tmp_path):
