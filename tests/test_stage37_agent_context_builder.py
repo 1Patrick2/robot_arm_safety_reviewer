@@ -4,12 +4,12 @@ import json
 
 import pytest
 
-from diagnostic_runtime.context.builder import (
+from diagnostics.context.builder import (
     _normalise_step,
     build_agent_context_from_db,
     _select_critical_steps,
 )
-from diagnostic_runtime.context.models import AgentContextStep
+from diagnostics.context.models import AgentContextStep
 
 SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "policy_sequences"
 BENCH = Path(__file__).resolve().parents[1] / "bench" / "sim_robot_arm"

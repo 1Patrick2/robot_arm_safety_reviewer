@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from diagnostic_runtime.report.deterministic import build_diagnostic_report
+from diagnostics.report.deterministic import build_diagnostic_report
 
 SAMPLE_CONTEXT = {
     "episode_id": "ep_001",

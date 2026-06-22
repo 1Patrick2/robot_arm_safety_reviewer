@@ -1,9 +1,9 @@
 import json
 from pathlib import Path
 
-from diagnostic_runtime.runtime.models import DiagnosticRuntimeRequest, DiagnosticRuntimeResult
-from diagnostic_runtime.runtime.runner import run_diagnostic_runtime
-from diagnostic_runtime.runtime.trace import write_runtime_trace
+from diagnostics.runtime.models import DiagnosticRuntimeRequest, DiagnosticRuntimeResult
+from diagnostics.runtime.runner import run_diagnostic_runtime
+from diagnostics.runtime.trace import write_runtime_trace
 
 SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "policy_sequences"
 BENCH = Path(__file__).resolve().parents[1] / "bench" / "sim_robot_arm"

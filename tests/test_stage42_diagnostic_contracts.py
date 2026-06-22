@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from application.diagnostic_contracts import (
+from diagnostics.contracts.expected import (
     ExpectedContract,
     build_actual_summary,
     load_expected_contract,

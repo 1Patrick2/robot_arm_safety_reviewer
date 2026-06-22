@@ -45,7 +45,7 @@ class TestLevel2CaseFiles:
 
 class TestLevel2ExpectedContracts:
     def test_all_contracts_load(self):
-        from application.diagnostic_contracts import load_expected_contract
+        from diagnostics.contracts.expected import load_expected_contract
 
         for cid in LEVEL2_CASE_IDS:
             contract = load_expected_contract(LEVEL2 / cid / "expected_contract.json")
@@ -55,7 +55,7 @@ class TestLevel2ExpectedContracts:
             assert "required_artifacts" in contract.expected
 
     def test_contract_schema_versions_are_v1(self):
-        from application.diagnostic_contracts import load_expected_contract
+        from diagnostics.contracts.expected import load_expected_contract
 
         for cid in LEVEL2_CASE_IDS:
             contract = load_expected_contract(LEVEL2 / cid / "expected_contract.json")

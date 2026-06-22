@@ -1,6 +1,6 @@
-from diagnostic_runtime.analysis.models import DiagnosticAnalysis, RootCauseHypothesis
-from diagnostic_runtime.analysis.fake_analyst import run_fake_diagnostic_analyst
-from diagnostic_runtime.analysis.evidence_refs import (
+from diagnostics.analysis.models import DiagnosticAnalysis, RootCauseHypothesis
+from diagnostics.analysis.fake_analyst import run_fake_diagnostic_analyst
+from diagnostics.analysis.evidence_refs import (
     collect_available_evidence_kinds,
     collect_available_evidence_groups,
     build_basic_evidence_refs,

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from reports.evidence_manifest import build_evidence_manifest, write_evidence_manifest
+from diagnostics.evidence.manifest import build_evidence_manifest, write_evidence_manifest
 
 
 class TestBuildEvidenceManifest:

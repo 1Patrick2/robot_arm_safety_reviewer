@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from diagnostic_runtime.agent.runner import run_diagnostic_agent
+from diagnostics.agent.runner import run_diagnostic_agent
 
 SAMPLE_CONTEXT = {
     "episode_id": "ep_deepseek_smoke",

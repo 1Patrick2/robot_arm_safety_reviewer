@@ -1,6 +1,6 @@
 import pytest
 
-from diagnostic_runtime.guardrails.safety_check import check_agent_report, check_agent_report_or_raise
+from diagnostics.guardrails.safety_check import check_agent_report, check_agent_report_or_raise
 
 
 class TestCheckAgentReport:

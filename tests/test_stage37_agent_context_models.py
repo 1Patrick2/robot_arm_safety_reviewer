@@ -1,4 +1,4 @@
-from diagnostic_runtime.context.models import (
+from diagnostics.context.models import (
     DEFAULT_LIMITATIONS,
     AgentContext,
     AgentContextArtifact,

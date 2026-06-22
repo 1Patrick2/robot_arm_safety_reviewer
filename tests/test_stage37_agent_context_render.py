@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from diagnostic_runtime.context.models import AgentContext, AgentContextArtifact, AgentContextStep
-from diagnostic_runtime.context.render import (
+from diagnostics.context.models import AgentContext, AgentContextArtifact, AgentContextStep
+from diagnostics.context.render import (
     render_agent_context_json,
     render_agent_context_markdown,
     write_agent_context_files,
