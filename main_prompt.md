@@ -16,16 +16,22 @@ Safety decisions are made by deterministic runtime logic, not by an LLM or agent
 
 Completed through Stage 5.3-A.
 
-Current architecture work: Stage R1 Project Architecture Refactor.
+Current architecture work: Stage R1 Project Architecture Refactor completed.
 
-Completed R1 migration:
+Completed R1 robot-domain migration:
 
 - R1-B1: `robot_safety` implementation moved to `robot/safety`.
-- `robot_safety` remains as compatibility import shims.
+- R1-B2: `robot_runtime` implementation moved to `robot/runtime`.
+- R1-B3: `sim` backend core moved to `robot/backends`.
+- R1-B4: `robots` implementation moved to `robot/adapters`.
+- R1-B5: internal imports migrated to `robot.*`.
+- R1-B6: legacy robot packages (`robot_safety/`, `robot_runtime/`, `robots/`) removed.
+- `sim/` backend core shims (`base.py`, `backend_factory.py`, `mock_backend.py`, `pybullet_backend.py`) removed.
+- `sim/` temporarily retains only diagnostic geometry utilities pending R1-C.
 
 Current recommended task:
 
-- R1-B1-polish: sync status and guardrails.
+- R1-C planning: diagnostics package migration.
 
 Paused feature work:
 

@@ -2,7 +2,7 @@
 
 This document is a quick code-reading map for RobotArmSafetyReviewer. It lists the main files, the functions or classes worth reading first, and the role each one plays in the safety-review workflow.
 
-Stage R1 is migrating stage-grown modules into stable domain packages. `robot/safety/` is the canonical implementation path for robot safety core code. `robot_safety/` is only a compatibility shim and should not receive new implementation code.
+R1-B6 has been completed. `robot/safety/`, `robot/runtime/`, `robot/backends/`, and `robot/adapters/` under `robot/` are the canonical robot-domain packages. Legacy `robot_safety/`, `robot_runtime/`, `robots/` packages and `sim/` backend shims have been removed.
 
 `robot/safety/benchmark.py` and `robot/safety/scorer.py` are transitional utilities retained from the former `robot_safety` package. Future benchmark orchestration should stay outside low-level safety core.
 
@@ -17,7 +17,7 @@ Stage R1 is migrating stage-grown modules into stable domain packages. `robot/sa
 | Safety rules | `robot/safety/safety_rules.py` | `classify_risk_level`, `make_decision` | Converts geometry and rule signals into `low/medium/high` and `approve/manual_review/reject`. |
 | Evaluator | `robot/safety/evaluator.py` | `evaluate_joint_command` | Backward-compatible review entry point returning only `SafetyResult`. |
 | Evaluator | `robot/safety/evaluator.py` | `evaluate_joint_command_with_metadata` | Explicit review entry point returning `SafetyResult` plus backend metadata. |
-| Legacy robot safety shim | `robot_safety/*.py` | module re-exports | Compatibility shims that re-export `robot.safety.*` while existing imports migrate. |
+| Legacy robot safety shim (removed) | ~~`robot_safety/*.py`~~ | module re-exports (removed) | Legacy shim removed after R1-B6. Use `robot.safety.*` imports. |
 | Backend contract | `sim/base.py` | `SimulationBackend`, `BackendReviewResult` | Defines the common backend protocol and result shape. |
 | Backend factory | `sim/backend_factory.py` | `create_backend` | Creates `mock` or `pybullet` backend instances from CLI/gateway options. |
 | Mock backend | `sim/mock_backend.py` | `MockGeometryBackend.replay_joint_trajectory` | Preserves deterministic Stage 1.5 mock geometry behavior behind the backend interface. |
@@ -100,8 +100,8 @@ Stage R1 is migrating stage-grown modules into stable domain packages. `robot/sa
 Boundary rules:
 
 - CLI modules call application services and `cli.output`.
-- `application` may orchestrate `robot`, `robot_runtime`, `sim`, `gateway`, `reports`, `runtime_db`, `diagnostic_runtime/context`, and `dataset_adapters`.
-- `robot`, `robot_runtime`, `sim`, `gateway`, `runtime_db`, `diagnostic_runtime`, and `dataset_adapters` must not import `application`, `agent`, or `robot_tools`.
+- `application` may orchestrate `robot`, `gateway`, `reports`, `runtime_db`, `diagnostic_runtime/context`, and `dataset_adapters`.
+- `robot`, `gateway`, `runtime_db`, `diagnostic_runtime`, and `dataset_adapters` must not import `application`, `agent`, or `robot_tools`.
 - Future diagnostic agents should call tool wrappers that call application services; agents must not call robot device execution methods directly.
 
 Suggested reading order:

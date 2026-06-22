@@ -6,13 +6,16 @@ Current functional status:
 
 Current architecture refactor status:
 
-- R1-B1 completed.
-- `robot/safety/` is now the implementation home for former `robot_safety`.
-- `robot_safety/` remains as legacy import shim.
+- R1-B6 completed.
+- `robot/` is the only canonical robot-domain package.
+- Legacy packages `robot_safety/`, `robot_runtime/`, and `robots/` have been removed.
+- `sim/` backend core shims (`base.py`, `backend_factory.py`, `mock_backend.py`, `pybullet_backend.py`) have been removed.
+- `sim/` temporarily retains only diagnostic geometry utilities (`pybullet_diagnostics.py`, `urdf_calibration.py`) pending R1-C ownership decision.
+- New robot-domain implementation code must use `robot.*` imports.
 
 Current task:
 
-- R1-B1-polish: status sync and guardrail hardening.
+- R1-C planning: diagnostics package migration.
 
 Next recommended migration:
 
