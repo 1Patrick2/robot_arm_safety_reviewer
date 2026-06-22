@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from robot_safety.benchmark import run_benchmark, write_benchmark_summary_markdown
-from robot_safety.scorer import validate_expected_schema
+from robot.safety.benchmark import run_benchmark, write_benchmark_summary_markdown
+from robot.safety.scorer import validate_expected_schema
 
 ROOT = Path(__file__).resolve().parents[1]
 BENCH = ROOT / "bench/sim_robot_arm"

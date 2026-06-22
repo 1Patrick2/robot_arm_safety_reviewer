@@ -2,11 +2,11 @@ from robot.backends.backend_factory import create_backend
 from robot.backends.base import BackendReviewResult
 from robot.backends.mock_backend import MockGeometryBackend
 from robot.backends.pybullet_backend import DEFAULT_CLOSEST_POINT_DISTANCE, PyBulletBackend
-from sim.backend_factory import create_backend as legacy_create_backend
-from sim.base import BackendReviewResult as LegacyBackendReviewResult
-from sim.mock_backend import MockGeometryBackend as LegacyMockGeometryBackend
-from sim.pybullet_backend import DEFAULT_CLOSEST_POINT_DISTANCE as LEGACY_DEFAULT_CLOSEST_POINT_DISTANCE
-from sim.pybullet_backend import PyBulletBackend as LegacyPyBulletBackend
+from robot.backends.backend_factory import create_backend as legacy_create_backend
+from robot.backends.base import BackendReviewResult as LegacyBackendReviewResult
+from robot.backends.mock_backend import MockGeometryBackend as LegacyMockGeometryBackend
+from robot.backends.pybullet_backend import DEFAULT_CLOSEST_POINT_DISTANCE as LEGACY_DEFAULT_CLOSEST_POINT_DISTANCE
+from robot.backends.pybullet_backend import PyBulletBackend as LegacyPyBulletBackend
 
 
 def test_robot_backends_new_package_path_matches_legacy_path():

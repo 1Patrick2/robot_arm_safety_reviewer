@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Protocol
 
-from robot_runtime.action_sequence import PolicyActionSequence
+from robot.runtime.action_sequence import PolicyActionSequence
 
 
 class DatasetAdapter(Protocol):

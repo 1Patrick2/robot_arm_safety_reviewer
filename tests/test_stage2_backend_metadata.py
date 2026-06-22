@@ -4,8 +4,8 @@ import pytest
 
 from gateway.safety_gate import review_only
 from reports.report_writer import build_markdown_report
-from robot_safety.evaluator import evaluate_joint_command_with_metadata
-from robot_safety.models import JointCommand, Scene
+from robot.safety.evaluator import evaluate_joint_command_with_metadata
+from robot.safety.models import JointCommand, Scene
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,7 +37,7 @@ def test_evaluator_returns_explicit_backend_metadata_without_mutating_backend():
         name = "recording"
 
         def replay_joint_trajectory(self, *, scene, trajectory):
-            from sim.base import BackendReviewResult
+            from robot.backends.base import BackendReviewResult
 
             return BackendReviewResult(
                 backend_name=self.name,

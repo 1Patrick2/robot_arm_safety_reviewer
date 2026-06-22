@@ -1,12 +1,12 @@
 from pathlib import Path
 
-from robot_runtime.action_source import ReplayActionSource
-from robot_runtime.adapters.mock_realman_device import MockRealManDevice
-from robot_runtime.episode_recorder import EpisodeRecorder
-from robot_runtime.safety_runtime import SafetyRuntime, action_to_joint_command
-from robot_runtime.scene_provider import StaticSceneProvider
-from robot_runtime.types import RobotAction, RobotObservation
-from sim.backend_factory import create_backend
+from robot.runtime.action_source import ReplayActionSource
+from robot.runtime.adapters.mock_realman_device import MockRealManDevice
+from robot.runtime.episode_recorder import EpisodeRecorder
+from robot.runtime.safety_runtime import SafetyRuntime, action_to_joint_command
+from robot.runtime.scene_provider import StaticSceneProvider
+from robot.runtime.types import RobotAction, RobotObservation
+from robot.backends.backend_factory import create_backend
 
 
 ROOT = Path(__file__).resolve().parents[1]

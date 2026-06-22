@@ -1,6 +1,6 @@
 import pytest
 
-from sim.backend_factory import create_backend
+from robot.backends.backend_factory import create_backend
 
 
 def test_create_mock_backend():

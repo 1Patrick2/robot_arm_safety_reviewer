@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from robot_runtime.episode_loader import RuntimeEpisodeBundle, load_episode
+from robot.runtime.episode_loader import RuntimeEpisodeBundle, load_episode
 
 
 def build_runtime_episode_markdown(bundle: RuntimeEpisodeBundle) -> str:

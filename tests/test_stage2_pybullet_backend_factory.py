@@ -2,7 +2,7 @@ import builtins
 
 import pytest
 
-from sim.backend_factory import create_backend
+from robot.backends.backend_factory import create_backend
 
 
 def test_create_pybullet_backend_when_pybullet_available():

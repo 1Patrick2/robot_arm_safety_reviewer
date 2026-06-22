@@ -6,8 +6,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from robot_safety.evaluator import evaluate_joint_command_with_metadata
-from robot_safety.models import JointCommand, SafetyResult, Scene, Violation
+from robot.safety.evaluator import evaluate_joint_command_with_metadata
+from robot.safety.models import JointCommand, SafetyResult, Scene, Violation
 from robot.adapters.base import RobotAdapter
 from robot.adapters.mock_realman_6dof import MockRealMan6DoFAdapter
 from robot.backends.backend_factory import create_backend

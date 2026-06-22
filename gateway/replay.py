@@ -6,8 +6,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-from robot_safety.evaluator import evaluate_joint_command
-from robot_safety.models import JointCommand, Scene
+from robot.safety.evaluator import evaluate_joint_command
+from robot.safety.models import JointCommand, Scene
 
 from .safety_gate import review_only
 

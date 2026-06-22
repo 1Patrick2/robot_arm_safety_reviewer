@@ -1,7 +1,7 @@
 import pytest
 
-from robot_runtime.adapters.mock_realman_device import MockRealManDevice
-from robot_runtime.adapters.robot_device_factory import create_robot_device
+from robot.runtime.adapters.mock_realman_device import MockRealManDevice
+from robot.runtime.adapters.robot_device_factory import create_robot_device
 
 
 def test_create_robot_device_returns_mock_realman_with_initial_joints():

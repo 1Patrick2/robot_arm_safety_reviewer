@@ -4,9 +4,9 @@ import json
 from pathlib import Path
 from typing import Any
 
-from robot_runtime.episode_loader import load_episode
-from robot_safety.kinematics import forward_kinematics_6dof
-from robot_safety.models import RobotModel
+from robot.runtime.episode_loader import load_episode
+from robot.safety.kinematics import forward_kinematics_6dof
+from robot.safety.models import RobotModel
 
 # Default mock robot parameters used when the originating scene is unavailable.
 _DEFAULT_LINK_LENGTHS = (0.18, 0.32, 0.28, 0.2, 0.14, 0.1)
@@ -27,7 +27,7 @@ def _get_plt():
 
 
 def _default_robot() -> RobotModel:
-    import robot_safety.models as m  # noqa: PLC0415
+    import robot.safety.models as m  # noqa: PLC0415
     return RobotModel(
         robot_id="mock",
         model_type="mock_6dof",
@@ -57,7 +57,7 @@ def _load_robot_from_scene(scene_path: Path) -> RobotModel | None:
         data = scene.get("robot")
         if not data:
             return None
-        import robot_safety.models as m  # noqa: PLC0415
+        import robot.safety.models as m  # noqa: PLC0415
         link_lengths = data.get("link_lengths", (0.18, 0.32, 0.28, 0.2, 0.14, 0.1))
         return RobotModel(
             robot_id=data.get("robot_id", "unknown"),

@@ -1,5 +1,5 @@
-from robot_safety.models import JointLimit, SafetyConfig
-from robot_safety.safety_rules import check_joint_limits, classify_risk_level, make_decision
+from robot.safety.models import JointLimit, SafetyConfig
+from robot.safety.safety_rules import check_joint_limits, classify_risk_level, make_decision
 
 
 def test_check_joint_limits_reports_violation():

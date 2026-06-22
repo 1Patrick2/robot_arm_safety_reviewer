@@ -3,13 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from robot_runtime.action_sequence import PolicyActionSequence
-from robot_runtime.adapters import create_robot_device
-from robot_runtime.episode_recorder import EpisodeRecorder
-from robot_runtime.policy_action import policy_action_to_robot_action
-from robot_runtime.safety_runtime import SafetyRuntime
-from robot_runtime.scene_provider import StaticSceneProvider
-from robot_runtime.types import RobotAction, RobotObservation, RuntimeStepResult
+from robot.runtime.action_sequence import PolicyActionSequence
+from robot.runtime.adapters import create_robot_device
+from robot.runtime.episode_recorder import EpisodeRecorder
+from robot.runtime.policy_action import policy_action_to_robot_action
+from robot.runtime.safety_runtime import SafetyRuntime
+from robot.runtime.scene_provider import StaticSceneProvider
+from robot.runtime.types import RobotAction, RobotObservation, RuntimeStepResult
 from robot.backends.backend_factory import create_backend
 
 from .core import AppResult, ArtifactRef

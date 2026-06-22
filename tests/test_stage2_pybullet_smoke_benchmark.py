@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from robot_safety.benchmark import run_backend_smoke_benchmark
+from robot.safety.benchmark import run_backend_smoke_benchmark
 
 
 ROOT = Path(__file__).resolve().parents[1]

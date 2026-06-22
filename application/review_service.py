@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from gateway.safety_gate import review_only
-from robot_safety.models import SafetyResult
+from robot.safety.models import SafetyResult
 
 from .core import AppResult, ArtifactRef
 

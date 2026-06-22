@@ -1,7 +1,7 @@
 import pytest
 
-from robot_runtime.adapters.mock_realman_device import MockRealManDevice
-from robot_runtime.types import RobotAction
+from robot.runtime.adapters.mock_realman_device import MockRealManDevice
+from robot.runtime.types import RobotAction
 
 
 def test_mock_realman_device_connect_enables_observation():

@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from robot_safety.kinematics import forward_kinematics_6dof
-from robot_safety.models import Scene
+from robot.safety.kinematics import forward_kinematics_6dof
+from robot.safety.models import Scene
 
 ROOT = Path(__file__).resolve().parents[1]
 

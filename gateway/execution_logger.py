@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from robot_safety.models import JointCommand, SafetyResult, Scene
+from robot.safety.models import JointCommand, SafetyResult, Scene
 
 '''完整记录原始scene,command，安全审查结果，后端信息，执行信息和环境信息等，生成一个结构化的日志，方便后续分析和回放。'''
 def build_execution_log(

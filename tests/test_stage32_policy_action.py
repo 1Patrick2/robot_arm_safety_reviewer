@@ -3,9 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from robot_runtime.action_sequence import PolicyActionSequence
-from robot_runtime.policy_action import PolicyAction, policy_action_to_robot_action
-from robot_runtime.types import RobotObservation
+from robot.runtime.action_sequence import PolicyActionSequence
+from robot.runtime.policy_action import PolicyAction, policy_action_to_robot_action
+from robot.runtime.types import RobotObservation
 
 
 def make_observation(joints=(0.0, 0.1, 0.2, 0.3, 0.4, 0.5)) -> RobotObservation:

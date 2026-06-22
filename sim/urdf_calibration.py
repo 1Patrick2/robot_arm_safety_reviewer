@@ -11,10 +11,10 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
 
-from robot_safety.collision import distance_segment_to_point, segment_sphere_clearance
-from robot_safety.kinematics import forward_kinematics_6dof
-from robot_safety.models import JointCommand, Scene
-from robot_safety.trajectory import interpolate_joint_trajectory
+from robot.safety.collision import distance_segment_to_point, segment_sphere_clearance
+from robot.safety.kinematics import forward_kinematics_6dof
+from robot.safety.models import JointCommand, Scene
+from robot.safety.trajectory import interpolate_joint_trajectory
 
 from .pybullet_backend import PyBulletBackend
 from .pybullet_diagnostics import diagnose_task_geometry

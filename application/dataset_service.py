@@ -7,7 +7,7 @@ from typing import Any
 
 from dataset_adapters.lerobot_style_adapter import LeRobotStyleAdapter
 from dataset_adapters.mini_sequence_adapter import MiniSequenceAdapter
-from robot_runtime.action_sequence import PolicyActionSequence
+from robot.runtime.action_sequence import PolicyActionSequence
 
 from .core import AppResult, ArtifactRef
 

@@ -1,4 +1,4 @@
-from robot_runtime.types import RobotAction, RobotObservation
+from robot.runtime.types import RobotAction, RobotObservation
 
 
 def test_robot_observation_serializes_to_dict():

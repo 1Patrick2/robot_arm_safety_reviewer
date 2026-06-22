@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from robot_runtime.scene_provider import StaticSceneProvider
-from robot_runtime.types import RobotObservation
+from robot.runtime.scene_provider import StaticSceneProvider
+from robot.runtime.types import RobotObservation
 
 
 ROOT = Path(__file__).resolve().parents[1]

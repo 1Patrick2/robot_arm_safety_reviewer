@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from robots.mock_realman_6dof import MockRealMan6DoFAdapter
+from robot.adapters.mock_realman_6dof import MockRealMan6DoFAdapter
 
 ROOT = Path(__file__).resolve().parents[1]
 BENCH = ROOT / "bench/sim_robot_arm"

@@ -5,7 +5,7 @@ from reports.runtime_episode_report import (
     build_runtime_episode_markdown,
     write_runtime_episode_report,
 )
-from robot_runtime.episode_loader import RuntimeEpisodeBundle
+from robot.runtime.episode_loader import RuntimeEpisodeBundle
 
 
 def _make_bundle(*, steps_data: list[dict] | None = None) -> RuntimeEpisodeBundle:

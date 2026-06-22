@@ -1,6 +1,6 @@
 import pytest
 
-from robot_safety.models import Scene
+from robot.safety.models import Scene
 
 
 def test_safety_config_requires_manual_review_clearance_above_min_clearance():

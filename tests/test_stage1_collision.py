@@ -2,13 +2,13 @@ from pathlib import Path
 
 import pytest
 
-from robot_safety.collision import (
+from robot.safety.collision import (
     check_trajectory_collision,
     distance_segment_to_point,
     segment_sphere_clearance,
 )
-from robot_safety.models import Scene, SphereObstacle
-from robot_safety.trajectory import interpolate_joint_trajectory
+from robot.safety.models import Scene, SphereObstacle
+from robot.safety.trajectory import interpolate_joint_trajectory
 
 ROOT = Path(__file__).resolve().parents[1]
 

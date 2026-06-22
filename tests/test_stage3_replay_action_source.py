@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from robot_runtime.action_source import ReplayActionSource
+from robot.runtime.action_source import ReplayActionSource
 
 
 ROOT = Path(__file__).resolve().parents[1]

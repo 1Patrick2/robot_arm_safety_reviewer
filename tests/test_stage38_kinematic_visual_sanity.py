@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from robot_safety.kinematics import forward_kinematics_6dof
-from robot_safety.models import RobotModel
+from robot.safety.kinematics import forward_kinematics_6dof
+from robot.safety.models import RobotModel
 
 MOCK_ROBOT = RobotModel(
     robot_id="mock",

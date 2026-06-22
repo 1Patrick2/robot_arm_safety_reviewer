@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from robot_runtime.episode_loader import (
+from robot.runtime.episode_loader import (
     RuntimeEpisodeBundle,
     load_episode,
     load_episode_metadata,

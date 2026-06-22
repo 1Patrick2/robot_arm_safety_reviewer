@@ -6,9 +6,9 @@ import json
 from pathlib import Path
 from typing import Any
 
-from robot_safety.kinematics import forward_kinematics_6dof
-from robot_safety.models import JointCommand, Scene
-from robot_safety.trajectory import interpolate_joint_trajectory
+from robot.safety.kinematics import forward_kinematics_6dof
+from robot.safety.models import JointCommand, Scene
+from robot.safety.trajectory import interpolate_joint_trajectory
 
 
 def write_3d_plot(log_path: str | Path, output_dir: str | Path = "output_reports") -> Path:

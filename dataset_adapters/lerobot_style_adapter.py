@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from robot_runtime.action_sequence import PolicyActionSequence
+from robot.runtime.action_sequence import PolicyActionSequence
 
 
 def _normalise(raw: dict) -> dict:

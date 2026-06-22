@@ -7,8 +7,8 @@ import math
 from pathlib import Path
 from typing import Any
 
-from robot_safety.models import JointCommand, Scene
-from robot_safety.trajectory import interpolate_joint_trajectory
+from robot.safety.models import JointCommand, Scene
+from robot.safety.trajectory import interpolate_joint_trajectory
 
 from .pybullet_backend import CONTACT_DISTANCE_INDEX, PyBulletBackend
 

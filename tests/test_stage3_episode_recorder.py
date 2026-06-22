@@ -1,8 +1,8 @@
 import json
 
-from robot_runtime.episode_recorder import EpisodeRecorder
-from robot_runtime.types import RobotAction, RobotObservation, RuntimeExecutionResult, RuntimeStepResult
-from robot_safety.models import SafetyResult
+from robot.runtime.episode_recorder import EpisodeRecorder
+from robot.runtime.types import RobotAction, RobotObservation, RuntimeExecutionResult, RuntimeStepResult
+from robot.safety.models import SafetyResult
 
 
 def _safe_result():

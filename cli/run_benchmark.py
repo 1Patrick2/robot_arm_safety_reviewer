@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 
-from robot_safety.benchmark import (
+from robot.safety.benchmark import (
     run_backend_smoke_benchmark,
     run_benchmark,
     write_backend_smoke_summary_markdown,

@@ -1,6 +1,6 @@
 import pytest
 
-from robot_safety.trajectory import compute_max_joint_delta, interpolate_joint_trajectory
+from robot.safety.trajectory import compute_max_joint_delta, interpolate_joint_trajectory
 
 
 def test_interpolate_joint_trajectory_includes_endpoints():

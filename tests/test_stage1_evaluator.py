@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from robot_safety.evaluator import evaluate_joint_command
-from robot_safety.models import JointCommand, Scene
+from robot.safety.evaluator import evaluate_joint_command
+from robot.safety.models import JointCommand, Scene
 
 ROOT = Path(__file__).resolve().parents[1]
 BENCH = ROOT / "bench/sim_robot_arm"
