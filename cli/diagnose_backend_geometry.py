@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 
 from robot.backends.pybullet_backend import DEFAULT_CLOSEST_POINT_DISTANCE, PyBulletBackend
-from sim.pybullet_diagnostics import diagnose_task_geometry
+from diagnostics.geometry.pybullet_diagnostics import diagnose_task_geometry
 
 
 def main() -> None:

@@ -7,7 +7,7 @@ import argparse
 import json
 from pathlib import Path
 
-from sim.urdf_calibration import calibrate_task_geometry
+from diagnostics.geometry.urdf_calibration import calibrate_task_geometry
 
 '''这个 CLI 脚本的主要功能是提供一个命令行接口，让用户能够方便地运行 URDF 校准过程，并查看校准结果。用户可以指定一个任务目录，脚本会调用 calibrate_task_geometry 函数来执行校准，并生成一个包含详细诊断信息的报告。用户还可以选择将这个报告保存为 JSON 文件，以便后续分析或记录。最后，脚本会在命令行上打印出校准的关键结果和结论，帮助用户快速了解 URDF 模型与 Mock 模型之间的几何差异和潜在问题。'''
 def main() -> None:
