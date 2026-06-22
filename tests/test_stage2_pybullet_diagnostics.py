@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from sim.pybullet_diagnostics import diagnose_task_geometry
+from diagnostics.geometry.pybullet_diagnostics import diagnose_task_geometry
 
 
 ROOT = Path(__file__).resolve().parents[1]

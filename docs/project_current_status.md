@@ -10,16 +10,18 @@ Current architecture refactor status:
 - `robot/` is the only canonical robot-domain package.
 - Legacy packages `robot_safety/`, `robot_runtime/`, and `robots/` have been removed.
 - `sim/` backend core shims (`base.py`, `backend_factory.py`, `mock_backend.py`, `pybullet_backend.py`) have been removed.
-- `sim/` temporarily retains only diagnostic geometry utilities (`pybullet_diagnostics.py`, `urdf_calibration.py`) pending R1-C ownership decision.
+- `sim/` diagnostic geometry modules (`pybullet_diagnostics.py`, `urdf_calibration.py`) are now compatibility shims (moved to `diagnostics/geometry/`).
+- `diagnostics/` is now the canonical diagnostics package.
+- `reports/evidence_manifest.py` is compatibility-only (implementation at `diagnostics/evidence/manifest.py`).
 - New robot-domain implementation code must use `robot.*` imports.
 
 Current task:
 
-- R1-C planning: diagnostics package migration.
+- R1-C validation and polish: stabilize the diagnostics migration, update documentation.
 
 Next recommended migration:
 
-- R1-C: migrate `diagnostic_runtime/` + `reports/evidence` to `diagnostics/`.
+- R1-C validation is in progress. Model adapter / ONNX / RKNN work is out of scope until R1-C passes.
 
 Paused:
 

@@ -16,8 +16,8 @@ from robot.safety.kinematics import forward_kinematics_6dof
 from robot.safety.models import JointCommand, Scene
 from robot.safety.trajectory import interpolate_joint_trajectory
 
-from .pybullet_backend import PyBulletBackend
-from .pybullet_diagnostics import diagnose_task_geometry
+from robot.backends.pybullet_backend import PyBulletBackend
+from diagnostics.geometry.pybullet_diagnostics import diagnose_task_geometry
 
 
 '''解析urdf里的box collision geometry，提取每个链接的碰撞盒信息，包括原点位置、尺寸等，返回一个字典，键是链接名称，值是另一个字典'''

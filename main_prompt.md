@@ -27,15 +27,18 @@ Completed R1 robot-domain migration:
 - R1-B5: internal imports migrated to `robot.*`.
 - R1-B6: legacy robot packages (`robot_safety/`, `robot_runtime/`, `robots/`) removed.
 - `sim/` backend core shims (`base.py`, `backend_factory.py`, `mock_backend.py`, `pybullet_backend.py`) removed.
-- `sim/` temporarily retains only diagnostic geometry utilities pending R1-C.
+- `sim/` backend core shims and diagnostic geometry modules are now compatibility shims (moved to `diagnostics/geometry/`).
+- `diagnostics/` is now the canonical diagnostics package, containing context, tools, report, evidence/manifest, runtime, agent, guardrails, analysis, contracts, and geometry sub-packages.
+- `reports/evidence_manifest.py` is compatibility-only (implementation at `diagnostics/evidence/manifest.py`).
 
 Current recommended task:
 
-- R1-C planning: diagnostics package migration.
+- R1-C validation and polish: stabilize the diagnostics migration, update documentation.
 
 Paused feature work:
 
-- Stage 5.3-B Perception-Aware Regression Summary Integration is paused until R1 structure stabilizes.
+- Stage 5.3-B Perception-Aware Regression Summary Integration is paused until R1-C validation passes.
+- Model adapter / ONNX / RKNN work is out of scope until R1-C is stable.
 
 ## Completed Capabilities
 

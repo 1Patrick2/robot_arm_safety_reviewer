@@ -10,7 +10,7 @@ from typing import Any
 from robot.safety.models import JointCommand, Scene
 from robot.safety.trajectory import interpolate_joint_trajectory
 
-from .pybullet_backend import CONTACT_DISTANCE_INDEX, PyBulletBackend
+from robot.backends.pybullet_backend import CONTACT_DISTANCE_INDEX, PyBulletBackend
 
 POSITION_ON_ROBOT_INDEX = 5
 POSITION_ON_OBSTACLE_INDEX = 6

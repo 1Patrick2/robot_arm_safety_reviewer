@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from sim.urdf_calibration import calibrate_task_geometry, parse_urdf_collision_boxes
+from diagnostics.geometry.urdf_calibration import calibrate_task_geometry, parse_urdf_collision_boxes
 
 
 ROOT = Path(__file__).resolve().parents[1]

@@ -17,9 +17,8 @@ The project started as `RobotArmSafetyReviewer`. It is still a safety reviewer, 
 
 ## Current Status
 
-Current stage: **Stage 4.4-B Diagnostic Analysis Service + CLI — complete**.
-Current documentation task: **Stage 4.4-D project repositioning and README / main prompt sync**.
-Next major stage: **Stage 5.1 Perception Result Schema + Fake Perception Adapter**.
+Current stage: **Stage 5.3-A: Perception-Aware Regression Fixtures — complete**. R1-C diagnostics migration is under validation.
+Next major stage: **Perception Model Adapter Protocol (Stage 5.4-A)** once R1-C passes.
 
 Completed scope:
 
@@ -51,6 +50,11 @@ Completed scope:
 - Stage 4.4A: Diagnostic analysis schema and deterministic fake analyst.
 - Stage 4.4A-polish: evidence_refs consistency cleanup for fake diagnostic analysis.
 - Stage 4.4B: diagnostic analysis application service and `diagnostic analyze` CLI.
+- Stage 5.1: perception result schema (`perception_result.v1`), loader, fake perception adapter.
+- Stage 5.1-polish: unknown safe zone and distance threshold cleanup.
+- Stage 5.2: perception safety fusion (`PerceptionSafetyFusionResult`).
+- Stage 5.2-polish: fusion edge-case coverage.
+- Stage 5.3A: perception-aware regression fixtures and focused tests.
 
 ## Safety Boundary
 
