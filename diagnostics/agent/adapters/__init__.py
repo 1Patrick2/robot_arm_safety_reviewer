@@ -1,1 +1,1 @@
-# Diagnostics adapters package — migrated from legacy locations per R1-C.
+# Diagnostic agent provider adapters (fake, DeepSeek, ...).
