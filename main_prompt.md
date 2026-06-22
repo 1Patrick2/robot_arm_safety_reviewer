@@ -14,11 +14,22 @@ Safety decisions are made by deterministic runtime logic, not by an LLM or agent
 
 ## Current Stage
 
-Completed through Stage 4.4-B.
+Completed through Stage 5.3-A.
 
 Current architecture work: Stage R1 Project Architecture Refactor.
 
-Stage 5.1 Perception Result Schema + Fake Perception Adapter is deferred until the R1 architecture rules and first robot-domain migration are stable.
+Completed R1 migration:
+
+- R1-B1: `robot_safety` implementation moved to `robot/safety`.
+- `robot_safety` remains as compatibility import shims.
+
+Current recommended task:
+
+- R1-B1-polish: sync status and guardrails.
+
+Paused feature work:
+
+- Stage 5.3-B Perception-Aware Regression Summary Integration is paused until R1 structure stabilizes.
 
 ## Completed Capabilities
 
@@ -36,6 +47,10 @@ Stage 5.1 Perception Result Schema + Fake Perception Adapter is deferred until t
 - fake diagnostic analyst.
 - diagnostic analysis service.
 - diagnostic analyze CLI.
+- perception_result.v1 schema and loader.
+- fake perception adapter.
+- perception safety fusion rules.
+- perception-aware regression fixtures.
 
 ## Hard Boundaries
 
@@ -76,14 +91,13 @@ Current R1 migration state:
 - New robot safety code should use `robot.safety.*`.
 - Do not remove legacy shims until all imports are migrated and focused tests pass.
 
-## Deferred Stage 5.1 Plan
+## Completed Stage 5 Perception Work
 
-Stage 5.1: Perception Result Schema + Fake Perception Adapter.
-
-- Define `perception_result.json`.
-- Validate detections.
-- Convert person/object/zone/distance into structured safety observations.
-- No ONNX/RKNN/camera yet.
+- Stage 5.1: perception_result.v1 schema, loader, fake adapter.
+- Stage 5.1-polish: unknown safe zone and distance threshold cleanup.
+- Stage 5.2: perception safety fusion.
+- Stage 5.2-polish: fusion edge-case coverage.
+- Stage 5.3-A: perception-aware scenario fixtures and focused tests.
 
 ## Operating Rules
 

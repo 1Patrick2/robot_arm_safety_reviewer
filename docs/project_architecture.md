@@ -26,9 +26,22 @@ common/        shared helpers only
 
 Current R1 migration status:
 
-- `robot/safety/` is the new home for the former `robot_safety` implementation.
-- `robot_safety/` remains as a compatibility shim while callers migrate.
+- Stage R1 is active.
+- R1-B1 is completed.
+- `robot/safety/` is authoritative for the robot safety core.
+- `robot_safety/` is compatibility-only while callers migrate.
 - Later R1 steps may move runtime, backend, gateway, diagnostics, and bench files in separate tested slices.
+
+Recommended R1 migration order:
+
+1. R1-B1: `robot_safety` -> `robot/safety`. Completed.
+2. R1-B2: `robot_runtime` -> `robot/runtime`.
+3. R1-B3: `sim` backend core -> `robot/backends`.
+4. R1-B4: `robots` adapters -> `robot/adapters`.
+5. R1-C: `diagnostic_runtime` + `reports/evidence` -> `diagnostics`.
+6. R1-D: bench fixture layout cleanup.
+
+`robot/safety/benchmark.py` and `robot/safety/scorer.py` are transitional robot-safety utilities from the former `robot_safety` package. Do not add new benchmark orchestration logic there.
 
 ## 2. Inputs And Outputs
 

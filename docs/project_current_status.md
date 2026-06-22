@@ -1,8 +1,26 @@
 # Project Current Status
 
-Robot Action Safety Sandbox current status: **Stage 4.4-B completed**.
-Current task: **Stage 4.4-D project repositioning and documentation sync**.
-Next major stage: **Stage 5.1 Perception Result Schema + Fake Perception Adapter**.
+Current functional status:
+
+- Completed through Stage 5.3-A.
+
+Current architecture refactor status:
+
+- R1-B1 completed.
+- `robot/safety/` is now the implementation home for former `robot_safety`.
+- `robot_safety/` remains as legacy import shim.
+
+Current task:
+
+- R1-B1-polish: status sync and guardrail hardening.
+
+Next recommended migration:
+
+- R1-B2: migrate `robot_runtime/` to `robot/runtime/` with compatibility shims.
+
+Paused:
+
+- Stage 5.3-B perception-aware regression summary integration.
 
 ## Completed Scope
 
@@ -33,31 +51,35 @@ Next major stage: **Stage 5.1 Perception Result Schema + Fake Perception Adapter
 - Stage 4.4A Diagnostic Analysis Schema: `DiagnosticAnalysis` / `RootCauseHypothesis` and deterministic fake analyst.
 - Stage 4.4A-polish: fake analyst evidence_refs consistency cleanup.
 - Stage 4.4B Diagnostic Analysis Service + CLI: `diagnostic analyze` writes `llm_diagnostic_analysis.json`.
+- Stage 5.1 Perception Result Schema + Fake Perception Adapter: `perception_result.v1`, loader, and fake adapter.
+- Stage 5.1-polish: unknown safe zone and distance threshold cleanup.
+- Stage 5.2 Perception Safety Fusion: deterministic fusion rules for perception observations and trajectory results.
+- Stage 5.2-polish: focused fusion edge-case coverage.
+- Stage 5.3-A Perception-Aware Regression Fixtures: perception-aware scenarios and focused tests.
+- Stage R1-B1 Robot Safety Package Migration: `robot_safety` implementation moved to `robot/safety` with legacy import shims.
 
 ## Current Focus
 
-- Reposition the project away from generic Agent development.
-- Keep LLM/diagnostic analysis as an optional evidence explanation layer.
-- Prepare Stage 5 perception-aware safety fusion.
+- Keep R1-B1 status, prompts, and guardrails synchronized.
+- Pause Stage 5.3-B feature work until R1 structure stabilizes.
+- Prepare R1-B2 migration of `robot_runtime/` to `robot/runtime/`.
 - Keep generated artifacts out of git.
 
 ## Current Operating Standard
 
-The primary regression command:
+Current focused refactor validation:
 
 ```powershell
-python -m cli.main diagnostic regression --case-set all --output-dir output_reports/stage44_all --json
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_r1_robot_safety_package.py -q
 ```
 
-Regression case sets:
+Perception-focused validation:
 
 ```powershell
-python -m cli.main diagnostic regression --case-set smoke --json
-python -m cli.main diagnostic regression --case-set level2 --json
-python -m cli.main diagnostic regression --case-set all --json
+D:\miniforge3\envs\robotarm-pybullet\python.exe -m pytest tests/test_r1_robot_safety_package.py tests/test_stage51_perception_schema.py tests/test_stage52_perception_fusion.py tests/test_stage53_perception_regression_cases.py -q
 ```
 
-Level-2 cases each produce `pipeline_passed`, `evidence_complete`, and `contract_passed` in regression output.
+Do not run full pytest repeatedly during R1 polish tasks.
 
 ## Latest Focused Validation
 
@@ -100,4 +122,5 @@ Level-2 cases each produce `pipeline_passed`, `evidence_complete`, and `contract
 - Agent context packages are deterministic diagnostic evidence; they must not approve, reject, modify, or execute robot actions.
 - LLM diagnostic analysis is optional and does not affect safety decisions.
 - The project does not currently require edge deployment, ONNX, RKNN, or a real camera.
-- Stage 5 may introduce structured perception results, but not necessarily edge deployment.
+- Stage 5 structured perception input and fusion rules exist, but real camera/model deployment is still out of scope.
+- `robot_safety/` is compatibility-only after R1-B1; new implementation belongs under `robot/safety/`.

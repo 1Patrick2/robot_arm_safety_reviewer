@@ -28,8 +28,25 @@ R1-B migrates robot-domain code in small, testable steps.
 - `diagnostics/` may read robot and perception outputs, but must not control robot actions.
 - `application/` may orchestrate lower layers but should stay thin.
 
+## Refactor Commit Rules
+
+- Do not combine architecture-rule changes and code migration in the same commit.
+- Do not move more than one domain slice per commit.
+- Every migrated package must keep legacy import shims until all callers are migrated.
+- Every migrated package must have a focused compatibility test.
+- Production code must not be placed in stage-numbered directories.
+- New production directories must fit the target layout in this file.
+- If a file does not clearly belong to a target layer, stop and document the intended ownership before moving it.
+
 ## Current Compatibility State
 
 - `robot/safety/` is the new home for the former `robot_safety` implementation.
 - `robot_safety/` remains as a compatibility package and should only contain import shims.
 - Existing callers may continue using `robot_safety.*` until their imports are migrated in later R1 steps.
+
+## Current R1-B1 Status
+
+- `robot/safety/` contains the migrated former `robot_safety` implementation.
+- `robot_safety/` is a compatibility shim only.
+- New implementation code must not be added under `robot_safety/`.
+- Do not remove `robot_safety/` until imports are migrated and compatibility tests pass.

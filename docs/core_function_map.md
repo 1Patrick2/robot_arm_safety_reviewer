@@ -2,7 +2,9 @@
 
 This document is a quick code-reading map for RobotArmSafetyReviewer. It lists the main files, the functions or classes worth reading first, and the role each one plays in the safety-review workflow.
 
-Stage R1 is migrating stage-grown modules into stable domain packages. `robot/safety/` is the current home for robot safety core code. `robot_safety/` remains as a compatibility shim and should not receive new implementation code.
+Stage R1 is migrating stage-grown modules into stable domain packages. `robot/safety/` is the canonical implementation path for robot safety core code. `robot_safety/` is only a compatibility shim and should not receive new implementation code.
+
+`robot/safety/benchmark.py` and `robot/safety/scorer.py` are transitional utilities retained from the former `robot_safety` package. Future benchmark orchestration should stay outside low-level safety core.
 
 | Layer | File | Core Function / Class | Purpose |
 |---|---|---|---|
