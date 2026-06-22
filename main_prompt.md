@@ -92,10 +92,12 @@ Target top-level domains:
 
 Current R1 migration state:
 
-- `robot/safety/` is the new home for the former `robot_safety` implementation.
-- `robot_safety/` is now a compatibility shim package.
-- New robot safety code should use `robot.safety.*`.
-- Do not remove legacy shims until all imports are migrated and focused tests pass.
+- R1-B6 completed.
+- `robot/` is the only canonical robot-domain package.
+- Legacy packages `robot_safety/`, `robot_runtime/`, `robots/` have been removed.
+- `sim/` backend core shims have been removed.
+- `sim/` temporarily retains only diagnostic geometry utilities pending R1-C.
+- All internal imports now use `robot.*` paths.
 
 ## Completed Stage 5 Perception Work
 

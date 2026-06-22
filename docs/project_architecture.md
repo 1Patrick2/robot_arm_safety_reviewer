@@ -26,11 +26,12 @@ common/        shared helpers only
 
 Current R1 migration status:
 
-- Stage R1 is active.
-- R1-B1 is completed.
-- `robot/safety/` is authoritative for the robot safety core.
-- `robot_safety/` is compatibility-only while callers migrate. (Removed after R1-B6.)
-- Later R1 steps may move runtime, backend, gateway, diagnostics, and bench files in separate tested slices.
+- Stage R1 is completed for the robot domain.
+- R1-B6 is completed.
+- `robot/safety/`, `robot/runtime/`, `robot/backends/`, `robot/adapters/` under `robot/` are the canonical robot-domain packages.
+- Legacy `robot_safety/`, `robot_runtime/`, `robots/` have been removed after R1-B6.
+- `sim/` backend core shims removed; only diagnostic geometry utilities remain.
+- Later R1-C steps may move diagnostics files in separate tested slices.
 
 Recommended R1 migration order:
 
@@ -460,7 +461,7 @@ Implemented:
 - Stage 4.4A Diagnostic analysis schema and deterministic fake analyst.
 - Stage 4.4A-polish fake analyst evidence_refs consistency cleanup.
 - Stage 4.4B Diagnostic analysis service and `diagnostic analyze` CLI.
-- Stage R1-B1 initial robot safety package migration: `robot_safety` implementation moved to `robot/safety` with legacy import shims.
+- Stage R1-B1 through R1-B6 robot domain migration completed; `robot/` is the canonical domain package.
 
 Not implemented:
 

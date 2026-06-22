@@ -19,7 +19,7 @@ Current task:
 
 Next recommended migration:
 
-- R1-B2: migrate `robot_runtime/` to `robot/runtime/` with compatibility shims.
+- R1-C: migrate `diagnostic_runtime/` + `reports/evidence` to `diagnostics/`.
 
 Paused:
 
@@ -59,13 +59,13 @@ Paused:
 - Stage 5.2 Perception Safety Fusion: deterministic fusion rules for perception observations and trajectory results.
 - Stage 5.2-polish: focused fusion edge-case coverage.
 - Stage 5.3-A Perception-Aware Regression Fixtures: perception-aware scenarios and focused tests.
-- Stage R1-B1 Robot Safety Package Migration: `robot_safety` implementation moved to `robot/safety` with legacy import shims.
+- Stage R1-B1 through R1-B6 Robot Domain Migration: `robot_safety/`, `robot_runtime/`, `robots/` migrated to `robot/safety/`, `robot/runtime/`, `robot/backends/`, `robot/adapters/`. Legacy packages and shims removed after R1-B6. All internal imports now use `robot.*` paths.
 
 ## Current Focus
 
-- Keep R1-B1 status, prompts, and guardrails synchronized.
-- Pause Stage 5.3-B feature work until R1 structure stabilizes.
-- Prepare R1-B2 migration of `robot_runtime/` to `robot/runtime/`.
+- R1-B6 is completed. Robot domain is now canonical under `robot/`.
+- Stage 5.3-B feature work is paused until R1-C diagnostics migration is planned.
+- Next planned migration: R1-C diagnostics package migration (`diagnostic_runtime/` → `diagnostics/`).
 - Keep generated artifacts out of git.
 
 ## Current Operating Standard
@@ -126,4 +126,4 @@ Do not run full pytest repeatedly during R1 polish tasks.
 - LLM diagnostic analysis is optional and does not affect safety decisions.
 - The project does not currently require edge deployment, ONNX, RKNN, or a real camera.
 - Stage 5 structured perception input and fusion rules exist, but real camera/model deployment is still out of scope.
-- `robot_safety/` is compatibility-only after R1-B1; new implementation belongs under `robot/safety/`.
+- `robot/safety/` is the canonical home for robot safety; legacy `robot_safety/` removed after R1-B6.
