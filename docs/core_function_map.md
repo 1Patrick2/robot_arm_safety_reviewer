@@ -2,17 +2,20 @@
 
 This document is a quick code-reading map for RobotArmSafetyReviewer. It lists the main files, the functions or classes worth reading first, and the role each one plays in the safety-review workflow.
 
+Stage R1 is migrating stage-grown modules into stable domain packages. `robot/safety/` is the current home for robot safety core code. `robot_safety/` remains as a compatibility shim and should not receive new implementation code.
+
 | Layer | File | Core Function / Class | Purpose |
 |---|---|---|---|
-| Data model | `robot_safety/models.py` | `Scene`, `JointCommand`, `SafetyResult`, `Violation` | Defines the structured input/output contract used across CLI, gateway, evaluator, benchmark, and reports. |
-| Trajectory | `robot_safety/trajectory.py` | `interpolate_joint_trajectory` | Converts `current_joints -> target_joints` into an interpolated joint-space trajectory for whole-path checking. |
-| Trajectory | `robot_safety/trajectory.py` | `compute_max_joint_delta` | Measures large motion delta risk for manual-review decisions. |
-| Mock FK | `robot_safety/kinematics.py` | `forward_kinematics_6dof` | Builds simplified mock robot link points for deterministic segment-based collision checking. |
-| Mock collision | `robot_safety/collision.py` | `check_trajectory_collision` | Checks link-sphere collision and clearance along the interpolated trajectory. |
-| Safety rules | `robot_safety/safety_rules.py` | `check_trajectory_joint_limits` | Validates every interpolated joint state against configured joint limits. |
-| Safety rules | `robot_safety/safety_rules.py` | `classify_risk_level`, `make_decision` | Converts geometry and rule signals into `low/medium/high` and `approve/manual_review/reject`. |
-| Evaluator | `robot_safety/evaluator.py` | `evaluate_joint_command` | Backward-compatible review entry point returning only `SafetyResult`. |
-| Evaluator | `robot_safety/evaluator.py` | `evaluate_joint_command_with_metadata` | Explicit review entry point returning `SafetyResult` plus backend metadata. |
+| Data model | `robot/safety/models.py` | `Scene`, `JointCommand`, `SafetyResult`, `Violation` | Defines the structured input/output contract used across CLI, gateway, evaluator, benchmark, and reports. |
+| Trajectory | `robot/safety/trajectory.py` | `interpolate_joint_trajectory` | Converts `current_joints -> target_joints` into an interpolated joint-space trajectory for whole-path checking. |
+| Trajectory | `robot/safety/trajectory.py` | `compute_max_joint_delta` | Measures large motion delta risk for manual-review decisions. |
+| Mock FK | `robot/safety/kinematics.py` | `forward_kinematics_6dof` | Builds simplified mock robot link points for deterministic segment-based collision checking. |
+| Mock collision | `robot/safety/collision.py` | `check_trajectory_collision` | Checks link-sphere collision and clearance along the interpolated trajectory. |
+| Safety rules | `robot/safety/safety_rules.py` | `check_trajectory_joint_limits` | Validates every interpolated joint state against configured joint limits. |
+| Safety rules | `robot/safety/safety_rules.py` | `classify_risk_level`, `make_decision` | Converts geometry and rule signals into `low/medium/high` and `approve/manual_review/reject`. |
+| Evaluator | `robot/safety/evaluator.py` | `evaluate_joint_command` | Backward-compatible review entry point returning only `SafetyResult`. |
+| Evaluator | `robot/safety/evaluator.py` | `evaluate_joint_command_with_metadata` | Explicit review entry point returning `SafetyResult` plus backend metadata. |
+| Legacy robot safety shim | `robot_safety/*.py` | module re-exports | Compatibility shims that re-export `robot.safety.*` while existing imports migrate. |
 | Backend contract | `sim/base.py` | `SimulationBackend`, `BackendReviewResult` | Defines the common backend protocol and result shape. |
 | Backend factory | `sim/backend_factory.py` | `create_backend` | Creates `mock` or `pybullet` backend instances from CLI/gateway options. |
 | Mock backend | `sim/mock_backend.py` | `MockGeometryBackend.replay_joint_trajectory` | Preserves deterministic Stage 1.5 mock geometry behavior behind the backend interface. |
@@ -71,8 +74,8 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 | Safety guardrail | `diagnostic_runtime/guardrails/safety_check.py` | `check_agent_report`, `check_agent_report_or_raise` | Post-generation safety boundary check for agent output. |
 | Runtime runner | `diagnostic_runtime/runtime/runner.py` | `run_diagnostic_runtime` | Unified orchestration of diagnostic workflow with trace output. |
 | CLI output | `cli/output.py` | `print_json`, result-specific print helpers | Shared formatting helpers that keep CLI command modules from duplicating JSON and text output logic. |
-| Benchmark | `robot_safety/benchmark.py` | `run_benchmark` | Discovers benchmark tasks, runs reviews, writes logs, and builds summaries. |
-| Scorer | `robot_safety/scorer.py` | `score_execution_log` | Compares actual logs with expected task contracts. |
+| Benchmark | `robot/safety/benchmark.py` | `run_benchmark` | Discovers benchmark tasks, runs reviews, writes logs, and builds summaries. |
+| Scorer | `robot/safety/scorer.py` | `score_execution_log` | Compares actual logs with expected task contracts. |
 | Report | `reports/report_writer.py` | `build_markdown_report` | Converts one execution log into a human-readable Markdown safety report. |
 | Backend comparison | `reports/backend_comparison.py` | `compare_backends` | Runs the same benchmark tasks across mock/PyBullet and summarizes decision, risk, clearance-band, attribution, and strict-match metrics. |
 | PyBullet diagnostics | `sim/pybullet_diagnostics.py` | `diagnose_task_geometry` | Emits per-step PyBullet closest-point geometry diagnostics. |
@@ -95,17 +98,17 @@ This document is a quick code-reading map for RobotArmSafetyReviewer. It lists t
 Boundary rules:
 
 - CLI modules call application services and `cli.output`.
-- `application` may orchestrate `robot_runtime`, `robot_safety`, `sim`, `gateway`, `reports`, `runtime_db`, `diagnostic_runtime/context`, and `dataset_adapters`.
-- `robot_runtime`, `robot_safety`, `sim`, `gateway`, `runtime_db`, `diagnostic_runtime`, and `dataset_adapters` must not import `application`, `agent`, or `robot_tools`.
+- `application` may orchestrate `robot`, `robot_runtime`, `sim`, `gateway`, `reports`, `runtime_db`, `diagnostic_runtime/context`, and `dataset_adapters`.
+- `robot`, `robot_runtime`, `sim`, `gateway`, `runtime_db`, `diagnostic_runtime`, and `dataset_adapters` must not import `application`, `agent`, or `robot_tools`.
 - Future diagnostic agents should call tool wrappers that call application services; agents must not call robot device execution methods directly.
 
 Suggested reading order:
 
-1. `robot_safety/models.py`
-2. `robot_safety/evaluator.py`
+1. `robot/safety/models.py`
+2. `robot/safety/evaluator.py`
 3. `sim/base.py`, `sim/mock_backend.py`, `sim/pybullet_backend.py`
 4. `gateway/safety_gate.py`, `gateway/execution_logger.py`
-5. `robot_safety/benchmark.py`, `robot_safety/scorer.py`
+5. `robot/safety/benchmark.py`, `robot/safety/scorer.py`
 6. `reports/backend_comparison.py`
 7. `sim/pybullet_diagnostics.py`, `sim/urdf_calibration.py`
 8. `robot_runtime/types.py`, `robot_runtime/safety_runtime.py`, `robot_runtime/episode_recorder.py`

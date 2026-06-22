@@ -16,9 +16,9 @@ Safety decisions are made by deterministic runtime logic, not by an LLM or agent
 
 Completed through Stage 4.4-B.
 
-Current documentation sync: Stage 4.4-D.
+Current architecture work: Stage R1 Project Architecture Refactor.
 
-Next major stage: Stage 5.1 Perception Result Schema + Fake Perception Adapter.
+Stage 5.1 Perception Result Schema + Fake Perception Adapter is deferred until the R1 architecture rules and first robot-domain migration are stable.
 
 ## Completed Capabilities
 
@@ -53,11 +53,30 @@ Do not continue expanding generic Agent features.
 
 Stop deepening multi-agent / real LLM provider work for now.
 
-Next direction is perception-aware safety fusion.
+Near-term direction is architecture cleanup before more perception-aware safety fusion features.
 
 Perception can start from structured JSON / fake adapter; no edge deployment required initially.
 
-## Next Stage Plan
+## Architecture Refactor Rules
+
+Target top-level domains:
+
+- `robot/`: robot models, kinematics, safety rules, runtime abstractions, backends, and adapters.
+- `perception/`: perception result schema, loaders, fake/real adapters, and fusion rules.
+- `diagnostics/`: diagnostic context, evidence manifests, reports, analysis, and regression contracts.
+- `application/`: thin orchestration services.
+- `cli/`: command-line interface only.
+- `bench/`: fixtures and scenarios only.
+- `common/`: shared helpers only.
+
+Current R1 migration state:
+
+- `robot/safety/` is the new home for the former `robot_safety` implementation.
+- `robot_safety/` is now a compatibility shim package.
+- New robot safety code should use `robot.safety.*`.
+- Do not remove legacy shims until all imports are migrated and focused tests pass.
+
+## Deferred Stage 5.1 Plan
 
 Stage 5.1: Perception Result Schema + Fake Perception Adapter.
 
@@ -71,5 +90,5 @@ Stage 5.1: Perception Result Schema + Fake Perception Adapter.
 - Keep deterministic safety decisions inside `SafetyRuntime` and existing safety evaluation layers.
 - Keep diagnostic analysis read-only and evidence-based.
 - Prefer small changes inside existing responsibility boundaries.
-- Do not add real perception, edge inference, camera, ONNX, RKNN, or real LLM integration during Stage 4.4-D.
+- Do not add real perception, edge inference, camera, ONNX, RKNN, or real LLM integration during Stage R1.
 - For Stage 5.1, start with schema, fake adapter, and focused validation before any real model integration.

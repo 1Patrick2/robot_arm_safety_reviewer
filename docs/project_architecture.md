@@ -10,6 +10,26 @@ The core project value is turning "is this robot-arm action safe?" into a determ
 
 The current strategic direction is perception-aware safety fusion. Stage 5 is expected to start from structured perception results and fake adapters, not real edge deployment, ONNX, RKNN, or camera integration.
 
+The current architecture refactor stage is R1. R1 introduces stable domain boundaries before adding more Stage 5 perception features.
+
+Target top-level layout:
+
+```text
+robot/         robot models, kinematics, safety rules, runtime abstractions, backends, adapters
+perception/    perception result schema, loaders, adapters, and fusion rules
+diagnostics/   diagnostic context, evidence, reports, analysis, and regression contracts
+application/   thin use-case orchestration services
+cli/           command-line interface only
+bench/         fixtures and scenarios only
+common/        shared helpers only
+```
+
+Current R1 migration status:
+
+- `robot/safety/` is the new home for the former `robot_safety` implementation.
+- `robot_safety/` remains as a compatibility shim while callers migrate.
+- Later R1 steps may move runtime, backend, gateway, diagnostics, and bench files in separate tested slices.
+
 ## 2. Inputs And Outputs
 
 Inputs:
@@ -41,7 +61,7 @@ cli.review_command
     -> Scene.from_json
     -> JointCommand.from_json
     -> sim.backend_factory.create_backend
-    -> robot_safety.evaluator.evaluate_joint_command_with_metadata
+    -> robot.safety.evaluator.evaluate_joint_command_with_metadata
       -> interpolate_joint_trajectory
       -> compute_max_joint_delta
       -> check_trajectory_joint_limits
@@ -70,10 +90,10 @@ Benchmark flow:
 
 ```text
 cli.run_benchmark
-  -> robot_safety.benchmark.run_benchmark
+  -> robot.safety.benchmark.run_benchmark
     -> review each benchmark task
     -> write execution logs
-    -> robot_safety.scorer.score_execution_log
+    -> robot.safety.scorer.score_execution_log
     -> optional JSON / Markdown summary
 ```
 
@@ -101,7 +121,7 @@ RobotObservation + RobotAction
   -> robot_runtime.safety_runtime.SafetyRuntime.step
     -> SceneProvider.get_scene
     -> action_to_joint_command
-    -> robot_safety.evaluator.evaluate_joint_command_with_metadata
+    -> robot.safety.evaluator.evaluate_joint_command_with_metadata
       -> SafetyResult + backend metadata
     -> if decision == approve:
          RobotDeviceAdapter.send_action
@@ -308,7 +328,7 @@ Allowed dependency direction:
 ```text
 CLI / Future Agent Tool / Future Batch Job
   -> application
-    -> robot_runtime / robot_safety / sim / gateway / reports / dataset_adapters
+    -> robot / robot_runtime / sim / gateway / reports / dataset_adapters
 ```
 
 The application layer may import lower-level runtime, safety, simulation, gateway, report, dataset adapter, and future runtime database packages.
@@ -425,6 +445,7 @@ Implemented:
 - Stage 4.4A Diagnostic analysis schema and deterministic fake analyst.
 - Stage 4.4A-polish fake analyst evidence_refs consistency cleanup.
 - Stage 4.4B Diagnostic analysis service and `diagnostic analyze` CLI.
+- Stage R1-B1 initial robot safety package migration: `robot_safety` implementation moved to `robot/safety` with legacy import shims.
 
 Not implemented:
 
