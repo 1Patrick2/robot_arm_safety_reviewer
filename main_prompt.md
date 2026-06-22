@@ -26,8 +26,7 @@ Completed R1 robot-domain migration:
 - R1-B4: `robots` implementation moved to `robot/adapters`.
 - R1-B5: internal imports migrated to `robot.*`.
 - R1-B6: legacy robot packages (`robot_safety/`, `robot_runtime/`, `robots/`) removed.
-- `sim/` backend core shims (`base.py`, `backend_factory.py`, `mock_backend.py`, `pybullet_backend.py`) removed.
-- `sim/` backend core shims and diagnostic geometry modules are now compatibility shims (moved to `diagnostics/geometry/`).
+- `sim/` backend core shims and diagnostic geometry modules are compatibility shims; canonical implementations live under `diagnostics/geometry/`.
 - `diagnostics/` is now the canonical diagnostics package, containing context, tools, report, evidence/manifest, runtime, agent, guardrails, analysis, contracts, and geometry sub-packages.
 - `reports/evidence_manifest.py` is compatibility-only (implementation at `diagnostics/evidence/manifest.py`).
 
