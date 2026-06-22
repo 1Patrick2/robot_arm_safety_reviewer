@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from diagnostic_runtime.analysis.fake_analyst import run_fake_diagnostic_analyst
+from diagnostics.analysis.fake_analyst import run_fake_diagnostic_analyst
 from .core import AppResult, ArtifactRef
 
 

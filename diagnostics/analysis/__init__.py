@@ -1,1 +1,1 @@
-# Diagnostics analysis package — migrated from legacy locations per R1-C.
+# Diagnostic analysis — constrained LLM diagnostic analyst module.

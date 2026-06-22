@@ -9,7 +9,7 @@ from .agent_context_service import build_agent_context, AgentContextBuildRequest
 from diagnostics.runtime.models import DiagnosticRuntimeRequest
 from diagnostics.runtime.runner import run_diagnostic_runtime
 from diagnostics.evidence.manifest import build_evidence_manifest, write_evidence_manifest
-from .diagnostic_contracts import build_actual_summary, load_expected_contract, validate_expected_contract
+from diagnostics.contracts.expected import build_actual_summary, load_expected_contract, validate_expected_contract
 from .core import AppResult, ArtifactRef
 
 DEFAULT_DB = Path("output_reports/runtime_metrics/runtime_metrics.db")
