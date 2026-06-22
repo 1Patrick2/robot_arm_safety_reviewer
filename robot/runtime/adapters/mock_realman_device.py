@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from robots.mock_realman_6dof import MockRealMan6DoFAdapter
+from robot.adapters.mock_realman_6dof import MockRealMan6DoFAdapter
 
 from ..types import RobotAction, RobotObservation, RuntimeExecutionResult
 

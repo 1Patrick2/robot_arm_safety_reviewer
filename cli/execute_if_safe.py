@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 from gateway.safety_gate import execute_if_safe
-from robots.mock_realman_6dof import MockRealMan6DoFAdapter
+from robot.adapters.mock_realman_6dof import MockRealMan6DoFAdapter
 
 
 def main() -> None:
