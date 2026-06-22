@@ -1,0 +1,7 @@
+*.pt
+*.onnx
+*.jpg
+*.jpeg
+*.png
+artifacts/
+local_data/

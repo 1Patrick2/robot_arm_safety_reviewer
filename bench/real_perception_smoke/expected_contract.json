@@ -1,0 +1,8 @@
+{
+  "schema_version": "expected_contract.v1",
+  "case_id": "real_yolo_smoke",
+  "expected": {
+    "required_artifacts": ["perception_inference_record"],
+    "required_evidence_groups": ["perception"]
+  }
+}
