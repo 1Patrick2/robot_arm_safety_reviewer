@@ -8,12 +8,14 @@ Run on every push/pull_request:
 
 | Test File | Covers |
 |---|---|
-| `test_safety_pipeline.py` | Scene → sandbox → runtime → approve/reject, execution log |
+| `test_safety_pipeline.py` | Scene → sandbox → runtime → approve/reject, collision geometry, kinematics, decision logic, backend factory |
 | `test_diagnostics_evidence_pipeline.py` | Evidence manifest, expected contract, evidence groups |
-| `test_perception_pipeline.py` | Perception schema, fake adapter, fusion, inference evidence |
-| `test_external_trajectory_pipeline.py` | ExternalTrajectory, ActionMappingConfig, conversion, record |
+| `test_diagnostics_contracts.py` | ExpectedContract load/validate/build, actual summary, contract edge cases |
+| `test_diagnostics_analysis.py` | DiagnosticAnalysis models, evidence_refs, fake analyst |
+| `test_perception_pipeline.py` | Perception schema, fake adapter, fusion, inference evidence, ultralytics contract |
+| `test_external_trajectory_pipeline.py` | ExternalTrajectory, ActionMappingConfig, conversion, evidence, contract |
 | `test_integrated_demo_pipeline.py` | Fake full-chain: trajectory → safety → perception → LLM answer |
-| `test_import_boundaries.py` | No legacy imports, no hard model deps, LLM not in safety path |
+| `test_import_boundaries.py` | No legacy imports, no hard model deps, LLM not in safety path, no stage-named tests |
 
 All CI tests are **lightweight**: no network, no model weights, no API keys, no GPU.
 
@@ -25,6 +27,7 @@ All CI tests are **lightweight**: no network, no model weights, no API keys, no 
 | `tools/run_external_trajectory_smoke.py` | None (uses local fixture) |
 | `tools/run_real_integrated_demo.py --llm-provider fake` | None |
 | `tools/run_real_integrated_demo.py --llm-provider deepseek` | `DEEPSEEK_API_KEY` |
+| `tests/manual/test_real_llm_diagnostic_smoke.py` | `DEEPSEEK_API_KEY` or `OPENAI_API_KEY` |
 | `tests/manual/test_real_yolo_smoke.py` | `ultralytics` + model + image |
 | `tests/manual/test_lerobot_hub_smoke.py` | `lerobot` + network |
 

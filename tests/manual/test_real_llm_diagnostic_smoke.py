@@ -17,6 +17,15 @@ def test_real_llm_diagnostic_analysis():
     """Call the real OpenAI-compatible LLM client with structured evidence."""
     provider = os.environ.get("LLM_PROVIDER", "deepseek")
 
+    if provider == "deepseek":
+        if not os.environ.get("DEEPSEEK_API_KEY"):
+            pytest.skip("DEEPSEEK_API_KEY not set")
+    elif provider in ("openai", "openai-compatible"):
+        if not os.environ.get("OPENAI_API_KEY"):
+            pytest.skip("OPENAI_API_KEY not set")
+    else:
+        pytest.skip(f"Unsupported LLM_PROVIDER: {provider}")
+
     from diagnostics.analysis.llm_client import call_llm_diagnostic_analysis
 
     context = {

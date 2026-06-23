@@ -11,3 +11,4 @@ main_prompt.md
 *.jpg
 artifacts/
 local_data/
+.env

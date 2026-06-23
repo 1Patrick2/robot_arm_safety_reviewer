@@ -72,3 +72,10 @@ def test_llm_not_in_safety_decision_path():
                 if n in ("diagnostics",):
                     pytest.fail(f"SafetyRuntime imports diagnostics module")
 
+
+def test_no_stage_named_tests_remain():
+    """No files named test_stage*.py should exist in tests/ root."""
+    from pathlib import Path
+    test_root = Path(__file__).resolve().parent
+    stage_tests = sorted(p.name for p in test_root.glob("test_stage*.py"))
+    assert stage_tests == [], f"Stage-based tests should be consolidated: {stage_tests}"

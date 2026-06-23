@@ -17,47 +17,19 @@ The project started as `RobotArmSafetyReviewer`. It is still a safety reviewer, 
 
 ## Current Status
 
-Current stage: **Stage 5.4-B2 Real YOLO / ONNX Perception Smoke Loop — complete**.
-Next possible stage: **v0.1 portfolio-ready (polish complete, ready for merge)**.
+Current stage: **v0.2 — External Trajectory, Real LLM Advisory, and Test Consolidation — complete**.
 
-Completed scope:
+Completed capabilities:
 
-- Stage 1: deterministic safety gate for joint-space commands.
-- Stage 1.5: benchmark, scorer, replay, and report loop.
-- Stage 2: backend abstraction, PyBullet diagnostics, mock-vs-PyBullet comparison, and URDF calibration diagnostics.
-- Stage 3.1: application service layer, unified CLI, and shared output formatting.
-- Stage 3.2: `PolicyAction` and `PolicyActionSequence`.
-- Stage 3.3: multi-step sequence runtime through `SafetyRuntime`.
-- Stage 3.4: dataset adapters for local `mini_sequence` and `lerobot_style` samples.
-- Stage 3.5: visual sandbox artifacts from runtime episodes.
-- Stage 3.6: SQLite runtime metrics database.
-- Stage 3.7: deterministic agent context package generation from metrics DB records.
-- Stage 3.8A: evidence correctness hardening (scene robot model, obstacle rendering, structured evidence data).
-- Stage 3.8B: diagnostic tools (read-only context query layer).
-- Stage 3.8C: deterministic diagnostic report (LLM-free).
-- Stage 3.8D: diagnostic agent runner with safety boundary checker.
-- Stage 3.8E: DeepSeek adapter (optional smoke-only, not part of deterministic safety path).
-- Stage 3.9: diagnostic runtime integration guardrails and trace.
-- Stage 3.10: evidence manifest for diagnostic outputs.
-- Stage 3.11: diagnostic regression for batch verification.
-- Stage 3.12: demo flow documentation and project hardening.
-- Stage 4.2A: expected contract scaffold (`load_expected_contract`, `build_actual_summary`, `validate_expected_contract`).
-- Stage 4.2B: Level-2 safety scenarios with expected contracts.
-- Stage 4.2C: regression `--case-set` CLI (`smoke` / `level2` / `all`).
-- Stage 4.3A: `evidence_groups` in `evidence_manifest.json` (runtime, safety, geometry, visual, structured_visual, diagnostic, agent).
-- Stage 4.3B: `required_evidence_groups` in `expected_contract.v1`.
-- Stage 4.3C: `required_actual_fields`, `expected_closest_obstacle`, `min_clearance_lte` / `min_clearance_gte`.
-- Stage 4.4A: Diagnostic analysis schema and deterministic fake analyst.
-- Stage 4.4A-polish: evidence_refs consistency cleanup for fake diagnostic analysis.
-- Stage 4.4B: diagnostic analysis application service and `diagnostic analyze` CLI.
-- Stage 5.1: perception result schema (`perception_result.v1`), loader, fake perception adapter.
-- Stage 5.1-polish: unknown safe zone and distance threshold cleanup.
-- Stage 5.2: perception safety fusion (`PerceptionSafetyFusionResult`).
-- Stage 5.2-polish: fusion edge-case coverage.
-- Stage 5.3A: perception-aware regression fixtures and focused tests.
-- Stage 5.4A: perception model adapter protocol (`PerceptionInferenceRequest`, `PerceptionModelAdapter`, `FakePerceptionModelAdapter`).
-- Stage 5.4B: perception inference evidence bridge (`PerceptionInferenceRecord`, `run_perception_inference`, manifest perception group).
-- Stage 5.4C: optional real YOLO / ONNX smoke loop (`UltralyticsYoloAdapter`, contract tests, manual smoke).
+- **Deterministic Safety Runtime**: joint-space safety gate, benchmark/scorer/replay, mock and PyBullet backends, URDF calibration diagnostics.
+- **Policy Action Pipeline**: `PolicyActionSequence`, `SafetyRuntime` multi-step execution, visual sandbox artifacts, runtime metrics DB, agent context generation.
+- **Evidence & Diagnostics**: `evidence_manifest.json` with evidence groups (runtime, safety, geometry, visual, diagnostic, agent, perception, external_trajectory), expected contract validation, diagnostic regression, fake LLM analyst.
+- **Perception Fusion**: `perception_result.v1` schema, model adapter protocol, `FakePerceptionModelAdapter`, perception safety fusion, inference evidence bridge.
+- **Real YOLO/ONNX Perception**: `UltralyticsYoloAdapter` with lazy `ultralytics` import, ONNX export support, manual smoke loop.
+- **External Trajectory Pipeline** (v0.2): LeRobot-style episode schema, `ActionMappingConfig`, `external_trajectory_to_policy_sequence()`, trajectory evidence record, evidence manifest integration.
+- **Real LLM Advisory** (v0.2): `call_llm_diagnostic_analysis()` supporting DeepSeek, OpenAI, and OpenAI-compatible providers. Returns `LLMFinalAnswer` with advisory decision, risk level, and evidence references.
+- **Real Integrated Demo** (v0.2): `tools/run_real_integrated_demo.py` — end-to-end from external trajectory → SafetyRuntime → optional perception → evidence manifest → optional LLM → `final_answer.md` (7 output files).
+- **Test Consolidation** (v0.2): from ~60 stage-based test files to 8 capability-level tests + supporting tests. Legacy `test_stage*.py` files removed. Test structure is capability-oriented, not stage-oriented.
 
 ## Safety Boundary
 
