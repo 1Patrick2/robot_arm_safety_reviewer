@@ -6,7 +6,7 @@ Robot Action Safety Sandbox is a deterministic robot action safety evaluation an
 
 It evaluates robot action sequences, records safety evidence, validates expected-vs-actual contracts, and provides optional diagnostic analysis output.
 
-The next major direction is perception-aware safety fusion, where structured perception results can be converted into safety constraints and combined with robot trajectory evidence.
+The project supports perception-aware safety fusion, where structured perception results can be converted into safety constraints and combined with robot trajectory evidence.
 
 **It is not primarily an Agent project.**
 **LLM / diagnostic analysis is optional and diagnostic-only.**
@@ -45,7 +45,7 @@ Deferred:
 - ROS2 / MoveIt.
 - VLA or autonomous robot-control agent.
 - Large remote dataset integration.
-- Real edge deployment, ONNX, RKNN, or camera integration.
+- Production edge deployment, RKNN acceleration, live camera-stream input, and hardware-in-the-loop validation.
 
 ## Quick Start
 
