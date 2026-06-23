@@ -11,6 +11,7 @@ from robot.adapters.mock_realman_6dof import MockRealMan6DoFAdapter
 
 
 def main() -> None:
+    """Parse args, review the command, and conditionally simulate execution."""
     parser = argparse.ArgumentParser(description="Review and conditionally simulate a robot arm joint move.")
     parser.add_argument("--scene", required=True, help="Path to scene.json")
     parser.add_argument("--command", required=True, help="Path to command.json")
@@ -55,6 +56,7 @@ def main() -> None:
 
 
 def _build_adapter(name: str):
+    """Return a robot adapter instance matching the given name."""
     if name == "mock_realman":
         return MockRealMan6DoFAdapter()
     raise ValueError(f"unsupported robot adapter: {name}")

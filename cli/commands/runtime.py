@@ -1,3 +1,9 @@
+"""Subcommand: ``runtime`` -- runtime safety interposer commands.
+
+Registers the ``runtime`` subcommand tree with a ``run`` sub-subcommand that
+executes a runtime task and prints the result.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -8,6 +14,7 @@ from cli.output import print_runtime_task_result
 
 
 def register_runtime_commands(subparsers) -> None:
+    """Register the ``runtime`` subcommand and its sub-subcommands."""
     runtime_parser = subparsers.add_parser("runtime", help="Runtime safety interposer commands")
     runtime_subparsers = runtime_parser.add_subparsers(dest="runtime_command", required=True)
 
@@ -20,6 +27,7 @@ def register_runtime_commands(subparsers) -> None:
 
 
 def handle_runtime_run(args: argparse.Namespace) -> None:
+    """Run a runtime task and print the result."""
     result = run_runtime_task(
         RuntimeTaskRequest(
             task_dir=Path(args.task),
@@ -28,4 +36,3 @@ def handle_runtime_run(args: argparse.Namespace) -> None:
         )
     )
     print_runtime_task_result(result, as_json=args.json)
-

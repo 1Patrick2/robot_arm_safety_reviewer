@@ -19,10 +19,12 @@ from application.core import AppResult
 
 
 def print_json(payload: dict[str, Any]) -> None:
+    """Print a dictionary as pretty-printed JSON."""
     print(json.dumps(payload, ensure_ascii=False, indent=2))
 
 
 def print_runtime_task_result(result: RuntimeTaskResult, *, as_json: bool) -> None:
+    """Print a runtime task result."""
     if as_json:
         print_json(result.to_dict())
         return
@@ -37,6 +39,7 @@ def print_runtime_task_result(result: RuntimeTaskResult, *, as_json: bool) -> No
 
 
 def print_review_command_result(result: ReviewCommandResult, *, as_json: bool) -> None:
+    """Print a review command result."""
     if as_json:
         print_json(result.to_dict())
         return
@@ -52,6 +55,7 @@ def print_review_command_result(result: ReviewCommandResult, *, as_json: bool) -
 
 
 def print_sequence_runtime_result(result: SequenceRuntimeResult, *, as_json: bool) -> None:
+    """Print a sequence runtime result."""
     if as_json:
         print_json(result.to_dict())
         return
@@ -69,6 +73,7 @@ def print_sequence_runtime_result(result: SequenceRuntimeResult, *, as_json: boo
 
 
 def print_dataset_list_result(result: DatasetListResult, *, as_json: bool) -> None:
+    """Print a dataset list result."""
     if as_json:
         print_json(result.to_dict())
         return
@@ -81,6 +86,7 @@ def print_dataset_list_result(result: DatasetListResult, *, as_json: bool) -> No
 
 
 def print_dataset_export_result(result: DatasetExportSequenceResult, *, as_json: bool) -> None:
+    """Print a dataset export result."""
     if as_json:
         print_json(result.to_dict())
         return
@@ -91,6 +97,7 @@ def print_dataset_export_result(result: DatasetExportSequenceResult, *, as_json:
 
 
 def print_sandbox_run_result(result: SandboxRunResult, *, as_json: bool) -> None:
+    """Print a sandbox run result."""
     if as_json:
         print_json(result.to_dict())
         return
@@ -109,6 +116,7 @@ def print_sandbox_run_result(result: SandboxRunResult, *, as_json: bool) -> None
 
 
 def print_metrics_ingest_result(result: MetricsIngestResult, *, as_json: bool) -> None:
+    """Print a metrics ingest result."""
     if as_json:
         print_json(result.to_dict())
         return
@@ -121,6 +129,7 @@ def print_metrics_ingest_result(result: MetricsIngestResult, *, as_json: bool) -
 
 
 def print_metrics_list_runs_result(result: MetricsListRunsResult, *, as_json: bool) -> None:
+    """Print a metrics list-runs result."""
     if as_json:
         print_json(result.to_dict())
         return
@@ -139,6 +148,7 @@ def print_metrics_list_runs_result(result: MetricsListRunsResult, *, as_json: bo
 
 
 def print_metrics_show_run_result(result: MetricsShowRunResult, *, as_json: bool) -> None:
+    """Print a metrics show-run result."""
     if as_json:
         print_json(result.to_dict())
         return
@@ -161,6 +171,7 @@ def print_metrics_show_run_result(result: MetricsShowRunResult, *, as_json: bool
 
 
 def print_agent_context_build_result(result: AgentContextBuildResult, *, as_json: bool) -> None:
+    """Print an agent context build result."""
     if as_json:
         print_json(result.to_dict())
         return
@@ -174,6 +185,7 @@ def print_agent_context_build_result(result: AgentContextBuildResult, *, as_json
 
 
 def print_diagnostic_run_result(result: DiagnosticRunResult, *, as_json: bool) -> None:
+    """Print a diagnostic run result."""
     if as_json:
         print_json(result.to_dict())
         return
@@ -194,6 +206,7 @@ def print_diagnostic_run_result(result: DiagnosticRunResult, *, as_json: bool) -
 
 
 def print_diagnostic_report_result(result: DiagnosticReportResult, *, as_json: bool) -> None:
+    """Print a diagnostic report result."""
     if as_json:
         print_json(result.to_dict())
         return
@@ -207,6 +220,7 @@ def print_diagnostic_report_result(result: DiagnosticReportResult, *, as_json: b
 
 
 def print_diagnostic_regression_result(result: DiagnosticRegressionResult, *, as_json: bool) -> None:
+    """Print a diagnostic regression result."""
     if as_json:
         print_json(result.to_dict())
         return

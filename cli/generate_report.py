@@ -10,6 +10,7 @@ from diagnostics.report.report_writer import write_markdown_report
 
 
 def main() -> None:
+    """Parse args, generate visualisation and/or Markdown report from an execution log."""
     parser = argparse.ArgumentParser(description="Generate robot arm safety report artifacts from a log.")
     parser.add_argument("--log", required=True, help="Path to execution log JSON")
     parser.add_argument("--output-dir", default="output_reports", help="Directory for Markdown and PNG reports")
@@ -23,6 +24,7 @@ def main() -> None:
             visualization_path = Path(visualization).name
             print(f"Visualization: {visualization}")
         except RuntimeError as exc:
+            # 3D plot may fail (e.g. missing PyBullet), report the error and continue
             print(f"Visualization skipped: {exc}")
 
     report = write_markdown_report(args.log, args.output_dir, visualization_path=visualization_path)

@@ -1,3 +1,9 @@
+"""Subcommand: ``sequence`` -- policy action sequence runtime commands.
+
+Registers the ``sequence`` subcommand tree with a ``run`` sub-subcommand that
+executes a policy action sequence and prints the result.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -8,6 +14,7 @@ from cli.output import print_sequence_runtime_result
 
 
 def register_sequence_commands(subparsers) -> None:
+    """Register the ``sequence`` subcommand and its sub-subcommands."""
     sequence_parser = subparsers.add_parser("sequence", help="Policy action sequence runtime commands")
     sequence_subparsers = sequence_parser.add_subparsers(dest="sequence_command", required=True)
 
@@ -24,6 +31,7 @@ def register_sequence_commands(subparsers) -> None:
 
 
 def handle_sequence_run(args: argparse.Namespace) -> None:
+    """Run a policy action sequence and print the result."""
     result = run_sequence_runtime(
         SequenceRuntimeRequest(
             sequence_path=Path(args.sequence),

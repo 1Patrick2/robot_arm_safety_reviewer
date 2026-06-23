@@ -1,3 +1,9 @@
+"""Run one Stage 3 runtime MVP demo task.
+
+Parses a benchmark task directory, invokes the runtime service, and prints
+the result as text or JSON.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -8,6 +14,7 @@ from cli.output import print_runtime_task_result
 
 
 def main() -> None:
+    """Parse args, run a runtime task, and print the result."""
     parser = argparse.ArgumentParser(description="Run one Stage 3 runtime MVP demo task.")
     parser.add_argument("--task", required=True, help="Benchmark task directory containing scene.json and command.json")
     parser.add_argument("--backend", default="mock", choices=("mock", "pybullet"))

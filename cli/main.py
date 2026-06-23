@@ -1,3 +1,10 @@
+"""Entry point for the robot arm safety reviewer unified CLI.
+
+Parses subcommands and dispatches to the appropriate handler registered by each
+command module (review, runtime, sequence, sandbox, dataset, context, diagnostic,
+metrics).
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -13,6 +20,7 @@ from .commands.sequence import register_sequence_commands
 
 
 def main() -> None:
+    """Build the argument parser, register all subcommands, parse args, and dispatch."""
     parser = argparse.ArgumentParser(description="Robot arm safety reviewer unified CLI.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 

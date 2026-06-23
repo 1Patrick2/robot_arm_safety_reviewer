@@ -15,6 +15,7 @@ from robot.safety.benchmark import (
 
 
 def main() -> None:
+    """Parse args, run benchmark (scored or smoke), and optionally write summary files."""
     parser = argparse.ArgumentParser(description="Run and score the Stage 1 robot arm safety benchmark.")
     parser.add_argument("--bench", default="bench/sim_robot_arm", help="Benchmark root directory")
     parser.add_argument(

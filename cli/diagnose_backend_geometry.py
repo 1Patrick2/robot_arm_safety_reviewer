@@ -1,5 +1,8 @@
 """Generate PyBullet geometry diagnostics for one benchmark task.
-诊断CLI命令，把diagnose_task_geometry.py包装成cli命令，支持参数--task, --output-json, --include-base-collision, --search-distance, --indent等，方便在命令行执行PyBullet几何诊断，并输出结果到json文件中。"""
+
+Wraps ``diagnose_task_geometry`` as a CLI command. Supports arguments
+--task, --output-json, --include-base-collision, --search-distance.
+"""
 
 from __future__ import annotations
 
@@ -12,6 +15,7 @@ from diagnostics.geometry.pybullet_diagnostics import diagnose_task_geometry
 
 
 def main() -> None:
+    """Parse args, run geometry diagnostics, and optionally write JSON."""
     parser = argparse.ArgumentParser(description="Generate PyBullet geometry diagnostics for a benchmark task.")
     parser.add_argument("--task", required=True, help="Benchmark task directory")
     parser.add_argument("--output-json", help="Optional path for full diagnostic JSON")

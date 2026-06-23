@@ -10,6 +10,7 @@ from application.gateway.safety_gate import review_only
 
 
 def main() -> None:
+    """Parse args, run the safety review, and print results."""
     parser = argparse.ArgumentParser(description="Review a robot arm joint-space command before execution.")
     parser.add_argument("--scene", required=True, help="Path to scene.json")
     parser.add_argument("--command", required=True, help="Path to command.json")

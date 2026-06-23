@@ -9,6 +9,7 @@ from application.gateway.replay import replay_log
 
 
 def main() -> None:
+    """Parse args, replay the safety log, and print consistency checks."""
     parser = argparse.ArgumentParser(description="Replay a robot arm safety log and check consistency.")
     parser.add_argument("--log", required=True, help="Path to execution log JSON")
     parser.add_argument("--json", action="store_true", help="Print full replay result JSON")

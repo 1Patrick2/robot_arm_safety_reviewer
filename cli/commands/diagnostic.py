@@ -1,3 +1,10 @@
+"""Subcommand: ``diagnostic`` -- diagnostic runtime commands.
+
+Registers the ``diagnostic`` subcommand tree with ``run``, ``report``,
+``regression``, and ``analyze`` sub-subcommands that invoke various diagnostic
+services and print their results.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -15,6 +22,7 @@ from application.diagnostic_service import (
 from application.diagnostic_analysis_service import DiagnosticAnalysisRequest, run_diagnostic_analysis
 from cli.output import print_diagnostic_run_result, print_diagnostic_report_result, print_diagnostic_regression_result, print_app_result
 
+# Default paths to benchmark and sample data, resolved relative to this file's location.
 SAMPLES = Path(__file__).resolve().parents[2] / "bench" / "samples" / "policy_sequences"
 BENCH = Path(__file__).resolve().parents[2] / "bench" / "sim_robot_arm"
 LEVEL2 = Path(__file__).resolve().parents[2] / "bench" / "level2_safety_scenarios"
@@ -57,6 +65,7 @@ def _build_regression_cases(case_set: str) -> tuple[DiagnosticRegressionCase, ..
 
 
 def register_diagnostic_commands(subparsers) -> None:
+    """Register the ``diagnostic`` subcommand and its sub-subcommands."""
     diag_parser = subparsers.add_parser("diagnostic", help="Diagnostic runtime commands")
     diag_subparsers = diag_parser.add_subparsers(dest="diagnostic_command", required=True)
 
@@ -101,6 +110,7 @@ def register_diagnostic_commands(subparsers) -> None:
 
 
 def handle_diagnostic_run(args: argparse.Namespace) -> None:
+    """Run the full diagnostic pipeline (context + report + optional agent) for an episode."""
     result = run_diagnostic(
         DiagnosticRunRequest(
             episode_id=args.episode_id,
@@ -115,6 +125,7 @@ def handle_diagnostic_run(args: argparse.Namespace) -> None:
 
 
 def handle_diagnostic_report(args: argparse.Namespace) -> None:
+    """Generate a deterministic report from an existing diagnostic context."""
     result = run_diagnostic_report(
         DiagnosticReportRequest(
             context_path=Path(args.context),
@@ -125,6 +136,7 @@ def handle_diagnostic_report(args: argparse.Namespace) -> None:
 
 
 def handle_diagnostic_regression(args: argparse.Namespace) -> None:
+    """Run diagnostic regression on fixed sample cases and print results."""
     case_set = args.case_set
     result = run_diagnostic_regression(
         DiagnosticRegressionRequest(
@@ -141,6 +153,7 @@ def handle_diagnostic_regression(args: argparse.Namespace) -> None:
 
 
 def handle_diagnostic_analyze(args: argparse.Namespace) -> None:
+    """Run diagnostic analysis on an episode using evidence context and manifest."""
     result = run_diagnostic_analysis(
         DiagnosticAnalysisRequest(
             context_path=Path(args.context),

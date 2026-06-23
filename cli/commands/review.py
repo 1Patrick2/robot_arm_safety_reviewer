@@ -1,3 +1,9 @@
+"""Subcommand: ``review`` -- review one scene/command pair.
+
+Registers the ``review`` subcommand and provides a handler that invokes the
+review service and prints the result.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -8,6 +14,7 @@ from cli.output import print_review_command_result
 
 
 def register_review_commands(subparsers) -> None:
+    """Register the ``review`` subcommand."""
     review_parser = subparsers.add_parser("review", help="Review one scene/command pair")
     review_parser.add_argument("--scene", required=True, help="Path to scene.json")
     review_parser.add_argument("--command", required=True, help="Path to command.json")
@@ -18,6 +25,7 @@ def register_review_commands(subparsers) -> None:
 
 
 def handle_review(args: argparse.Namespace) -> None:
+    """Run the safety review for a scene/command pair and print the result."""
     result = review_command(
         ReviewCommandRequest(
             scene_path=Path(args.scene),

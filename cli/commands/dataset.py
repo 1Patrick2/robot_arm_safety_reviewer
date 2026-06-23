@@ -1,3 +1,9 @@
+"""Subcommand: ``dataset`` -- dataset adapter commands.
+
+Registers the ``dataset`` subcommand tree with ``list`` and ``export-sequence``
+sub-subcommands that interact with the dataset service.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -13,6 +19,7 @@ from cli.output import print_dataset_list_result, print_dataset_export_result
 
 
 def register_dataset_commands(subparsers) -> None:
+    """Register the ``dataset`` subcommand and its sub-subcommands."""
     dataset_parser = subparsers.add_parser("dataset", help="Dataset adapter commands")
     dataset_subparsers = dataset_parser.add_subparsers(dest="dataset_command", required=True)
 
@@ -34,6 +41,7 @@ def register_dataset_commands(subparsers) -> None:
 
 
 def handle_dataset_list(args: argparse.Namespace) -> None:
+    """List available sequences from a dataset adapter."""
     result = dataset_list(
         DatasetListRequest(
             adapter_name=args.adapter,
@@ -44,6 +52,7 @@ def handle_dataset_list(args: argparse.Namespace) -> None:
 
 
 def handle_dataset_export(args: argparse.Namespace) -> None:
+    """Export a single sequence from a dataset adapter."""
     result = dataset_export_sequence(
         DatasetExportSequenceRequest(
             adapter_name=args.adapter,

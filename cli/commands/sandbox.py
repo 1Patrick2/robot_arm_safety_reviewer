@@ -1,3 +1,9 @@
+"""Subcommand: ``sandbox`` -- visual sandbox commands.
+
+Registers the ``sandbox`` subcommand tree with a ``run`` sub-subcommand that
+runs a sequence through the visual sandbox and prints the result.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -8,6 +14,7 @@ from cli.output import print_sandbox_run_result
 
 
 def register_sandbox_commands(subparsers) -> None:
+    """Register the ``sandbox`` subcommand and its sub-subcommands."""
     sandbox_parser = subparsers.add_parser("sandbox", help="Visual sandbox commands")
     sandbox_subparsers = sandbox_parser.add_subparsers(dest="sandbox_command", required=True)
 
@@ -24,6 +31,7 @@ def register_sandbox_commands(subparsers) -> None:
 
 
 def handle_sandbox_run(args: argparse.Namespace) -> None:
+    """Run a sequence through the sandbox and print the result."""
     result = run_sandbox(
         SandboxRunRequest(
             sequence_path=Path(args.sequence),

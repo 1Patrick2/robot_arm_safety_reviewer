@@ -1,5 +1,8 @@
 """Compare benchmark outputs across simulation backends.
-后端比较命令，把backend_comparison.py包装成cli命令，支持参数--bench, --backends, --log-dir, --output-json, --output-md等，方便在命令行执行后端比较，并输出结果到json或者markdown文件中。"""
+
+Parses --bench, --backends, --log-dir, --output-json, --output-md CLI arguments,
+runs the backend comparison, and writes results to JSON and/or Markdown files.
+"""
 
 from __future__ import annotations
 
@@ -13,6 +16,7 @@ from diagnostics.report.backend_comparison import (
 
 
 def main() -> None:
+    """Parse args, compare backends, write output files, and print summary."""
     parser = argparse.ArgumentParser(description="Compare robot arm safety outputs across backends.")
     parser.add_argument("--bench", default="bench/sim_robot_arm", help="Benchmark root directory")
     parser.add_argument("--backends", nargs="+", default=["mock", "pybullet"], help="Backends to compare")

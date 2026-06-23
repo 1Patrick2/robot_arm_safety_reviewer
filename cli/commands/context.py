@@ -1,3 +1,9 @@
+"""Subcommand: ``context`` -- diagnostic agent context commands.
+
+Registers the ``context`` subcommand tree with a ``build`` sub-subcommand that
+builds a diagnostic context package for a given episode.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -8,6 +14,7 @@ from cli.output import print_agent_context_build_result
 
 
 def register_context_commands(subparsers) -> None:
+    """Register the ``context`` subcommand and its sub-subcommands."""
     ctx_parser = subparsers.add_parser("context", help="Diagnostic agent context commands")
     ctx_subparsers = ctx_parser.add_subparsers(dest="context_command", required=True)
 
@@ -21,6 +28,7 @@ def register_context_commands(subparsers) -> None:
 
 
 def handle_context_build(args: argparse.Namespace) -> None:
+    """Build a diagnostic context package for an episode and print the result."""
     result = build_agent_context(
         AgentContextBuildRequest(
             episode_id=args.episode_id,

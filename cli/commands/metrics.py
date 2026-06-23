@@ -1,3 +1,9 @@
+"""Subcommand: ``metrics`` -- runtime metrics database commands.
+
+Registers the ``metrics`` subcommand tree with ``ingest``, ``list-runs``, and
+``show-run`` sub-subcommands that interact with the metrics database.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -15,6 +21,7 @@ from cli.output import print_metrics_ingest_result, print_metrics_list_runs_resu
 
 
 def register_metrics_commands(subparsers) -> None:
+    """Register the ``metrics`` subcommand and its sub-subcommands."""
     metrics_parser = subparsers.add_parser("metrics", help="Runtime metrics database commands")
     metrics_subparsers = metrics_parser.add_subparsers(dest="metrics_command", required=True)
 
@@ -41,6 +48,7 @@ def register_metrics_commands(subparsers) -> None:
 
 
 def handle_metrics_ingest(args: argparse.Namespace) -> None:
+    """Ingest an episode directory into the metrics database."""
     result = metrics_ingest_episode(
         MetricsIngestRequest(
             episode_dir=Path(args.episode_dir),
@@ -51,6 +59,7 @@ def handle_metrics_ingest(args: argparse.Namespace) -> None:
 
 
 def handle_metrics_list_runs(args: argparse.Namespace) -> None:
+    """List ingested runs from the metrics database."""
     result = metrics_list_runs(
         MetricsListRunsRequest(
             db_path=Path(args.db),
@@ -61,6 +70,7 @@ def handle_metrics_list_runs(args: argparse.Namespace) -> None:
 
 
 def handle_metrics_show_run(args: argparse.Namespace) -> None:
+    """Show details for a single run identified by episode ID."""
     result = metrics_show_run(
         MetricsShowRunRequest(
             episode_id=args.episode_id,
