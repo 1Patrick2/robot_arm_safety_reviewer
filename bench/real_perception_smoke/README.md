@@ -20,7 +20,7 @@ This folder is for local real-model smoke data.
 
 4. Run the smoke script:
    ```powershell
-   python scripts/run_real_perception_smoke.py ^
+   python tools/run_real_perception_smoke.py ^
      --model bench/real_perception_smoke/yolo26n.onnx ^
      --image bench/real_perception_smoke/bus.jpg ^
      --out artifacts/real_perception_smoke ^

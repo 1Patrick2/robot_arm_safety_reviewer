@@ -2,7 +2,7 @@ from pathlib import Path
 
 from application.agent_context_service import AgentContextBuildRequest, build_agent_context
 
-SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "policy_sequences"
+SAMPLES = Path(__file__).resolve().parents[1] / "bench" / "samples" / "policy_sequences"
 BENCH = Path(__file__).resolve().parents[1] / "bench" / "sim_robot_arm"
 
 

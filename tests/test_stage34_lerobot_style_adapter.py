@@ -3,9 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from dataset_adapters.lerobot_style_adapter import LeRobotStyleAdapter
+from bench.adapters.lerobot_style_adapter import LeRobotStyleAdapter
 
-SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "lerobot_style"
+SAMPLES = Path(__file__).resolve().parents[1] / "bench" / "samples" / "lerobot_style"
 
 
 class TestLeRobotStyleAdapter:

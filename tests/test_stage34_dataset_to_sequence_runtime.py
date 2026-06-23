@@ -9,8 +9,8 @@ from application.dataset_service import (
 )
 from application.sequence_runtime_service import SequenceRuntimeRequest, run_sequence_runtime
 
-SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "policy_sequences"
-LEROBOT_SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "lerobot_style"
+SAMPLES = Path(__file__).resolve().parents[1] / "bench" / "samples" / "policy_sequences"
+LEROBOT_SAMPLES = Path(__file__).resolve().parents[1] / "bench" / "samples" / "lerobot_style"
 BENCH = Path(__file__).resolve().parents[1] / "bench" / "sim_robot_arm"
 
 

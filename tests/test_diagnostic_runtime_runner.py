@@ -5,7 +5,7 @@ from diagnostics.runtime.models import DiagnosticRuntimeRequest, DiagnosticRunti
 from diagnostics.runtime.runner import run_diagnostic_runtime
 from diagnostics.runtime.trace import write_runtime_trace
 
-SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "policy_sequences"
+SAMPLES = Path(__file__).resolve().parents[1] / "bench" / "samples" / "policy_sequences"
 BENCH = Path(__file__).resolve().parents[1] / "bench" / "sim_robot_arm"
 
 

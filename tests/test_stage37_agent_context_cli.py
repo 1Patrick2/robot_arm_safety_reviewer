@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SAMPLES = ROOT / "samples" / "policy_sequences"
+SAMPLES = ROOT / "bench" / "samples" / "policy_sequences"
 BENCH = ROOT / "bench" / "sim_robot_arm"
 
 

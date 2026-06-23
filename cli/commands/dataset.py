@@ -19,14 +19,14 @@ def register_dataset_commands(subparsers) -> None:
     # dataset list
     list_parser = dataset_subparsers.add_parser("list", help="List available sequences")
     list_parser.add_argument("--adapter", default="mini_sequence", help="Dataset adapter name")
-    list_parser.add_argument("--source", default="samples/policy_sequences", help="Dataset source directory")
+    list_parser.add_argument("--source", default="bench/samples/policy_sequences", help="Dataset source directory")
     list_parser.add_argument("--json", action="store_true")
     list_parser.set_defaults(handler=handle_dataset_list)
 
     # dataset export-sequence
     export_parser = dataset_subparsers.add_parser("export-sequence", help="Export a single sequence")
     export_parser.add_argument("--adapter", default="mini_sequence", help="Dataset adapter name")
-    export_parser.add_argument("--source", default="samples/policy_sequences", help="Dataset source directory")
+    export_parser.add_argument("--source", default="bench/samples/policy_sequences", help="Dataset source directory")
     export_parser.add_argument("--sequence-id", required=True, help="Sequence ID to export")
     export_parser.add_argument("--output", required=True, help="Output file path")
     export_parser.add_argument("--json", action="store_true")

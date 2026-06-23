@@ -8,7 +8,7 @@ from application.sequence_runtime_service import SequenceRuntimeRequest, run_seq
 
 ROOT = Path(__file__).resolve().parents[1]
 BENCH = ROOT / "bench" / "sim_robot_arm"
-SAMPLES = ROOT / "samples" / "policy_sequences"
+SAMPLES = ROOT / "bench" / "samples" / "policy_sequences"
 
 
 def _write_sequence(path: Path, *, sequence_id: str, actions: list[dict]) -> Path:

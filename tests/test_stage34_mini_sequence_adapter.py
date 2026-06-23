@@ -1,9 +1,9 @@
 import pytest
 from pathlib import Path
 
-from dataset_adapters.mini_sequence_adapter import MiniSequenceAdapter
+from bench.adapters.mini_sequence_adapter import MiniSequenceAdapter
 
-SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "policy_sequences"
+SAMPLES = Path(__file__).resolve().parents[1] / "bench" / "samples" / "policy_sequences"
 
 
 class TestMiniSequenceAdapter:

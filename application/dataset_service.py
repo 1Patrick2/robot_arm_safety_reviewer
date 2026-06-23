@@ -5,8 +5,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from dataset_adapters.lerobot_style_adapter import LeRobotStyleAdapter
-from dataset_adapters.mini_sequence_adapter import MiniSequenceAdapter
+from bench.adapters.lerobot_style_adapter import LeRobotStyleAdapter
+from bench.adapters.mini_sequence_adapter import MiniSequenceAdapter
 from robot.runtime.action_sequence import PolicyActionSequence
 
 from .core import AppResult, ArtifactRef
@@ -30,7 +30,7 @@ def _get_adapter(adapter_name: str):
 @dataclass(frozen=True)
 class DatasetListRequest:
     adapter_name: str = "mini_sequence"
-    source: Path = Path("samples/policy_sequences")
+    source: Path = Path("bench/samples/policy_sequences")
 
 
 @dataclass(frozen=True)
@@ -51,7 +51,7 @@ class DatasetListResult:
 @dataclass(frozen=True)
 class DatasetExportSequenceRequest:
     adapter_name: str = "mini_sequence"
-    source: Path = Path("samples/policy_sequences")
+    source: Path = Path("bench/samples/policy_sequences")
     sequence_id: str = ""
     output: Path | None = None
 

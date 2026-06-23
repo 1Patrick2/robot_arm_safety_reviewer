@@ -43,7 +43,7 @@ python -c "from ultralytics import YOLO; YOLO('yolo26n.pt').export(format='onnx'
 ### 3. Run smoke script
 
 ```powershell
-python scripts/run_real_perception_smoke.py ^
+python tools/run_real_perception_smoke.py ^
   --model local_data/real_perception_smoke/yolo26n.onnx ^
   --image local_data/real_perception_smoke/bus.jpg ^
   --out artifacts/real_perception_smoke ^

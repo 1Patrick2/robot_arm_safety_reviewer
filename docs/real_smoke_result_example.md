@@ -14,7 +14,7 @@ This document records a successful real smoke run using YOLO ONNX on a single im
 ## Run Command
 
 ```powershell
-python scripts/run_real_perception_smoke.py ^
+python tools/run_real_perception_smoke.py ^
   --model local_data/real_perception_smoke/yolo26n.onnx ^
   --image local_data/real_perception_smoke/bus.jpg ^
   --out artifacts/real_perception_smoke_onnx ^

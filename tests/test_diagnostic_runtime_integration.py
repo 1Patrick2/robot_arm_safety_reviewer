@@ -14,7 +14,7 @@ from diagnostics.tools.context_tools import load_diagnostic_context, get_episode
 from diagnostics.report.deterministic import build_diagnostic_report
 from diagnostics.agent.runner import run_diagnostic_agent
 
-SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "policy_sequences"
+SAMPLES = Path(__file__).resolve().parents[1] / "bench" / "samples" / "policy_sequences"
 BENCH = Path(__file__).resolve().parents[1] / "bench" / "sim_robot_arm"
 
 

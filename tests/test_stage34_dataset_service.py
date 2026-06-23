@@ -12,7 +12,7 @@ from application.dataset_service import (
     dataset_export_sequence,
 )
 
-SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "policy_sequences"
+SAMPLES = Path(__file__).resolve().parents[1] / "bench" / "samples" / "policy_sequences"
 
 
 class TestDatasetList:

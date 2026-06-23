@@ -4,8 +4,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SAMPLES = ROOT / "samples" / "policy_sequences"
-LEROY = ROOT / "samples" / "lerobot_style"
+SAMPLES = ROOT / "bench" / "samples" / "policy_sequences"
+LEROY = ROOT / "bench" / "samples" / "lerobot_style"
 
 
 def test_dataset_cli_list_json():

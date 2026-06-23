@@ -15,7 +15,7 @@ from application.diagnostic_service import (
 from application.diagnostic_analysis_service import DiagnosticAnalysisRequest, run_diagnostic_analysis
 from cli.output import print_diagnostic_run_result, print_diagnostic_report_result, print_diagnostic_regression_result, print_app_result
 
-SAMPLES = Path(__file__).resolve().parents[2] / "samples" / "policy_sequences"
+SAMPLES = Path(__file__).resolve().parents[2] / "bench" / "samples" / "policy_sequences"
 BENCH = Path(__file__).resolve().parents[2] / "bench" / "sim_robot_arm"
 LEVEL2 = Path(__file__).resolve().parents[2] / "bench" / "level2_safety_scenarios"
 

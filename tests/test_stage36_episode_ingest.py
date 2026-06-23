@@ -12,7 +12,7 @@ from runtime_db.episode_ingest import (
 from runtime_db.repository import RuntimeMetricsRepository
 from runtime_db.schema import init_runtime_db
 
-SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "policy_sequences"
+SAMPLES = Path(__file__).resolve().parents[1] / "bench" / "samples" / "policy_sequences"
 BENCH = Path(__file__).resolve().parents[1] / "bench" / "sim_robot_arm"
 
 

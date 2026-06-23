@@ -38,7 +38,7 @@ class PyBulletBackend(SimulationBackend):
     ) -> None:
         if collision_method not in {LINK_POSITION_METHOD, CLOSEST_POINTS_METHOD}:
             raise ValueError(f"unsupported PyBullet collision method: {collision_method}")
-        '''默认urdf路径是assets/robots/mock_realman_6dof/robot.urdf，用户没传路径就是默认路径'''
+        '''默认urdf路径是bench/assets/robots/mock_realman_6dof/robot.urdf，用户没传路径就是默认路径'''
         self.urdf_path = urdf_path or (
             Path(__file__).resolve().parents[2]
             / "assets"

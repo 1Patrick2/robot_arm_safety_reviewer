@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSET_DIR = ROOT / "assets/robots/mock_realman_6dof"
+ASSET_DIR = ROOT / "bench/assets/robots/mock_realman_6dof"
 URDF_PATH = ASSET_DIR / "robot.urdf"
 README_PATH = ASSET_DIR / "README.md"
 

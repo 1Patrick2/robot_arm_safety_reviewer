@@ -5,7 +5,7 @@ import pytest
 
 from application.sandbox_service import SandboxRunRequest, run_sandbox
 
-SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "policy_sequences"
+SAMPLES = Path(__file__).resolve().parents[1] / "bench" / "samples" / "policy_sequences"
 BENCH = Path(__file__).resolve().parents[1] / "bench" / "sim_robot_arm"
 
 _pybullet = importlib.util.find_spec("pybullet")

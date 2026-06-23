@@ -3,7 +3,7 @@ from pathlib import Path
 from application.sandbox_service import SandboxRunRequest, run_sandbox
 from runtime_db.repository import RuntimeMetricsRepository
 
-SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "policy_sequences"
+SAMPLES = Path(__file__).resolve().parents[1] / "bench" / "samples" / "policy_sequences"
 BENCH = Path(__file__).resolve().parents[1] / "bench" / "sim_robot_arm"
 
 

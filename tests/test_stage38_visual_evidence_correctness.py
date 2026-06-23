@@ -5,7 +5,7 @@ import pytest
 
 from reports.runtime_visual_report import write_trajectory_overview
 
-SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "policy_sequences"
+SAMPLES = Path(__file__).resolve().parents[1] / "bench" / "samples" / "policy_sequences"
 BENCH = Path(__file__).resolve().parents[1] / "bench" / "sim_robot_arm"
 
 
@@ -80,7 +80,7 @@ class TestTrajectoryEvidenceData:
         """Evidence data should record obstacle bounds for scenes with obstacles."""
         from application.sandbox_service import SandboxRunRequest, run_sandbox
         BENCH = Path(__file__).resolve().parents[1] / "bench" / "sim_robot_arm"
-        SAMPLES = Path(__file__).resolve().parents[1] / "samples" / "policy_sequences"
+        SAMPLES = Path(__file__).resolve().parents[1] / "bench" / "samples" / "policy_sequences"
         result = run_sandbox(
             SandboxRunRequest(
                 sequence_path=SAMPLES / "near_miss_sequence.json",
