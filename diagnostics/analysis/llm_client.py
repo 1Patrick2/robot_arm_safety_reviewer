@@ -39,12 +39,12 @@ def call_llm_diagnostic_analysis(
     """
     if provider == "deepseek":
         api_key = os.environ.get("DEEPSEEK_API_KEY")
-        base_url = os.environ.get("OPENAI_COMPATIBLE_BASE_URL", "https://api.deepseek.com")
+        base_url = os.environ.get("OPENAI_COMPATIBLE_BASE_URL") or os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
         if not model:
-            model = "deepseek-chat"
+            model = os.environ.get("DEEPSEEK_MODEL_ID", "deepseek-chat")
     elif provider in ("openai-compatible", "openai"):
         api_key = os.environ.get("OPENAI_API_KEY")
-        base_url = os.environ.get("OPENAI_COMPATIBLE_BASE_URL", "https://api.openai.com/v1")
+        base_url = os.environ.get("OPENAI_COMPATIBLE_BASE_URL", "https://api.openai.com")
         if not model:
             model = "gpt-4o-mini"
     else:
@@ -70,7 +70,7 @@ def call_llm_diagnostic_analysis(
         raise RuntimeError("httpx is required for real LLM calls. Install with: pip install httpx")
 
     resp = httpx.post(
-        f"{base_url.rstrip('/')}/chat/completions",
+        f"{base_url.rstrip('/')}/v1/chat/completions",
         headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
         json={
             "model": model,
