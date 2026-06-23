@@ -16,9 +16,10 @@ Safety decisions are made by deterministic runtime logic, not by an LLM or agent
 
 Completed through Stage 5.4-B2 (Real YOLO / ONNX Perception Smoke Loop).
 
-Current architecture work: R1-C diagnostics migration stabilized, R1-B6 robot domain migration completed.
+v0.1 final hygiene: stale docs cleanup, obsolete test review, final validation, merge preparation.
 
-Current architecture work: Stage R1 Project Architecture Refactor completed.
+Robot domain migration completed. Diagnostics package migration completed.
+Top-level layout consolidated (9 canonical directories).
 
 Completed R1 robot-domain migration:
 
@@ -40,8 +41,8 @@ Paused feature work:
 
 - Stage 5.3-B Perception-Aware Regression Summary Integration is paused until R1-C validation passes.
 - Stage 5.4-A Perception Model Adapter Protocol: `PerceptionInferenceRequest`, `PerceptionModelAdapter` Protocol, `FakePerceptionModelAdapter`.
-- Stage 5.4-B2 optional real YOLO / ONNX smoke loop: `UltralyticsYoloAdapter`, manual smoke script, contract tests, real smoke tests.
-- v0.1 polish complete. Ready for merge to master.
+- Stage 5.4-B2 optional real YOLO / ONNX smoke loop: `UltralyticsYoloAdapter`, manual smoke script, contract tests.
+- v0.1 top-level layout consolidation complete (9 canonical directories).
 
 ## Completed Capabilities
 
