@@ -160,20 +160,20 @@ def main() -> None:
             fused_decision=fused_decision, fused_risk_level=fused_risk_level,
             dataset_name=traj.dataset_name,
         )
-    elif not args.skip_llm and args.llm_provider in ("deepseek", "openai"):
-        # Real LLM provider path — uses the existing diagnostic analysis pipeline
-        from diagnostics.analysis.fake_analyst import run_fake_diagnostic_analyst  # noqa: PLC0415
+    elif not args.skip_llm and args.llm_provider in ("deepseek", "openai-compatible"):
+        from diagnostics.analysis.llm_client import call_llm_diagnostic_analysis  # noqa: PLC0415
         context_data = json.loads(ctx.read_text(encoding="utf-8"))
         manifest_data = json.loads(manifest_path.read_text(encoding="utf-8"))
-        analysis = run_fake_diagnostic_analyst(context=context_data, manifest=manifest_data)
-        answer = LLMFinalAnswer(
-            provider=args.llm_provider, model=args.llm_model or "unknown",
-            advisory_decision=analysis.deterministic_outcome.get("final_status", "unknown"),
-            risk_level=analysis.deterministic_outcome.get("fused_risk_level", fused_risk_level),
-            short_answer=analysis.risk_summary,
-            reasoning_summary=analysis.risk_summary,
-            evidence_refs=tuple(analysis.evidence_used),
-        )
+        ext_data = json.loads(rec_path.read_text(encoding="utf-8"))
+        percep_data = json.loads(perception_record_path.read_text(encoding="utf-8")) if perception_record_path else None
+        try:
+            answer = call_llm_diagnostic_analysis(
+                provider=args.llm_provider, model=args.llm_model or "",
+                context=context_data, manifest=manifest_data,
+                external_trajectory_record=ext_data, perception_record=percep_data,
+            )
+        except RuntimeError as exc:
+            print(f"  WARNING: LLM call failed: {exc}")
     else:
         answer = None
 

@@ -5,11 +5,11 @@ import pytest
 
 def test_no_old_top_level_dir_imports():
     """Legacy top-level packages must not be importable or used."""
-    forbidden = {"dataset_adapters", "gateway", "runtime_db", "reports", "sim"}
+    forbidden = {"dataset_adapters", "gateway", "runtime_db", "reports", "sim", "robot_safety", "robot_runtime", "robots"}
     import sys
     for mod in list(sys.modules.keys()):
         prefix = mod.split(".")[0]
-        if prefix in forbidden and prefix not in ("reports",):
+        if prefix in forbidden:
             pytest.fail(f"Legacy module still loaded: {mod}")
 
 
