@@ -1,0 +1,9 @@
+{
+  "source_action_type": "joint_position",
+  "target_command_type": "joint_space",
+  "joint_count": 6,
+  "speed": 0.5,
+  "scale": 1.0,
+  "offset": [0, 0, 0, 0, 0, 0],
+  "current_joints_policy": "previous_target"
+}

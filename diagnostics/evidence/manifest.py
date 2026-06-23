@@ -12,6 +12,7 @@ def build_evidence_manifest(
     agent_report_path: Path | None = None,
     trace_path: Path | None = None,
     perception_record_path: Path | None = None,
+    external_trajectory_record_path: Path | None = None,
 ) -> dict[str, Any]:
     """Build a structured evidence manifest for a diagnostic run.
 
@@ -96,6 +97,19 @@ def build_evidence_manifest(
             except (OSError, json.JSONDecodeError):
                 pass
 
+    # 8. external trajectory record
+    ext_traj_data: dict[str, Any] | None = None
+    ext_traj_valid = False
+    if external_trajectory_record_path is not None:
+        etp = Path(external_trajectory_record_path)
+        if etp.exists():
+            add("external_trajectory_record", etp, "bench.adapters.external_trajectory")
+            try:
+                ext_traj_data = json.loads(etp.read_text(encoding="utf-8"))
+                ext_traj_valid = True
+            except (OSError, json.JSONDecodeError):
+                pass
+
     # -- compute checks ------------------------------------------------------
     def _artifact_exists(kind: str) -> bool:
         return any(a["kind"] == kind and a["exists"] for a in artifacts)
@@ -125,6 +139,8 @@ def build_evidence_manifest(
         "has_guardrail_violations": has_guardrail_violations,
         "has_perception_evidence": _artifact_exists("perception_inference_record"),
         "perception_record_valid": perception_record_valid,
+        "has_external_trajectory_evidence": _artifact_exists("external_trajectory_record"),
+        "external_trajectory_record_valid": ext_traj_valid,
     }
 
     # -- summary -------------------------------------------------------------
@@ -157,10 +173,20 @@ def build_evidence_manifest(
         summary["perception_fused_decision"] = (perception_record_data.get("fusion_result") or {}).get("fused_decision")
         summary["perception_fused_risk_level"] = (perception_record_data.get("fusion_result") or {}).get("fused_risk_level")
 
+    # -- external trajectory summary fields ------------------------------------
+    if ext_traj_data is not None and ext_traj_valid:
+        summary["external_dataset_name"] = ext_traj_data.get("dataset_name")
+        summary["external_episode_id"] = ext_traj_data.get("episode_id")
+        summary["external_robot_name"] = ext_traj_data.get("robot_name")
+        summary["external_action_type"] = ext_traj_data.get("action_type")
+        summary["external_frame_count"] = ext_traj_data.get("frame_count")
+        summary["external_sequence_id"] = ext_traj_data.get("sequence_id")
+
     # -- evidence groups ----------------------------------------------------
     evidence_groups = _build_evidence_groups(
         summary=summary, artifacts=artifacts, checks=checks,
         perception_record_valid=perception_record_valid,
+        ext_traj_valid=ext_traj_valid,
     )
 
     return {
@@ -189,6 +215,7 @@ def _build_evidence_groups(
     artifacts: list[dict[str, Any]],
     checks: dict[str, bool],
     perception_record_valid: bool = False,
+    ext_traj_valid: bool = False,
 ) -> dict[str, Any]:
     """Build the ``evidence_groups`` section of an evidence manifest.
 
@@ -304,6 +331,24 @@ def _build_evidence_groups(
                 "summary.perception_adapter",
                 "summary.perception_fused_decision",
                 "summary.perception_observation_count",
+            ],
+        ),
+        "external_trajectory": _group(
+            available=ext_traj_valid,
+            summary_fields=[
+                "external_dataset_name",
+                "external_episode_id",
+                "external_robot_name",
+                "external_action_type",
+                "external_frame_count",
+                "external_sequence_id",
+            ],
+            artifact_kinds=["external_trajectory_record"],
+            evidence_refs=[
+                "artifacts.external_trajectory_record",
+                "summary.external_dataset_name",
+                "summary.external_episode_id",
+                "summary.external_frame_count",
             ],
         ),
     }

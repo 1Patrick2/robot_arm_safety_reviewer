@@ -1,0 +1,15 @@
+{
+  "dataset_name": "lerobot_style_sample",
+  "episode_id": "episode_000001",
+  "robot_name": "aloha_like",
+  "action_type": "joint_position",
+  "actions": [
+    [0.0, 0.1, 0.2, 0.0, 0.0, 0.1],
+    [0.1, 0.2, 0.25, 0.0, 0.0, 0.1],
+    [0.2, 0.3, 0.3, 0.0, 0.0, 0.1]
+  ],
+  "timestamps": [0.0, 0.1, 0.2],
+  "metadata": {
+    "source": "lerobot_style_sample_v1"
+  }
+}

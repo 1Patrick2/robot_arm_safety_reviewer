@@ -1,0 +1,13 @@
+{
+  "schema_version": "expected_contract.v1",
+  "case_id": "external_trajectory_smoke",
+  "expected": {
+    "required_artifacts": [
+      "external_trajectory_record",
+      "evidence_manifest"
+    ],
+    "required_evidence_groups": [
+      "external_trajectory"
+    ]
+  }
+}
