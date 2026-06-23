@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-from runtime_db.schema import SCHEMA_VERSION, init_runtime_db
+from diagnostics.storage.schema import SCHEMA_VERSION, init_runtime_db
 
 
 class TestInitRuntimeDb:

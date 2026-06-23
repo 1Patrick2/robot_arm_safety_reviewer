@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from gateway.safety_gate import execute_if_safe
+from application.gateway.safety_gate import execute_if_safe
 
 from .scorer import score_execution_log, summarize_task_scores
 

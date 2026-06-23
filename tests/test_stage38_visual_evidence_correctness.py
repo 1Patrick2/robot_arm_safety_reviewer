@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from reports.runtime_visual_report import write_trajectory_overview
+from diagnostics.report.runtime_visual_report import write_trajectory_overview
 
 SAMPLES = Path(__file__).resolve().parents[1] / "bench" / "samples" / "policy_sequences"
 BENCH = Path(__file__).resolve().parents[1] / "bench" / "sim_robot_arm"

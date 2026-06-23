@@ -3,14 +3,14 @@ from pathlib import Path
 
 import pytest
 
-from runtime_db.episode_ingest import (
+from diagnostics.storage.episode_ingest import (
     build_artifact_records,
     build_run_record,
     build_step_records,
     ingest_episode,
 )
-from runtime_db.repository import RuntimeMetricsRepository
-from runtime_db.schema import init_runtime_db
+from diagnostics.storage.repository import RuntimeMetricsRepository
+from diagnostics.storage.schema import init_runtime_db
 
 SAMPLES = Path(__file__).resolve().parents[1] / "bench" / "samples" / "policy_sequences"
 BENCH = Path(__file__).resolve().parents[1] / "bench" / "sim_robot_arm"

@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from gateway.safety_gate import review_only
+from application.gateway.safety_gate import review_only
 from robot.safety.benchmark import discover_task_dirs
 
 

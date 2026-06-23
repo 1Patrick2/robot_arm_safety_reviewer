@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from gateway.safety_gate import review_only
+from application.gateway.safety_gate import review_only
 from robot.safety.models import SafetyResult
 
 from .core import AppResult, ArtifactRef

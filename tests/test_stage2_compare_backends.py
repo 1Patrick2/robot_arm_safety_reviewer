@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from reports.backend_comparison import compare_backends
+from diagnostics.report.backend_comparison import compare_backends
 
 
 ROOT = Path(__file__).resolve().parents[1]

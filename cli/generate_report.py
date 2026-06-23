@@ -5,8 +5,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from reports.plot_3d import write_3d_plot
-from reports.report_writer import write_markdown_report
+from diagnostics.report.plot_3d import write_3d_plot
+from diagnostics.report.report_writer import write_markdown_report
 
 
 def main() -> None:

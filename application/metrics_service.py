@@ -5,9 +5,9 @@ from pathlib import Path
 from typing import Any
 
 from application.core import AppResult
-from runtime_db.episode_ingest import ingest_episode
-from runtime_db.repository import RuntimeMetricsRepository
-from runtime_db.schema import init_runtime_db
+from diagnostics.storage.episode_ingest import ingest_episode
+from diagnostics.storage.repository import RuntimeMetricsRepository
+from diagnostics.storage.schema import init_runtime_db
 
 DEFAULT_DB = Path("output_reports/runtime_metrics/runtime_metrics.db")
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import argparse
 
-from reports.backend_comparison import (
+from diagnostics.report.backend_comparison import (
     compare_backends,
     write_backend_comparison_json,
     write_backend_comparison_markdown,

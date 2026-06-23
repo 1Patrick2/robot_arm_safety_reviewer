@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from reports.runtime_episode_report import (
+from diagnostics.report.runtime_episode_report import (
     build_runtime_episode_markdown,
     write_runtime_episode_report,
 )

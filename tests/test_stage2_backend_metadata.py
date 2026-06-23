@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from gateway.safety_gate import review_only
-from reports.report_writer import build_markdown_report
+from application.gateway.safety_gate import review_only
+from diagnostics.report.report_writer import build_markdown_report
 from robot.safety.evaluator import evaluate_joint_command_with_metadata
 from robot.safety.models import JointCommand, Scene
 

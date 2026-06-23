@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 
-from gateway.replay import replay_log
+from application.gateway.replay import replay_log
 
 
 def main() -> None:

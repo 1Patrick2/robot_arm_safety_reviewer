@@ -3,8 +3,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from gateway.replay import replay_log
-from gateway.safety_gate import review_only
+from application.gateway.replay import replay_log
+from application.gateway.safety_gate import review_only
 
 ROOT = Path(__file__).resolve().parents[1]
 BENCH = ROOT / "bench/sim_robot_arm"

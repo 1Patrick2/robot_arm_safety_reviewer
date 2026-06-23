@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from gateway.safety_gate import review_only
+from application.gateway.safety_gate import review_only
 
 ROOT = Path(__file__).resolve().parents[1]
 BENCH = ROOT / "bench/sim_robot_arm"

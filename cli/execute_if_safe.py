@@ -6,7 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
-from gateway.safety_gate import execute_if_safe
+from application.gateway.safety_gate import execute_if_safe
 from robot.adapters.mock_realman_6dof import MockRealMan6DoFAdapter
 
 

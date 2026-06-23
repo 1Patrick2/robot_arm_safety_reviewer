@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from gateway.safety_gate import review_only
-from reports.plot_3d import write_3d_plot
-from reports.report_writer import build_markdown_report, write_markdown_report
+from application.gateway.safety_gate import review_only
+from diagnostics.report.plot_3d import write_3d_plot
+from diagnostics.report.report_writer import build_markdown_report, write_markdown_report
 
 ROOT = Path(__file__).resolve().parents[1]
 BENCH = ROOT / "bench/sim_robot_arm"

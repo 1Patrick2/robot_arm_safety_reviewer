@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from runtime_db.repository import RuntimeMetricsRepository
-from runtime_db.schema import init_runtime_db
+from diagnostics.storage.repository import RuntimeMetricsRepository
+from diagnostics.storage.schema import init_runtime_db
 
 
 def _safe_float(val: Any) -> float | None:

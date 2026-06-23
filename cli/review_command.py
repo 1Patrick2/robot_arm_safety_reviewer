@@ -6,7 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
-from gateway.safety_gate import review_only
+from application.gateway.safety_gate import review_only
 
 
 def main() -> None:

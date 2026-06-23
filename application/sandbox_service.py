@@ -10,8 +10,8 @@ from application.sequence_runtime_service import (
     SequenceRuntimeResult,
     run_sequence_runtime,
 )
-from reports.runtime_episode_report import write_runtime_episode_report
-from reports.runtime_visual_report import write_clearance_curve, write_trajectory_overview
+from diagnostics.report.runtime_episode_report import write_runtime_episode_report
+from diagnostics.report.runtime_visual_report import write_clearance_curve, write_trajectory_overview
 
 
 @dataclass(frozen=True)
@@ -100,7 +100,7 @@ def run_sandbox(request: SandboxRunRequest) -> SandboxRunResult:
     # 5. optionally ingest into metrics database
     metrics_summary: dict[str, Any] | None = None
     if request.metrics_db is not None:
-        from runtime_db.episode_ingest import ingest_episode  # noqa: PLC0415
+        from diagnostics.storage.episode_ingest import ingest_episode  # noqa: PLC0415
         metrics_summary = ingest_episode(request.metrics_db, episode_dir)
 
     return SandboxRunResult(

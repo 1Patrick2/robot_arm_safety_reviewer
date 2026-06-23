@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from runtime_db.repository import RuntimeMetricsRepository
-from runtime_db.schema import init_runtime_db
+from diagnostics.storage.repository import RuntimeMetricsRepository
+from diagnostics.storage.schema import init_runtime_db
 
 
 def _repo(tmp_path) -> RuntimeMetricsRepository:
