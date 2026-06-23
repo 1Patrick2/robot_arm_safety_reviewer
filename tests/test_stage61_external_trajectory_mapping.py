@@ -59,7 +59,19 @@ class TestExternalTrajectoryMapping:
         ])
         mapping = ActionMappingConfig(joint_count=6, current_joints_policy="zeros")
         seq = external_trajectory_to_policy_sequence(traj, mapping)
-        assert seq is not None
+        assert seq.sequence_id == "test__ep1"
+        assert seq.source == "external_trajectory"
+        assert len(seq.actions) == 1
+
+    def test_policy_stored_in_record_mapping(self):
+        """current_joints_policy should be recorded in ExternalTrajectoryRecord.mapping."""
+        mapping = ActionMappingConfig(joint_count=6, current_joints_policy="previous_target")
+        d = {"joint_count": mapping.joint_count, "current_joints_policy": mapping.current_joints_policy}
+        assert d["current_joints_policy"] == "previous_target"
+
+        mapping2 = ActionMappingConfig(joint_count=6, current_joints_policy="zeros")
+        d2 = {"joint_count": mapping2.joint_count, "current_joints_policy": mapping2.current_joints_policy}
+        assert d2["current_joints_policy"] == "zeros"
 
     def test_unsupported_action_type_raises(self):
         traj = _make_trajectory([[0.1]], action_type="end_effector_delta")

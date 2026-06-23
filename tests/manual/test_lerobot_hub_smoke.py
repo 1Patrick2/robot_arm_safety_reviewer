@@ -28,6 +28,9 @@ def test_load_lerobot_hub_episode():
         ActionMappingConfig,
         external_trajectory_to_policy_sequence,
     )
-    mapping = ActionMappingConfig(joint_count=len(traj.frames[0].action))
+    mapping = ActionMappingConfig(
+        joint_count=len(traj.frames[0].action),
+        source_action_type=traj.action_type,
+    )
     seq = external_trajectory_to_policy_sequence(traj, mapping)
     assert len(seq.actions) == len(traj.frames)

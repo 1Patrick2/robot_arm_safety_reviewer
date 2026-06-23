@@ -59,7 +59,7 @@ def load_lerobot_hub_episode(
         frames.append(ExternalActionFrame(
             step_index=fi,
             action=action_tuple,
-            action_type="joint_position_6d",
+            action_type="joint_position",
             source="lerobot_hub",
             timestamp=float(fi),
         ))
@@ -67,7 +67,7 @@ def load_lerobot_hub_episode(
     return ExternalTrajectory(
         dataset_name=repo_id.replace("/", "_"),
         episode_id=f"episode_{episode_index:06d}",
-        action_type="joint_position_6d",
+        action_type="joint_position",
         frames=tuple(frames),
         robot_name=repo_id.split("/")[-1] if "/" in repo_id else repo_id,
         metadata={
