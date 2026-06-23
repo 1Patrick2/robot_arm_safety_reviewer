@@ -42,7 +42,7 @@ def call_llm_diagnostic_analysis(
         base_url = os.environ.get("OPENAI_COMPATIBLE_BASE_URL", "https://api.deepseek.com")
         if not model:
             model = "deepseek-chat"
-    elif provider == "openai-compatible":
+    elif provider in ("openai-compatible", "openai"):
         api_key = os.environ.get("OPENAI_API_KEY")
         base_url = os.environ.get("OPENAI_COMPATIBLE_BASE_URL", "https://api.openai.com/v1")
         if not model:

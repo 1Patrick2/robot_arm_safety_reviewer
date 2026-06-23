@@ -160,7 +160,7 @@ def main() -> None:
             fused_decision=fused_decision, fused_risk_level=fused_risk_level,
             dataset_name=traj.dataset_name,
         )
-    elif not args.skip_llm and args.llm_provider in ("deepseek", "openai-compatible"):
+    elif not args.skip_llm and args.llm_provider in ("deepseek", "openai-compatible", "openai"):
         from diagnostics.analysis.llm_client import call_llm_diagnostic_analysis  # noqa: PLC0415
         context_data = json.loads(ctx.read_text(encoding="utf-8"))
         manifest_data = json.loads(manifest_path.read_text(encoding="utf-8"))

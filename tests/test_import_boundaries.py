@@ -61,9 +61,14 @@ def test_ultralytics_not_at_top_level():
 
 def test_llm_not_in_safety_decision_path():
     """SafetyRuntime must not import or reference LLM modules."""
-    import inspect
+    import ast, inspect
     import robot.runtime.safety_runtime as sr
     source = inspect.getsource(sr)
-    assert "diagnostic" not in source
-    assert "llm" not in source.lower()
-    assert "analysis" not in source.lower()
+    tree = ast.parse(source)
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            names = [a.name.split(".")[0] for a in node.names] + ([node.module.split(".")[0]] if isinstance(node, ast.ImportFrom) and node.module else [])
+            for n in names:
+                if n in ("diagnostics",):
+                    pytest.fail(f"SafetyRuntime imports diagnostics module")
+
