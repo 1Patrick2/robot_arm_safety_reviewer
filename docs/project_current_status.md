@@ -2,7 +2,8 @@
 
 Current functional status:
 
-- Completed through Stage 5.4-A.
+- Stage 5.4-B2 Real YOLO / ONNX Perception Smoke Loop — complete.
+- v0.1 portfolio-ready (polish complete, ready for merge).
 
 Current architecture refactor status:
 

@@ -75,6 +75,11 @@ class UltralyticsYoloAdapter:
                 continue
             names = result.names if hasattr(result, "names") else {}
             boxes_data = result.boxes.data  # shape (N, 6) — xyxy, conf, cls
+            # Ensure compatibility across GPU / CPU / different Ultralytics versions
+            if hasattr(boxes_data, "cpu"):
+                boxes_data = boxes_data.cpu()
+            if hasattr(boxes_data, "numpy"):
+                boxes_data = boxes_data.numpy()
 
             for bi in range(boxes_data.shape[0]):
                 row = boxes_data[bi]
@@ -91,7 +96,7 @@ class UltralyticsYoloAdapter:
                     continue
 
                 zone = self._default_zone_by_class.get(class_name)
-                obj_id = f"{class_name}_{bi}"
+                obj_id = f"{class_name}_{ri}_{bi}"
 
                 detections.append(PerceptionDetection(
                     object_id=obj_id,

@@ -30,6 +30,16 @@ def main() -> None:
     parser.add_argument("--frame-id", default="frame_000001")
     args = parser.parse_args()
 
+    # Validate inputs
+    model_path = Path(args.model)
+    image_path = Path(args.image)
+    if not model_path.exists():
+        print(f"Error: model not found: {model_path}", file=sys.stderr)
+        sys.exit(1)
+    if not image_path.exists():
+        print(f"Error: image not found: {image_path}", file=sys.stderr)
+        sys.exit(1)
+
     # Lazy imports for optional dependency
     try:
         from perception.adapters.ultralytics_yolo_adapter import UltralyticsYoloAdapter  # noqa: PLC0415
@@ -46,7 +56,7 @@ def main() -> None:
 
     # Build adapter
     adapter = UltralyticsYoloAdapter(
-        args.model,
+        model_path,
         confidence_threshold=args.confidence,
         default_zone_by_class={"person": args.person_zone},
     )

@@ -17,8 +17,8 @@ The project started as `RobotArmSafetyReviewer`. It is still a safety reviewer, 
 
 ## Current Status
 
-Current stage: **Stage 5.4-A Perception Model Adapter Protocol — complete**.
-Next possible stage: **Stage 5.4-B Optional ONNX Adapter Skeleton**.
+Current stage: **Stage 5.4-B2 Real YOLO / ONNX Perception Smoke Loop — complete**.
+Next possible stage: **v0.1 portfolio-ready (polish complete, ready for merge)**.
 
 Completed scope:
 
@@ -56,6 +56,8 @@ Completed scope:
 - Stage 5.2-polish: fusion edge-case coverage.
 - Stage 5.3A: perception-aware regression fixtures and focused tests.
 - Stage 5.4A: perception model adapter protocol (`PerceptionInferenceRequest`, `PerceptionModelAdapter`, `FakePerceptionModelAdapter`).
+- Stage 5.4B: perception inference evidence bridge (`PerceptionInferenceRecord`, `run_perception_inference`, manifest perception group).
+- Stage 5.4C: optional real YOLO / ONNX smoke loop (`UltralyticsYoloAdapter`, contract tests, manual smoke).
 
 ## Safety Boundary
 
